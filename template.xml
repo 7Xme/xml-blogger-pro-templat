@@ -63,6 +63,18 @@ nav a:hover { color: #dc143c; transform: translateY(-2px); }
 nav a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%; background: #dc143c; transition: all 0.3s ease; }
 nav a:hover::after { width: 100%; left: 0; }
 
+.hamburger {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #000;
+  margin-left: auto;
+}
+
+#nav-toggle {
+  display: none;
+}
+
 /* Main Section */
 .main { padding: 60px 0; background: rgba(255, 255, 255, 0.05); } /* Added background to main section */
 /* .post styles moved inside the widget for specificity */
@@ -82,7 +94,7 @@ nav a:hover::after { width: 100%; left: 0; }
 
 /* Contact Section */
 .contact { background: linear-gradient(135deg, #000 0%, #333 100%); color: #fff; padding: 80px 0; border-radius: 20px; margin: 20px 0; position: relative; overflow: hidden; }
-.contact::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.05); backdrop-filter: blur(0px); z-index: 1; }
+.contact::before {  position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.05); backdrop-filter: blur(0px); z-index: 1; }
 .contact > .container { position: relative; z-index: 2; }
 .contact h2 { margin-bottom: 50px; font-size: 2.5em; font-weight: 700; }
 .contact-content { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; max-width: 1200px; margin: 0 auto; }
@@ -129,7 +141,31 @@ footer p { margin: 0; font-weight: 300; }
 /* Responsive Design */
 @media (max-width: 768px) {
   header h1 { font-size: 2em; }
-  nav ul { flex-direction: column; gap: 15px; }
+  .hamburger { display: block; }
+  nav {
+    position: relative;
+  }
+  nav ul {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+  #nav-toggle:checked ~ nav ul {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
   .project-grid { grid-template-columns: 1fr; }
   .skills-grid { grid-template-columns: 1fr; }
   .container { padding: 0 15px; }
@@ -139,6 +175,7 @@ footer p { margin: 0; font-weight: 300; }
   .contact-info { text-align: center; }
   .contact-item { justify-content: center; }
   .contact-form { padding: 30px 20px; }
+  .main .posts-grid { grid-template-columns: 1fr; }
 }
   ]]>
   </b:skin>
@@ -153,6 +190,8 @@ footer p { margin: 0; font-weight: 300; }
 <body>
   <header class='container'>
     <h1><data:blog.title/></h1>
+    <input type='checkbox' id='nav-toggle'/>
+    <label for='nav-toggle' class='hamburger'>&#9776;</label>
     <nav>
       <ul>
         <li><a href='/'>Home</a></li>
@@ -308,25 +347,27 @@ footer p { margin: 0; font-weight: 300; }
         <b:else/>
           <!-- List view -->
           <div class='container'>
-            <b:loop values='data:posts' var='post'>
-              <article class='post hentry' expr:onclick='"window.location.href=\"" + data:post.url + "\";"'>
-                <b:if cond='data:post.thumbnailUrl'>
-                  <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
-                </b:if>
-                <h2 class='post-title entry-title'><a expr:href='data:post.url' rel='bookmark'><data:post.title/></a></h2>
-                <div expr:class='"post-body entry-content " + data:post.id'>
-                  <data:post.snippet/>
-                </div>
-                <b:if cond='data:post.labels'>
-                  <div class='post-labels'>
-                    <b:loop values='data:post.labels' var='label'>
-                      <a expr:href='data:label.url' rel='tag'><data:label.name/></a>
-                      <b:if cond='data:label.isLast != "true"'>, </b:if>
-                    </b:loop>
+            <div class='posts-grid'>
+              <b:loop values='data:posts' var='post'>
+                <article class='post hentry' expr:onclick='"window.location.href=\"" + data:post.url + "\";"'>
+                  <b:if cond='data:post.thumbnailUrl'>
+                    <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
+                  </b:if>
+                  <h2 class='post-title entry-title'><a expr:href='data:post.url' rel='bookmark'><data:post.title/></a></h2>
+                  <div expr:class='"post-body entry-content " + data:post.id'>
+                    <data:post.snippet/>
                   </div>
-                </b:if>
-              </article>
-            </b:loop>
+                  <b:if cond='data:post.labels'>
+                    <div class='post-labels'>
+                      <b:loop values='data:post.labels' var='label'>
+                        <a expr:href='data:label.url' rel='tag'><data:label.name/></a>
+                        <b:if cond='data:label.isLast != "true"'>, </b:if>
+                      </b:loop>
+                    </div>
+                  </b:if>
+                </article>
+              </b:loop>
+            </div>
           </div>
         </b:if>
         <style type='text/css'>
@@ -370,6 +411,11 @@ footer p { margin: 0; font-weight: 300; }
           .main .post-body {
             color: #333;
             line-height: 1.6;
+          }
+          .main .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
           }
           .main .post-labels {
             margin-top: 15px;
