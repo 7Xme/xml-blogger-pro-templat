@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word Converter</title>
+    <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        .convert-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .convert-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .convert-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+            display: none;
+        }
+        .download-btn {
+            background: #007bff;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .instructions ul {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>PDF to Word Converter</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".pdf">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop PDF file here or click to browse</div>
+                <div class="upload-subtext">Supports single PDF file</div>
+            </div>
+        </div>
+
+        <div class="convert-section">
+            <button class="convert-btn" id="convertBtn" disabled>Convert to Word</button>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Extracting text from PDF...</div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="download-section" id="downloadSection">
+            <button class="download-btn" id="downloadBtn">Download Word Document</button>
+        </div>
+
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <ul>
+                <li>Upload a PDF file using the upload area</li>
+                <li>Click "Convert to Word" to extract text and create a Word document</li>
+                <li>Download the generated .docx file</li>
+                <li>Note: Complex formatting may not be preserved</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Document, Packer, Paragraph, TextRun } from 'https://cdn.skypack.dev/docx@8.5.0';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set PDF.js worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+            // DOM elements
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const convertBtn = document.getElementById('convertBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const statusDiv = document.getElementById('status');
+            const downloadSection = document.getElementById('downloadSection');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            let pdfFile = null;
+            let docxBlob = null;
+
+        // Event listeners
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+        convertBtn.addEventListener('click', convertToWord);
+        downloadBtn.addEventListener('click', downloadDocx);
+
+        function handleFileSelect(event) {
+            const selectedFile = event.target.files[0];
+            if (selectedFile && selectedFile.type === 'application/pdf') {
+                pdfFile = selectedFile;
+                updateConvertButton();
+                showStatus(`${selectedFile.name} uploaded successfully.`, 'success');
+            } else {
+                showStatus('Please select a valid PDF file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const droppedFile = event.dataTransfer.files[0];
+            if (droppedFile && droppedFile.type === 'application/pdf') {
+                pdfFile = droppedFile;
+                updateConvertButton();
+                showStatus(`${droppedFile.name} uploaded successfully.`, 'success');
+            } else {
+                showStatus('Please drop a valid PDF file.', 'error');
+            }
+        }
+
+        function updateConvertButton() {
+            convertBtn.disabled = !pdfFile;
+        }
+
+        async function convertToWord() {
+            if (!pdfFile) {
+                showStatus('Please upload a PDF file first.', 'error');
+                return;
+            }
+
+            convertBtn.disabled = true;
+            convertBtn.textContent = 'Converting...';
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Loading PDF...';
+            downloadSection.style.display = 'none';
+            docxBlob = null;
+
+            try {
+                // Extract text from PDF
+                const textContent = await extractTextFromPDF(pdfFile);
+                progressText.textContent = 'Creating Word document...';
+
+                // Create docx
+                docxBlob = await createDocx(textContent);
+
+                progressContainer.style.display = 'none';
+                showStatus('Conversion completed successfully!', 'success');
+                downloadSection.style.display = 'block';
+
+            } catch (error) {
+                console.error('Conversion error:', error);
+                showStatus('Error converting PDF: ' + error.message, 'error');
+                progressContainer.style.display = 'none';
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.textContent = 'Convert to Word';
+            }
+        }
+
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+            let fullText = '';
+            const numPages = pdf.numPages;
+
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                progressText.textContent = `Extracting text from page ${pageNum}...`;
+                const page = await pdf.getPage(pageNum);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n\n';
+
+                // Update progress
+                const progress = (pageNum / numPages) * 50; // First 50% for extraction
+                progressFill.style.width = progress + '%';
+            }
+
+            return fullText;
+        }
+
+        async function createDocx(textContent) {
+            const doc = new Document({
+                sections: [{
+                    properties: {},
+                    children: [
+                        new Paragraph({
+                            children: [
+                                new TextRun({
+                                    text: textContent,
+                                    font: "Arial",
+                                    size: 24,
+                                }),
+                            ],
+                        }),
+                    ],
+                }],
+            });
+
+            const buffer = await Packer.toBuffer(doc);
+            return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        }
+
+        function downloadDocx() {
+            if (!docxBlob) return;
+
+            const url = URL.createObjectURL(docxBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${pdfFile.name.replace('.pdf', '')}.docx`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Clear file input after selection
+        fileInput.addEventListener('click', function() {
+            this.value = '';
+        });
+        });
+    </script>
+</body>
+</html>

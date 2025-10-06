@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Format Converter</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.02);
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #dc143c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .images-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .image-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .image-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .original-format, .converted-format {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+        .original-format {
+            background: #ffc107;
+            color: #000;
+        }
+        .converted-format {
+            background: #28a745;
+            color: white;
+        }
+        .download-all-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .download-all-btn:hover {
+            background: #0056b3;
+            transform: scale(1.02);
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .images-container {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>Image Format Converter</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="imageFiles">Select Images:</label>
+                <input type="file" id="imageFiles" accept="image/*" multiple>
+            </div>
+
+            <div class="control-group">
+                <label for="outputFormat">Output Format:</label>
+                <select id="outputFormat">
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WebP</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="quality">Quality: <span id="qualityValue">90</span>%</label>
+                <input type="range" id="quality" min="10" max="100" value="90">
+                <div class="value-display">Higher quality = larger file size (JPEG/WebP only)</div>
+            </div>
+        </div>
+
+        <button id="convertBtn">Convert Images</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;">Converting images...</div>
+        </div>
+
+        <button class="download-all-btn" id="downloadAllBtn" style="display: none;">Download All Converted Images (ZIP)</button>
+
+        <div class="images-container" id="imagesContainer"></div>
+    </div>
+
+    <script>
+        // DOM elements
+        const imageFiles = document.getElementById('imageFiles');
+        const outputFormatSelect = document.getElementById('outputFormat');
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const imagesContainer = document.getElementById('imagesContainer');
+
+        let convertedImages = [];
+
+        // Update quality value display
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = qualitySlider.value;
+        });
+
+        // Convert button event
+        convertBtn.addEventListener('click', convertImages);
+
+        async function convertImages() {
+            const files = imageFiles.files;
+            if (!files.length) {
+                alert('Please select at least one image file.');
+                return;
+            }
+
+            progressContainer.style.display = 'block';
+            imagesContainer.innerHTML = '';
+            convertedImages = [];
+            downloadAllBtn.style.display = 'none';
+            convertBtn.disabled = true;
+            convertBtn.textContent = 'Converting...';
+
+            const outputFormat = outputFormatSelect.value;
+            const quality = qualitySlider.value / 100;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    const convertedImage = await convertImageFormat(file, outputFormat, quality);
+                    displayImage(convertedImage, file, outputFormat);
+
+                    // Update progress
+                    const progress = ((i + 1) / files.length) * 100;
+                    progressFill.style.width = progress + '%';
+                } catch (error) {
+                    console.error('Error converting image:', error);
+                    alert(`Error processing ${file.name}: ${error.message}`);
+                }
+            }
+
+            progressContainer.style.display = 'none';
+            convertBtn.disabled = false;
+            convertBtn.textContent = 'Convert Images';
+            downloadAllBtn.style.display = 'block';
+        }
+
+        async function convertImageFormat(file, outputFormat, quality) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                img.onload = () => {
+                    const { naturalWidth: width, naturalHeight: height } = img;
+
+                    // Set canvas dimensions
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Draw image
+                    ctx.drawImage(img, 0, 0);
+
+                    // Convert to blob
+                    canvas.toBlob(resolve, `image/${outputFormat}`, outputFormat === 'png' ? undefined : quality);
+                };
+
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function displayImage(blob, originalFile, outputFormat) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const imageUrl = reader.result;
+
+                const card = document.createElement('div');
+                card.className = 'image-card';
+
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `Converted ${originalFile.name}`;
+
+                const info = document.createElement('div');
+                info.className = 'image-info';
+
+                const originalFormat = document.createElement('span');
+                originalFormat.className = 'original-format';
+                originalFormat.textContent = `Original: ${getFileExtension(originalFile.name).toUpperCase()}`;
+
+                const convertedFormat = document.createElement('span');
+                convertedFormat.className = 'converted-format';
+                convertedFormat.textContent = `Converted: ${outputFormat.toUpperCase()}`;
+
+                info.appendChild(originalFormat);
+                info.appendChild(convertedFormat);
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = imageUrl;
+                    const extension = outputFormat;
+                    link.download = `${originalFile.name.replace(/\.[^/.]+$/, '')}_converted.${extension}`;
+                    link.click();
+                };
+
+                card.appendChild(img);
+                card.appendChild(info);
+                card.appendChild(downloadBtn);
+
+                imagesContainer.appendChild(card);
+                convertedImages.push({ url: imageUrl, name: `${originalFile.name.replace(/\.[^/.]+$/, '')}_converted.${outputFormat}` });
+            };
+            reader.readAsDataURL(blob);
+        }
+
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
+
+        // Download all (simplified - download each)
+        downloadAllBtn.addEventListener('click', () => {
+            convertedImages.forEach((image, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = image.url;
+                    link.download = image.name;
+                    link.click();
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
