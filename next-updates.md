@@ -62,8 +62,8 @@
 ### Planned Enhancements
 - [ ] 
 - [ ] 
-- [ ] Add social media sharing buttons
-- [ ] Create admin dashboard for easy customization
+- [ ] 
+- [ ] 
 - [ ] Add Google Analytics integration
 - [ ] Implement search functionality
 - [ ] Add comment system integration

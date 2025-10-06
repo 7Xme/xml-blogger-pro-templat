@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+        .settings-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dc143c;
+        }
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"], input[type="url"], input[type="color"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .color-inputs {
+            display: flex;
+            gap: 10px;
+        }
+        .color-inputs > div {
+            flex: 1;
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+            margin-top: 20px;
+        }
+        .preview-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #5a6268;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Portfolio Admin Dashboard</h1>
+
+        <div class="dashboard-grid">
+            <div class="settings-section">
+                <div class="section-title">General Settings</div>
+
+                <div class="setting-group">
+                    <label for="siteTitle">Site Title</label>
+                    <input type="text" id="siteTitle" placeholder="Your Portfolio">
+                </div>
+
+                <div class="setting-group">
+                    <label for="siteDescription">Site Description</label>
+                    <textarea id="siteDescription" placeholder="Brief description of your portfolio"></textarea>
+                </div>
+
+                <div class="setting-group">
+                    <label for="profileImage">Profile Image URL</label>
+                    <input type="url" id="profileImage" placeholder="https://example.com/profile.jpg">
+                </div>
+
+                <div class="setting-group">
+                    <label for="heroTitle">Hero Title</label>
+                    <input type="text" id="heroTitle" placeholder="Hi, I'm Your Name">
+                </div>
+
+                <div class="setting-group">
+                    <label for="heroSubtitle">Hero Subtitle</label>
+                    <textarea id="heroSubtitle" placeholder="Full-Stack Web and Mobile App Developer..."></textarea>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="section-title">Theme Settings</div>
+
+                <div class="setting-group">
+                    <label>Primary Colors</label>
+                    <div class="color-inputs">
+                        <div>
+                            <label for="primaryColor">Primary</label>
+                            <input type="color" id="primaryColor" value="#dc143c">
+                        </div>
+                        <div>
+                            <label for="secondaryColor">Secondary</label>
+                            <input type="color" id="secondaryColor" value="#b22222">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label for="defaultTheme">Default Theme</label>
+                    <select id="defaultTheme">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label>Contact Information</label>
+                    <input type="email" id="contactEmail" placeholder="your.email@example.com">
+                    <input type="tel" id="contactPhone" placeholder="+1 (123) 456-7890" style="margin-top: 10px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="preview-title">Preview</div>
+            <div id="settingsPreview">
+                <strong>Settings will be applied to your Blogger template</strong>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" id="saveBtn">Save Settings</button>
+            <button class="btn secondary" id="loadBtn">Load Current Settings</button>
+            <button class="btn secondary" id="resetBtn">Reset to Default</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // DOM elements
+        const saveBtn = document.getElementById('saveBtn');
+        const loadBtn = document.getElementById('loadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusDiv = document.getElementById('status');
+
+        // Load current settings on page load
+        document.addEventListener('DOMContentLoaded', loadSettings);
+
+        // Event listeners
+        saveBtn.addEventListener('click', saveSettings);
+        loadBtn.addEventListener('click', loadSettings);
+        resetBtn.addEventListener('click', resetSettings);
+
+        function saveSettings() {
+            const settings = {
+                siteTitle: document.getElementById('siteTitle').value,
+                siteDescription: document.getElementById('siteDescription').value,
+                profileImage: document.getElementById('profileImage').value,
+                heroTitle: document.getElementById('heroTitle').value,
+                heroSubtitle: document.getElementById('heroSubtitle').value,
+                primaryColor: document.getElementById('primaryColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                defaultTheme: document.getElementById('defaultTheme').value,
+                contactEmail: document.getElementById('contactEmail').value,
+                contactPhone: document.getElementById('contactPhone').value
+            };
+
+            localStorage.setItem('portfolioSettings', JSON.stringify(settings));
+            showStatus('Settings saved successfully! Refresh your Blogger site to see changes.', 'success');
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('portfolioSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                document.getElementById('siteTitle').value = settings.siteTitle || '';
+                document.getElementById('siteDescription').value = settings.siteDescription || '';
+                document.getElementById('profileImage').value = settings.profileImage || '';
+                document.getElementById('heroTitle').value = settings.heroTitle || '';
+                document.getElementById('heroSubtitle').value = settings.heroSubtitle || '';
+                document.getElementById('primaryColor').value = settings.primaryColor || '#dc143c';
+                document.getElementById('secondaryColor').value = settings.secondaryColor || '#b22222';
+                document.getElementById('defaultTheme').value = settings.defaultTheme || 'dark';
+                document.getElementById('contactEmail').value = settings.contactEmail || '';
+                document.getElementById('contactPhone').value = settings.contactPhone || '';
+
+                updatePreview();
+                showStatus('Settings loaded from local storage.', 'success');
+            } else {
+                showStatus('No saved settings found.', 'error');
+            }
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to default?')) {
+                localStorage.removeItem('portfolioSettings');
+                // Reset form fields
+                document.getElementById('siteTitle').value = '';
+                document.getElementById('siteDescription').value = '';
+                document.getElementById('profileImage').value = '';
+                document.getElementById('heroTitle').value = '';
+                document.getElementById('heroTitle').value = '';
+                document.getElementById('heroSubtitle').value = '';
+                document.getElementById('primaryColor').value = '#dc143c';
+                document.getElementById('secondaryColor').value = '#b22222';
+                document.getElementById('defaultTheme').value = 'dark';
+                document.getElementById('contactEmail').value = '';
+                document.getElementById('contactPhone').value = '';
+
+                showStatus('Settings reset to default.', 'success');
+            }
+        }
+
+        function updatePreview() {
+            // Could add a live preview here
+            const settingsPreview = document.getElementById('settingsPreview');
+            settingsPreview.innerHTML = '<strong>Settings will be applied to your Blogger template when you save and refresh.</strong>';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auto-save on input change (optional)
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('input', updatePreview);
+        });
+    </script>
+</body>
+</html>

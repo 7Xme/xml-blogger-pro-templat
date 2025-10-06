@@ -256,7 +256,7 @@ footer p { margin: 0; font-weight: 300; }
         <b:includable id='main'>
           <div class='container'>
             <div class='hero-content'>
-              <img class='profile-pic' src='https://via.placeholder.com/150' alt='Your Name'/><!-- Replace with your actual image URL -->
+              <img class='profile-pic' src='https://via.placeholder.com/150' alt='Your Name' loading='lazy'/><!-- Replace with your actual image URL -->
               <h2>Hi, I'm <data:blog.title/></h2>
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
@@ -331,19 +331,19 @@ footer p { margin: 0; font-weight: 300; }
           <h2>My Projects</h2>
           <div class='project-grid'>
             <div class='project-card'>
-              <img src='project1.jpg' alt='Project 1'/> <!-- Replace with actual image -->
+              <img src='project1.jpg' alt='Project 1' loading='lazy'/> <!-- Replace with actual image -->
               <h3>E-commerce App</h3>
               <p>A full-stack e-commerce platform with payment integration.</p>
               <a href='#'>View Project</a>
             </div>
             <div class='project-card'>
-              <img src='project2.jpg' alt='Project 2'/> <!-- Replace with actual image -->
+              <img src='project2.jpg' alt='Project 2' loading='lazy'/> <!-- Replace with actual image -->
               <h3>Mobile Chat App</h3>
               <p>Real-time messaging app built with React Native.</p>
               <a href='#'>View Project</a>
             </div>
             <div class='project-card'>
-              <img src='project3.jpg' alt='Project 3'/> <!-- Replace with actual image -->
+              <img src='project3.jpg' alt='Project 3' loading='lazy'/> <!-- Replace with actual image -->
               <h3>Portfolio Website</h3>
               <p>Responsive portfolio site showcasing my work.</p>
               <a href='#'>View Project</a>
@@ -366,7 +366,7 @@ footer p { margin: 0; font-weight: 300; }
             <b:loop values='data:posts' var='post'>
               <article class='post hentry'>
                 <b:if cond='data:post.thumbnailUrl'>
-                  <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
+                  <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail' loading='lazy'/>
                 </b:if>
                 <h2 class='post-title entry-title'><data:post.title/></h2>
                 <div expr:class='"post-body entry-content " + data:post.id'>
@@ -390,7 +390,7 @@ footer p { margin: 0; font-weight: 300; }
               <b:loop values='data:posts' var='post'>
                 <article class='post hentry' expr:onclick='"window.location.href=\"" + data:post.url + "\";"'>
                   <b:if cond='data:post.thumbnailUrl'>
-                    <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
+                    <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail' loading='lazy'/>
                   </b:if>
                   <h2 class='post-title entry-title'><a expr:href='data:post.url' rel='bookmark'><data:post.title/></a></h2>
                   <div expr:class='"post-body entry-content " + data:post.id'>
@@ -468,6 +468,43 @@ footer p { margin: 0; font-weight: 300; }
           .main .post-labels a:hover {
             text-decoration: underline;
           }
+
+          /* Social Sharing */
+          .post-share {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #dadde0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+          .share-label {
+            font-weight: 600;
+            color: #333;
+            margin-right: 10px;
+          }
+          .share-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+          }
+          .share-btn:hover {
+            transform: scale(1.1);
+          }
+          .facebook { background: #1877f2; }
+          .twitter { background: #1da1f2; }
+          .linkedin { background: #0077b5; }
+          .whatsapp { background: #25d366; }
+          .copy-link { background: #6c757d; }
         </style>
       </b:includable>
     </b:widget>
@@ -555,6 +592,43 @@ footer p { margin: 0; font-weight: 300; }
       localStorage.setItem('theme', newTheme === 'light' ? 'light' : 'dark');
       themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
     });
+
+    // Copy post URL function
+    window.copyPostUrl = function(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        // Could show a toast notification
+        alert('Link copied to clipboard!');
+      });
+    };
+
+    // Load custom settings from localStorage
+    function loadCustomSettings() {
+      const settings = localStorage.getItem('portfolioSettings');
+      if (settings) {
+        const data = JSON.parse(settings);
+
+        // Apply theme colors
+        if (data.primaryColor) {
+          document.documentElement.style.setProperty('--accent', data.primaryColor);
+        }
+        if (data.secondaryColor) {
+          // Could add secondary color variable
+        }
+
+        // Apply default theme
+        if (data.defaultTheme === 'light') {
+          body.setAttribute('data-theme', 'light');
+          themeToggle.textContent = '☀️';
+          localStorage.setItem('theme', 'light');
+        }
+
+        // Apply custom text (would need to modify HTML elements)
+        // This is limited in Blogger templates, but could work for some elements
+      }
+    }
+
+    // Load settings on page load
+    loadCustomSettings();
   </script>
 </body>
 </html>
