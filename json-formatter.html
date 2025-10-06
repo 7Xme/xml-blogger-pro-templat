@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Formatter & Validator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .json-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #555;
+        }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .example-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #5a6268;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            font-size: 14px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .json-container {
+                padding: 20px;
+            }
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                justify-content: center;
+            }
+            .stats {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="json-container">
+        <h1>JSON Formatter & Validator</h1>
+
+        <div class="controls">
+            <button id="formatBtn">Format JSON</button>
+            <button id="minifyBtn">Minify JSON</button>
+            <button id="validateBtn">Validate Only</button>
+            <button id="clearBtn">Clear All</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="editor-container">
+            <div class="input-section">
+                <div class="section-header">
+                    <div class="section-title">Input JSON</div>
+                    <button class="copy-btn" id="copyInput">Copy</button>
+                </div>
+                <textarea id="inputJson" placeholder="Paste your JSON here..."></textarea>
+                <div class="stats" id="inputStats"></div>
+            </div>
+
+            <div class="output-section">
+                <div class="section-header">
+                    <div class="section-title">Output JSON</div>
+                    <button class="copy-btn" id="copyOutput">Copy</button>
+                </div>
+                <textarea id="outputJson" placeholder="Formatted JSON will appear here..." readonly></textarea>
+                <div class="stats" id="outputStats"></div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>Quick Examples:</h3>
+            <button class="example-btn" onclick="loadExample('simple')">Simple Object</button>
+            <button class="example-btn" onclick="loadExample('array')">Array</button>
+            <button class="example-btn" onclick="loadExample('nested')">Nested Object</button>
+            <button class="example-btn" onclick="loadExample('api')">API Response</button>
+            <button class="example-btn" onclick="loadExample('config')">Config File</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const inputJson = document.getElementById('inputJson');
+        const outputJson = document.getElementById('outputJson');
+        const statusDiv = document.getElementById('status');
+        const formatBtn = document.getElementById('formatBtn');
+        const minifyBtn = document.getElementById('minifyBtn');
+        const validateBtn = document.getElementById('validateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyInput = document.getElementById('copyInput');
+        const copyOutput = document.getElementById('copyOutput');
+        const inputStats = document.getElementById('inputStats');
+        const outputStats = document.getElementById('outputStats');
+
+        // Event listeners
+        formatBtn.addEventListener('click', () => processJSON('format'));
+        minifyBtn.addEventListener('click', () => processJSON('minify'));
+        validateBtn.addEventListener('click', () => processJSON('validate'));
+        clearBtn.addEventListener('click', clearAll);
+        copyInput.addEventListener('click', () => copyToClipboard(inputJson.value));
+        copyOutput.addEventListener('click', () => copyToClipboard(outputJson.value));
+
+        // Auto-process on input (debounced)
+        let timeout;
+        inputJson.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                if (inputJson.value.trim()) {
+                    processJSON('format');
+                }
+            }, 1000);
+        });
+
+        function processJSON(action) {
+            const input = inputJson.value.trim();
+            if (!input) {
+                showStatus('Please enter some JSON to process.', 'info');
+                return;
+            }
+
+            try {
+                // Parse JSON to validate
+                const parsed = JSON.parse(input);
+
+                // Update input stats
+                updateStats(inputStats, input);
+
+                if (action === 'validate') {
+                    showStatus('✓ JSON is valid!', 'success');
+                    outputJson.value = '';
+                    updateStats(outputStats, '');
+                    return;
+                }
+
+                // Format or minify
+                const options = action === 'format' ? { indent: 2 } : {};
+                const result = JSON.stringify(parsed, null, options.indent);
+
+                outputJson.value = result;
+                updateStats(outputStats, result);
+
+                const actionText = action === 'format' ? 'formatted' : 'minified';
+                showStatus(`✓ JSON ${actionText} successfully!`, 'success');
+
+            } catch (error) {
+                showStatus(`✗ Invalid JSON: ${error.message}`, 'error');
+                outputJson.value = '';
+                updateStats(outputStats, '');
+            }
+        }
+
+        function updateStats(statsDiv, text) {
+            if (!text) {
+                statsDiv.innerHTML = '';
+                return;
+            }
+
+            const chars = text.length;
+            const lines = text.split('\n').length;
+            const words = text.trim().split(/\s+/).length;
+
+            statsDiv.innerHTML = `
+                <span class="stat">Characters: ${chars}</span>
+                <span class="stat">Lines: ${lines}</span>
+                <span class="stat">Words: ${words}</span>
+            `;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearAll() {
+            inputJson.value = '';
+            outputJson.value = '';
+            statusDiv.style.display = 'none';
+            updateStats(inputStats, '');
+            updateStats(outputStats, '');
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showStatus('✓ Copied to clipboard!', 'success');
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('✓ Copied to clipboard!', 'success');
+            }
+        }
+
+        // Example JSON loaders
+        function loadExample(type) {
+            let json = '';
+
+            switch (type) {
+                case 'simple':
+                    json = `{
+  "name": "John Doe",
+  "age": 30,
+  "email": "john@example.com",
+  "active": true
+}`;
+                    break;
+                case 'array':
+                    json = `[
+  {
+    "id": 1,
+    "name": "Item 1",
+    "price": 10.99
+  },
+  {
+    "id": 2,
+    "name": "Item 2",
+    "price": 15.49
+  }
+]`;
+                    break;
+                case 'nested':
+                    json = `{
+  "company": "Tech Corp",
+  "employees": [
+    {
+      "name": "Alice",
+      "department": "Engineering",
+      "skills": ["JavaScript", "Python", "React"]
+    },
+    {
+      "name": "Bob",
+      "department": "Design",
+      "skills": ["Photoshop", "Illustrator", "Figma"]
+    }
+  ],
+  "location": {
+    "city": "San Francisco",
+    "country": "USA"
+  }
+}`;
+                    break;
+                case 'api':
+                    json = `{
+  "status": "success",
+  "data": {
+    "user": {
+      "id": 123,
+      "username": "johndoe",
+      "profile": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "avatar": "https://example.com/avatar.jpg"
+      }
+    }
+  },
+  "timestamp": "2024-01-01T12:00:00Z"
+}`;
+                    break;
+                case 'config':
+                    json = `{
+  "app": {
+    "name": "My App",
+    "version": "1.0.0",
+    "debug": false
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "credentials": {
+      "username": "admin",
+      "password": "secret"
+    }
+  },
+  "features": {
+    "authentication": true,
+    "notifications": true,
+    "analytics": false
+  }
+}`;
+                    break;
+            }
+
+            inputJson.value = json;
+            processJSON('format');
+        }
+
+        // Load a default example on page load
+        loadExample('simple');
+    </script>
+</body>
+</html>

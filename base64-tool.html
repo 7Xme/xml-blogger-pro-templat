@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Encoder/Decoder</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .base64-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .mode-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #e9ecef;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            background: #dc143c;
+            color: white;
+        }
+        .tab-btn:hover:not(.active) {
+            background: #dee2e6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .file-input-group {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+        .file-input-group:hover {
+            border-color: #dc143c;
+        }
+        .file-input-group.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .download-btn {
+            background: #28a745;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .result-section {
+            margin-top: 20px;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .result-title {
+            font-weight: 600;
+            color: #555;
+        }
+        .copy-btn {
+            background: #6c757d;
+            padding: 8px 16px;
+            border-radius: 5px;
+        }
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .base64-container {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .mode-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="base64-container">
+        <h1>Base64 Encoder/Decoder</h1>
+
+        <div class="mode-tabs">
+            <button class="tab-btn active" onclick="switchTab('text')">Text</button>
+            <button class="tab-btn" onclick="switchTab('file')">File</button>
+        </div>
+
+        <div id="textTab" class="tab-content active">
+            <div class="input-group">
+                <label for="textInput">Input Text:</label>
+                <textarea id="textInput" placeholder="Enter text to encode or Base64 to decode..."></textarea>
+            </div>
+
+            <div class="controls">
+                <button onclick="encodeText()">Encode to Base64</button>
+                <button onclick="decodeText()">Decode from Base64</button>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="urlSafe" checked>
+                    <label for="urlSafe">URL-safe encoding</label>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-header">
+                    <div class="result-title">Result:</div>
+                    <button class="copy-btn" onclick="copyResult()">Copy Result</button>
+                </div>
+                <textarea id="textResult" placeholder="Result will appear here..." readonly></textarea>
+            </div>
+        </div>
+
+        <div id="fileTab" class="tab-content">
+            <div class="input-group">
+                <label>File Operations:</label>
+                <div class="file-input-group" id="fileDropZone">
+                    <div>
+                        <strong>Drag & drop a file here</strong><br>
+                        or<br>
+                        <input type="file" id="fileInput" style="margin-top: 10px;">
+                    </div>
+                </div>
+                <div class="file-info" id="fileInfo" style="display: none;"></div>
+            </div>
+
+            <div class="controls">
+                <button onclick="encodeFile()">Encode File to Base64</button>
+                <button onclick="decodeFile()">Decode Base64 to File</button>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="urlSafeFile" checked>
+                    <label for="urlSafeFile">URL-safe encoding</label>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-header">
+                    <div class="result-title">Base64 Result:</div>
+                    <button class="copy-btn" onclick="copyResult()">Copy Base64</button>
+                </div>
+                <textarea id="fileResult" placeholder="Base64 encoded file will appear here..." readonly></textarea>
+                <button class="download-btn" id="downloadBtn" style="display: none; margin-top: 10px;" onclick="downloadFile()">Download Decoded File</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let currentTab = 'text';
+        let currentFile = null;
+        let currentFileName = '';
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+
+            currentTab = tab;
+            clearStatus();
+        }
+
+        // Text operations
+        function encodeText() {
+            const input = document.getElementById('textInput').value;
+            if (!input) {
+                showStatus('Please enter some text to encode.', 'info');
+                return;
+            }
+
+            try {
+                let encoded = btoa(unescape(encodeURIComponent(input)));
+                if (document.getElementById('urlSafe').checked) {
+                    encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                }
+                document.getElementById('textResult').value = encoded;
+                showStatus('Text encoded to Base64 successfully!', 'success');
+            } catch (error) {
+                showStatus('Error encoding text: ' + error.message, 'error');
+            }
+        }
+
+        function decodeText() {
+            const input = document.getElementById('textInput').value;
+            if (!input) {
+                showStatus('Please enter Base64 text to decode.', 'info');
+                return;
+            }
+
+            try {
+                let decoded = input;
+                if (document.getElementById('urlSafe').checked) {
+                    decoded = decoded.replace(/-/g, '+').replace(/_/g, '/');
+                    while (decoded.length % 4) decoded += '=';
+                }
+                decoded = decodeURIComponent(escape(atob(decoded)));
+                document.getElementById('textResult').value = decoded;
+                showStatus('Base64 decoded to text successfully!', 'success');
+            } catch (error) {
+                showStatus('Error decoding Base64: Invalid Base64 string', 'error');
+            }
+        }
+
+        // File operations
+        const fileInput = document.getElementById('fileInput');
+        const fileDropZone = document.getElementById('fileDropZone');
+
+        fileInput.addEventListener('change', handleFileSelect);
+        fileDropZone.addEventListener('dragover', handleDragOver);
+        fileDropZone.addEventListener('drop', handleFileDrop);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                setCurrentFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            fileDropZone.classList.add('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            fileDropZone.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                setCurrentFile(file);
+            }
+        }
+
+        function setCurrentFile(file) {
+            currentFile = file;
+            currentFileName = file.name;
+            document.getElementById('fileInfo').innerHTML = `
+                <strong>File:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                <strong>Type:</strong> ${file.type || 'Unknown'}
+            `;
+            document.getElementById('fileInfo').style.display = 'block';
+            clearStatus();
+        }
+
+        function encodeFile() {
+            if (!currentFile) {
+                showStatus('Please select a file to encode.', 'info');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    let base64 = event.target.result.split(',')[1]; // Remove data URL prefix
+                    if (document.getElementById('urlSafeFile').checked) {
+                        base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+                    }
+                    document.getElementById('fileResult').value = base64;
+                    document.getElementById('downloadBtn').style.display = 'none';
+                    showStatus('File encoded to Base64 successfully!', 'success');
+                } catch (error) {
+                    showStatus('Error encoding file: ' + error.message, 'error');
+                }
+            };
+            reader.readAsDataURL(currentFile);
+        }
+
+        function decodeFile() {
+            const base64 = document.getElementById('fileResult').value || document.getElementById('textInput').value;
+            if (!base64) {
+                showStatus('Please enter Base64 string to decode.', 'info');
+                return;
+            }
+
+            try {
+                let cleanBase64 = base64;
+                if (document.getElementById('urlSafeFile').checked) {
+                    cleanBase64 = cleanBase64.replace(/-/g, '+').replace(/_/g, '/');
+                    while (cleanBase64.length % 4) cleanBase64 += '=';
+                }
+
+                // Try to detect if it's data URL format
+                let dataUrl;
+                if (cleanBase64.includes(',')) {
+                    dataUrl = cleanBase64;
+                } else {
+                    // Assume it's just base64 data, try common types
+                    dataUrl = `data:application/octet-stream;base64,${cleanBase64}`;
+                }
+
+                document.getElementById('fileResult').value = dataUrl;
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+                showStatus('Base64 ready for download!', 'success');
+            } catch (error) {
+                showStatus('Error processing Base64: ' + error.message, 'error');
+            }
+        }
+
+        function downloadFile() {
+            const base64 = document.getElementById('fileResult').value;
+            if (!base64) return;
+
+            try {
+                const link = document.createElement('a');
+                link.href = base64;
+                link.download = currentFileName || 'decoded-file';
+                link.click();
+                showStatus('File downloaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error downloading file: ' + error.message, 'error');
+            }
+        }
+
+        // Utility functions
+        function copyResult() {
+            const resultTextarea = currentTab === 'text' ?
+                document.getElementById('textResult') :
+                document.getElementById('fileResult');
+
+            resultTextarea.select();
+            document.execCommand('copy');
+            showStatus('Copied to clipboard!', 'success');
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Auto-process text input
+        document.getElementById('textInput').addEventListener('input', debounce(() => {
+            const input = document.getElementById('textInput').value;
+            if (input && isBase64(input)) {
+                // Auto-decode if it looks like Base64
+                decodeText();
+            }
+        }, 1000));
+
+        function isBase64(str) {
+            try {
+                return btoa(atob(str)) === str;
+            } catch {
+                return false;
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

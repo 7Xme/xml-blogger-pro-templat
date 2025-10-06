@@ -254,6 +254,13 @@
                 return;
             }
 
+            // Check if QRCode library is loaded
+            if (typeof QRCode === 'undefined') {
+                showError('QR Code library failed to load. Please refresh the page.');
+                resultSection.style.display = 'none';
+                return;
+            }
+
             const size = parseInt(qrSize.value);
             const correctionLevel = errorCorrection.value;
             const fgColor = foregroundColor.value;
@@ -282,7 +289,8 @@
                 errorMessage.style.display = 'none';
 
             } catch (error) {
-                showError('Error generating QR code. Please check your input.');
+                console.error('QR Code generation error:', error);
+                showError('Error generating QR code. Please check your input and try again.');
                 resultSection.style.display = 'none';
             }
         }
@@ -306,15 +314,20 @@
             };
 
             // SVG download
-            downloadSVG.onclick = () => {
-                const svgString = generateSVG(text, size, fgColor, bgColor, correctionLevel);
-                const blob = new Blob([svgString], { type: 'image/svg+xml' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'qrcode.svg';
-                a.click();
-                URL.revokeObjectURL(url);
+            downloadSVG.onclick = async () => {
+                try {
+                    const svgString = await generateSVG(text, size, fgColor, bgColor, correctionLevel);
+                    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'qrcode.svg';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('SVG generation failed:', error);
+                    alert('SVG download failed. Please try PNG instead.');
+                }
             };
         }
 

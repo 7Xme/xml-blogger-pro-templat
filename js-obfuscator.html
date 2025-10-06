@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Obfuscator</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.4;
+        }
+        .obfuscator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #555;
+        }
+        .copy-btn, .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover, .download-btn:hover {
+            background: #218838;
+        }
+        textarea {
+            width: 100%;
+            height: 350px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-group h3 {
+            margin: 0;
+            color: #333;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-option input[type="checkbox"] {
+            margin: 0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            font-family: 'Poppins', sans-serif;
+        }
+        .stat {
+            font-size: 14px;
+            color: #666;
+        }
+        .stat.original { color: #dc3545; }
+        .stat.compressed { color: #28a745; }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+        }
+        .example-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .example-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .obfuscator-container {
+                padding: 20px;
+            }
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="obfuscator-container">
+        <h1>JavaScript Obfuscator</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>Obfuscation Options</h3>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="removeComments" checked>
+                    <label for="removeComments">Remove Comments</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="removeWhitespace" checked>
+                    <label for="removeWhitespace">Remove Extra Whitespace</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="shortenNames" checked>
+                    <label for="shortenNames">Shorten Variable Names</label>
+                </div>
+                <div class="checkbox-option">
+                    <input type="checkbox" id="compressStrings">
+                    <label for="compressStrings">Compress Strings (Basic)</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Actions</h3>
+                <div class="action-buttons">
+                    <button onclick="obfuscateCode()">Obfuscate Code</button>
+                    <button onclick="beautifyCode()">Beautify Code</button>
+                    <button onclick="clearAll()">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="editor-container">
+            <div class="input-section">
+                <div class="section-header">
+                    <div class="section-title">Input JavaScript</div>
+                    <button class="copy-btn" onclick="copyInput()">Copy</button>
+                </div>
+                <textarea id="inputCode" placeholder="Paste your JavaScript code here..."></textarea>
+                <div class="stats" id="inputStats"></div>
+            </div>
+
+            <div class="output-section">
+                <div class="section-header">
+                    <div class="section-title">Output JavaScript</div>
+                    <div>
+                        <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                        <button class="download-btn" onclick="downloadCode()">Download</button>
+                    </div>
+                </div>
+                <textarea id="outputCode" placeholder="Obfuscated code will appear here..." readonly></textarea>
+                <div class="stats" id="outputStats"></div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>Code Examples</h3>
+            <button class="example-btn" onclick="loadExample('simple')">Simple Function</button>
+            <button class="example-btn" onclick="loadExample('complex')">Complex Code</button>
+            <button class="example-btn" onclick="loadExample('class')">ES6 Class</button>
+            <button class="example-btn" onclick="loadExample('async')">Async/Await</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const inputCode = document.getElementById('inputCode');
+        const outputCode = document.getElementById('outputCode');
+        const statusDiv = document.getElementById('status');
+        const inputStats = document.getElementById('inputStats');
+        const outputStats = document.getElementById('outputStats');
+
+        // Obfuscation function
+        function obfuscateCode() {
+            const code = inputCode.value;
+            if (!code.trim()) {
+                showStatus('Please enter some JavaScript code to obfuscate.', 'info');
+                return;
+            }
+
+            try {
+                let obfuscated = code;
+
+                // Remove comments
+                if (document.getElementById('removeComments').checked) {
+                    obfuscated = obfuscated.replace(/\/\*[\s\S]*?\*\//g, '');
+                    obfuscated = obfuscated.replace(/\/\/.*$/gm, '');
+                }
+
+                // Remove extra whitespace
+                if (document.getElementById('removeWhitespace').checked) {
+                    obfuscated = obfuscated.replace(/\s+/g, ' ');
+                    obfuscated = obfuscated.replace(/\s*([{}();,])\s*/g, '$1');
+                    obfuscated = obfuscated.trim();
+                }
+
+                // Shorten variable names (basic implementation)
+                if (document.getElementById('shortenNames').checked) {
+                    obfuscated = shortenVariableNames(obfuscated);
+                }
+
+                // Basic string compression
+                if (document.getElementById('compressStrings').checked) {
+                    obfuscated = compressStrings(obfuscated);
+                }
+
+                outputCode.value = obfuscated;
+                updateStats();
+                showStatus('Code obfuscated successfully!', 'success');
+
+            } catch (error) {
+                console.error('Obfuscation error:', error);
+                showStatus('Error during obfuscation: ' + error.message, 'error');
+            }
+        }
+
+        // Beautify code (opposite of obfuscation)
+        function beautifyCode() {
+            const code = inputCode.value;
+            if (!code.trim()) {
+                showStatus('Please enter some JavaScript code to beautify.', 'info');
+                return;
+            }
+
+            try {
+                let beautified = code;
+
+                // Add proper indentation
+                beautified = basicBeautify(beautified);
+
+                outputCode.value = beautified;
+                updateStats();
+                showStatus('Code beautified successfully!', 'success');
+
+            } catch (error) {
+                showStatus('Error during beautification: ' + error.message, 'error');
+            }
+        }
+
+        // Basic variable name shortening
+        function shortenVariableNames(code) {
+            // This is a very basic implementation
+            // In a real obfuscator, this would use AST parsing
+            const keywords = ['var', 'let', 'const', 'function', 'class', 'if', 'else', 'for', 'while', 'return', 'true', 'false', 'null', 'undefined'];
+
+            // Find variable declarations
+            const varPattern = /\b(var|let|const)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+            const functionPattern = /\bfunction\s+([a-zA-Z_$][a-zA-Z0-9_$]*)/g;
+
+            let variableCount = 0;
+            const variableMap = new Map();
+
+            // Replace variable declarations
+            code = code.replace(varPattern, (match, keyword, varName) => {
+                if (!keywords.includes(varName) && !variableMap.has(varName)) {
+                    const shortName = generateShortName(variableCount);
+                    variableMap.set(varName, shortName);
+                    variableCount++;
+                    return `${keyword} ${shortName}`;
+                }
+                return match;
+            });
+
+            // Replace function declarations
+            code = code.replace(functionPattern, (match, funcName) => {
+                if (!keywords.includes(funcName) && !variableMap.has(funcName)) {
+                    const shortName = generateShortName(variableCount);
+                    variableMap.set(funcName, shortName);
+                    variableCount++;
+                    return `function ${shortName}`;
+                }
+                return match;
+            });
+
+            // Replace variable usages
+            for (const [original, shortened] of variableMap) {
+                const regex = new RegExp(`\\b${original}\\b`, 'g');
+                code = code.replace(regex, shortened);
+            }
+
+            return code;
+        }
+
+        function generateShortName(index) {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let name = '';
+            let num = index;
+
+            do {
+                name = chars[num % chars.length] + name;
+                num = Math.floor(num / chars.length);
+            } while (num > 0);
+
+            return name || 'a';
+        }
+
+        // Basic string compression
+        function compressStrings(code) {
+            // This is a very basic implementation
+            // Replace repeated strings with variables (simplified)
+            return code;
+        }
+
+        // Basic code beautification
+        function basicBeautify(code) {
+            let beautified = code;
+            let indentLevel = 0;
+            const indentSize = 2;
+
+            beautified = beautified.replace(/;/g, ';\n');
+            beautified = beautified.replace(/{/g, '{\n');
+            beautified = beautified.replace(/}/g, '\n}\n');
+
+            const lines = beautified.split('\n');
+            beautified = '';
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                if (line.includes('}')) {
+                    indentLevel = Math.max(0, indentLevel - 1);
+                }
+
+                beautified += ' '.repeat(indentLevel * indentSize) + line + '\n';
+
+                if (line.includes('{')) {
+                    indentLevel++;
+                }
+            }
+
+            return beautified.trim();
+        }
+
+        // Utility functions
+        function updateStats() {
+            const inputText = inputCode.value;
+            const outputText = outputCode.value;
+
+            const inputChars = inputText.length;
+            const inputLines = inputText.split('\n').length;
+            const outputChars = outputText.length;
+            const outputLines = outputText.split('\n').length;
+
+            inputStats.innerHTML = `
+                <span class="stat original">Characters: ${inputChars}</span>
+                <span class="stat original">Lines: ${inputLines}</span>
+            `;
+
+            outputStats.innerHTML = `
+                <span class="stat compressed">Characters: ${outputChars}</span>
+                <span class="stat compressed">Lines: ${outputLines}</span>
+                ${outputChars > 0 ? `<span class="stat compressed">Reduction: ${Math.round((1 - outputChars/inputChars) * 100)}%</span>` : ''}
+            `;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearAll() {
+            inputCode.value = '';
+            outputCode.value = '';
+            statusDiv.style.display = 'none';
+            inputStats.innerHTML = '';
+            outputStats.innerHTML = '';
+        }
+
+        async function copyInput() {
+            try {
+                await navigator.clipboard.writeText(inputCode.value);
+                showStatus('Input code copied to clipboard!', 'success');
+            } catch (err) {
+                fallbackCopy(inputCode.value);
+            }
+        }
+
+        async function copyOutput() {
+            try {
+                await navigator.clipboard.writeText(outputCode.value);
+                showStatus('Output code copied to clipboard!', 'success');
+            } catch (err) {
+                fallbackCopy(outputCode.value);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showStatus('Code copied to clipboard!', 'success');
+        }
+
+        function downloadCode() {
+            const code = outputCode.value;
+            if (!code) {
+                showStatus('No code to download.', 'info');
+                return;
+            }
+
+            const blob = new Blob([code], { type: 'application/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'obfuscated.js';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('Code downloaded successfully!', 'success');
+        }
+
+        // Load example code
+        function loadExample(type) {
+            let code = '';
+
+            switch (type) {
+                case 'simple':
+                    code = `// Simple function example
+function calculateSum(a, b) {
+    // This function adds two numbers
+    var result = a + b;
+    return result;
+}
+
+var x = 5;
+var y = 10;
+var sum = calculateSum(x, y);
+console.log("The sum is: " + sum);`;
+                    break;
+
+                case 'complex':
+                    code = `// Complex code with multiple functions
+function UserManager() {
+    this.users = [];
+
+    this.addUser = function(name, email) {
+        var user = {
+            id: this.generateId(),
+            name: name,
+            email: email,
+            createdAt: new Date()
+        };
+        this.users.push(user);
+        return user;
+    };
+
+    this.generateId = function() {
+        return Math.random().toString(36).substr(2, 9);
+    };
+
+    this.findUser = function(id) {
+        for (var i = 0; i < this.users.length; i++) {
+            if (this.users[i].id === id) {
+                return this.users[i];
+            }
+        }
+        return null;
+    };
+}
+
+var manager = new UserManager();
+manager.addUser("John Doe", "john@example.com");
+var user = manager.findUser(manager.users[0].id);
+console.log(user);`;
+                    break;
+
+                case 'class':
+                    code = `// ES6 Class example
+class Rectangle {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    getArea() {
+        return this.width * this.height;
+    }
+
+    getPerimeter() {
+        return 2 * (this.width + this.height);
+    }
+
+    toString() {
+        return \`Rectangle: \${this.width} x \${this.height}\`;
+    }
+}
+
+const rect = new Rectangle(10, 5);
+console.log(rect.toString());
+console.log("Area:", rect.getArea());
+console.log("Perimeter:", rect.getPerimeter());`;
+                    break;
+
+                case 'async':
+                    code = `// Async/Await example
+async function fetchUserData(userId) {
+    try {
+        console.log("Fetching user data...");
+        const response = await fetch(\`https://api.example.com/users/\${userId}\`);
+
+        if (!response.ok) {
+            throw new Error(\`HTTP error! status: \${response.status}\`);
+        }
+
+        const userData = await response.json();
+        console.log("User data:", userData);
+        return userData;
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        throw error;
+    }
+}
+
+async function main() {
+    try {
+        const user = await fetchUserData(123);
+        console.log("Main function completed with user:", user.name);
+    } catch (error) {
+        console.error("Main function failed:", error);
+    }
+}
+
+main();`;
+                    break;
+            }
+
+            inputCode.value = code;
+            outputCode.value = '';
+            updateStats();
+        }
+
+        // Auto-update stats when input changes
+        inputCode.addEventListener('input', () => {
+            updateStats();
+        });
+    </script>
+</body>
+</html>

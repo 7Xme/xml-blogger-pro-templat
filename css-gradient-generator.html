@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Gradient Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .gradient-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .preview-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .gradient-preview {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        select, input[type="range"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .color-stop {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .color-stop input[type="color"] {
+            flex-shrink: 0;
+        }
+        .color-stop input[type="range"] {
+            flex: 1;
+        }
+        .color-stop .position {
+            width: 60px;
+            font-size: 12px;
+        }
+        .add-color-btn, .remove-color-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        .remove-color-btn {
+            background: #6c757d;
+        }
+        .add-color-btn:hover {
+            background: #b22222;
+        }
+        .remove-color-btn:hover {
+            background: #5a6268;
+        }
+        .direction-control {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .direction-btn {
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            text-align: center;
+        }
+        .direction-btn.active {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .direction-btn:hover {
+            border-color: #dc143c;
+        }
+        .css-output {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .css-output h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .css-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .copy-css-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .copy-css-btn:hover {
+            background: #218838;
+        }
+        .presets {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .presets h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .preset-btn {
+            padding: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .preset-btn:hover {
+            border-color: #dc143c;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .gradient-container {
+                padding: 20px;
+            }
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            .direction-control {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .preset-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-container">
+        <h1>CSS Gradient Generator</h1>
+
+        <div class="preview-section">
+            <div class="gradient-preview" id="gradientPreview"></div>
+        </div>
+
+        <div class="controls-grid">
+            <div class="control-group">
+                <h3>Gradient Type</h3>
+                <div class="input-group">
+                    <label for="gradientType">Type:</label>
+                    <select id="gradientType">
+                        <option value="linear">Linear Gradient</option>
+                        <option value="radial">Radial Gradient</option>
+                        <option value="conic">Conic Gradient</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Direction/Angle</h3>
+                <div class="input-group">
+                    <label for="angle">Angle/Degree:</label>
+                    <input type="range" id="angle" min="0" max="360" value="45">
+                    <span id="angleValue">45°</span>
+                </div>
+                <div class="direction-control" id="directionControl">
+                    <button class="direction-btn" data-direction="to top">Top</button>
+                    <button class="direction-btn" data-direction="to right">Right</button>
+                    <button class="direction-btn" data-direction="to bottom">Bottom</button>
+                    <button class="direction-btn active" data-direction="to left">Left</button>
+                    <button class="direction-btn" data-direction="to top left">Top Left</button>
+                    <button class="direction-btn" data-direction="to top right">Top Right</button>
+                    <button class="direction-btn" data-direction="to bottom left">Bottom Left</button>
+                    <button class="direction-btn" data-direction="to bottom right">Bottom Right</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Colors</h3>
+                <div id="colorStops">
+                    <div class="color-stop">
+                        <input type="color" value="#ff6b6b" data-index="0">
+                        <input type="range" min="0" max="100" value="0" data-index="0">
+                        <span class="position">0%</span>
+                        <button class="remove-color-btn" onclick="removeColorStop(0)" disabled>×</button>
+                    </div>
+                    <div class="color-stop">
+                        <input type="color" value="#4ecdc4" data-index="1">
+                        <input type="range" min="0" max="100" value="100" data-index="1">
+                        <span class="position">100%</span>
+                        <button class="remove-color-btn" onclick="removeColorStop(1)">×</button>
+                    </div>
+                </div>
+                <button class="add-color-btn" onclick="addColorStop()">Add Color</button>
+            </div>
+
+            <div class="control-group">
+                <h3>Shape & Position (Radial/Conic)</h3>
+                <div class="input-group">
+                    <label for="shape">Shape:</label>
+                    <select id="shape">
+                        <option value="ellipse">Ellipse</option>
+                        <option value="circle">Circle</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="position">Position:</label>
+                    <select id="position">
+                        <option value="center">Center</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                        <option value="25% 25%">25% 25%</option>
+                        <option value="75% 75%">75% 75%</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="css-output">
+            <h3>CSS Code</h3>
+            <div class="css-code" id="cssCode">background: linear-gradient(45deg, #ff6b6b 0%, #4ecdc4 100%);</div>
+            <button class="copy-css-btn" onclick="copyCSS()">Copy CSS</button>
+        </div>
+
+        <div class="presets">
+            <h3>Quick Presets</h3>
+            <div class="preset-grid">
+                <div class="preset-btn" onclick="loadPreset('sunset')" style="background: linear-gradient(45deg, #ff6b6b, #ffa500, #ffff00);">Sunset</div>
+                <div class="preset-btn" onclick="loadPreset('ocean')" style="background: linear-gradient(45deg, #4ecdc4, #44a08d, #096d57);">Ocean</div>
+                <div class="preset-btn" onclick="loadPreset('purple')" style="background: linear-gradient(45deg, #9b59b6, #8e44ad, #6c3483);">Purple</div>
+                <div class="preset-btn" onclick="loadPreset('fire')" style="background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00);">Fire</div>
+                <div class="preset-btn" onclick="loadPreset('ice')" style="background: linear-gradient(45deg, #00ffff, #0080ff, #0000ff);">Ice</div>
+                <div class="preset-btn" onclick="loadPreset('forest')" style="background: linear-gradient(45deg, #228b22, #32cd32, #006400);">Forest</div>
+                <div class="preset-btn" onclick="loadPreset('sunrise')" style="background: linear-gradient(45deg, #ff4500, #ffa500, #ffd700, #87ceeb);">Sunrise</div>
+                <div class="preset-btn" onclick="loadPreset('twilight')" style="background: linear-gradient(45deg, #191970, #4169e1, #9370db);">Twilight</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let colorStops = [
+            { color: '#ff6b6b', position: 0 },
+            { color: '#4ecdc4', position: 100 }
+        ];
+        let currentDirection = '45deg';
+
+        // DOM elements
+        const gradientPreview = document.getElementById('gradientPreview');
+        const gradientType = document.getElementById('gradientType');
+        const angleSlider = document.getElementById('angle');
+        const angleValue = document.getElementById('angleValue');
+        const directionControl = document.getElementById('directionControl');
+        const cssCode = document.getElementById('cssCode');
+
+        // Event listeners
+        gradientType.addEventListener('change', updateGradient);
+        angleSlider.addEventListener('input', updateAngle);
+        directionControl.addEventListener('click', handleDirectionClick);
+
+        // Initialize
+        updateGradient();
+
+        function updateGradient() {
+            const type = gradientType.value;
+            let css = '';
+
+            switch (type) {
+                case 'linear':
+                    css = generateLinearGradient();
+                    break;
+                case 'radial':
+                    css = generateRadialGradient();
+                    break;
+                case 'conic':
+                    css = generateConicGradient();
+                    break;
+            }
+
+            gradientPreview.style.background = css;
+            cssCode.textContent = `background: ${css};`;
+        }
+
+        function generateLinearGradient() {
+            const stops = colorStops.map(stop => `${stop.color} ${stop.position}%`).join(', ');
+            return `linear-gradient(${currentDirection}, ${stops})`;
+        }
+
+        function generateRadialGradient() {
+            const shape = document.getElementById('shape').value;
+            const position = document.getElementById('position').value;
+            const stops = colorStops.map(stop => `${stop.color} ${stop.position}%`).join(', ');
+            return `radial-gradient(${shape} at ${position}, ${stops})`;
+        }
+
+        function generateConicGradient() {
+            const position = document.getElementById('position').value;
+            const stops = colorStops.map(stop => `${stop.color} ${stop.position}deg`).join(', ');
+            return `conic-gradient(from ${currentDirection.replace('deg', '')}deg at ${position}, ${stops})`;
+        }
+
+        function updateAngle() {
+            const angle = angleSlider.value;
+            angleValue.textContent = angle + '°';
+            currentDirection = angle + 'deg';
+
+            // Remove active class from direction buttons
+            document.querySelectorAll('.direction-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            updateGradient();
+        }
+
+        function handleDirectionClick(event) {
+            if (event.target.classList.contains('direction-btn')) {
+                const direction = event.target.dataset.direction;
+                currentDirection = direction;
+
+                // Update angle slider
+                const angleMap = {
+                    'to top': '0',
+                    'to top right': '45',
+                    'to right': '90',
+                    'to bottom right': '135',
+                    'to bottom': '180',
+                    'to bottom left': '225',
+                    'to left': '270',
+                    'to top left': '315'
+                };
+
+                if (angleMap[direction]) {
+                    angleSlider.value = angleMap[direction];
+                    angleValue.textContent = angleMap[direction] + '°';
+                }
+
+                // Update active button
+                document.querySelectorAll('.direction-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+
+                updateGradient();
+            }
+        }
+
+        function updateColorStops() {
+            const colorStopsDiv = document.getElementById('colorStops');
+            colorStopsDiv.innerHTML = '';
+
+            colorStops.forEach((stop, index) => {
+                const colorStopDiv = document.createElement('div');
+                colorStopDiv.className = 'color-stop';
+
+                colorStopDiv.innerHTML = `
+                    <input type="color" value="${stop.color}" data-index="${index}" onchange="updateColor(${index})">
+                    <input type="range" min="0" max="100" value="${stop.position}" data-index="${index}" onchange="updatePosition(${index})">
+                    <span class="position">${stop.position}%</span>
+                    <button class="remove-color-btn" onclick="removeColorStop(${index})" ${colorStops.length <= 2 ? 'disabled' : ''}>×</button>
+                `;
+
+                colorStopsDiv.appendChild(colorStopDiv);
+            });
+
+            updateGradient();
+        }
+
+        function updateColor(index) {
+            const colorInput = document.querySelector(`input[type="color"][data-index="${index}"]`);
+            colorStops[index].color = colorInput.value;
+            updateGradient();
+        }
+
+        function updatePosition(index) {
+            const positionInput = document.querySelector(`input[type="range"][data-index="${index}"]`);
+            const position = parseInt(positionInput.value);
+            colorStops[index].position = position;
+            positionInput.nextElementSibling.textContent = position + '%';
+            updateGradient();
+        }
+
+        function addColorStop() {
+            if (colorStops.length >= 5) {
+                alert('Maximum 5 color stops allowed');
+                return;
+            }
+
+            const newPosition = colorStops.length > 0 ? colorStops[colorStops.length - 1].position + 25 : 50;
+            colorStops.push({
+                color: '#ffffff',
+                position: Math.min(newPosition, 100)
+            });
+
+            updateColorStops();
+        }
+
+        function removeColorStop(index) {
+            if (colorStops.length <= 2) return;
+
+            colorStops.splice(index, 1);
+            updateColorStops();
+        }
+
+        function copyCSS() {
+            navigator.clipboard.writeText(`background: ${gradientPreview.style.background};`).then(() => {
+                const btn = document.querySelector('.copy-css-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#218838';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            });
+        }
+
+        function loadPreset(preset) {
+            const presets = {
+                sunset: [
+                    { color: '#ff6b6b', position: 0 },
+                    { color: '#ffa500', position: 50 },
+                    { color: '#ffff00', position: 100 }
+                ],
+                ocean: [
+                    { color: '#4ecdc4', position: 0 },
+                    { color: '#44a08d', position: 50 },
+                    { color: '#096d57', position: 100 }
+                ],
+                purple: [
+                    { color: '#9b59b6', position: 0 },
+                    { color: '#8e44ad', position: 50 },
+                    { color: '#6c3483', position: 100 }
+                ],
+                fire: [
+                    { color: '#ff0000', position: 0 },
+                    { color: '#ff8000', position: 50 },
+                    { color: '#ffff00', position: 100 }
+                ],
+                ice: [
+                    { color: '#00ffff', position: 0 },
+                    { color: '#0080ff', position: 50 },
+                    { color: '#0000ff', position: 100 }
+                ],
+                forest: [
+                    { color: '#228b22', position: 0 },
+                    { color: '#32cd32', position: 50 },
+                    { color: '#006400', position: 100 }
+                ],
+                sunrise: [
+                    { color: '#ff4500', position: 0 },
+                    { color: '#ffa500', position: 25 },
+                    { color: '#ffd700', position: 50 },
+                    { color: '#87ceeb', position: 100 }
+                ],
+                twilight: [
+                    { color: '#191970', position: 0 },
+                    { color: '#4169e1', position: 50 },
+                    { color: '#9370db', position: 100 }
+                ]
+            };
+
+            if (presets[preset]) {
+                colorStops = [...presets[preset]];
+                updateColorStops();
+            }
+        }
+
+        // Initialize color stops
+        updateColorStops();
+    </script>
+</body>
+</html>

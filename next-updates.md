@@ -3,16 +3,6 @@
 ## Planned Tool Additions
 
 
-
-### 2. QR Code Generator
-- **Description**: Generate QR codes from text, URLs, or contact information
-- **Features**:
-  - Text/URL input
-  - Size customization
-  - Download as PNG/SVG
-  - Error correction levels
-- **Technologies**: qrcode.js library
-
 ### 3. Password Generator
 - **Description**: Create secure passwords with customizable options
 - **Features**:
@@ -57,14 +47,7 @@
   - Multiple unit systems (metric, imperial)
 - **Technologies**: JavaScript calculations
 
-### 8. JSON Formatter/Validator
-- **Description**: Format and validate JSON data
-- **Features**:
-  - JSON input/output
-  - Syntax validation
-  - Pretty printing
-  - Minification option
-- **Technologies**: JavaScript JSON methods
+#
 
 ### 9. Base64 Encoder/Decoder
 - **Description**: Encode and decode Base64 strings
@@ -72,6 +55,7 @@
   - Text to Base64
   - Base64 to text
   - File to Base64
+   Base64 to File
   - URL-safe encoding
 - **Technologies**: JavaScript atob/btoa
 
@@ -357,6 +341,74 @@
   - Copy to clipboard
 - **Technologies**: JavaScript crypto API
 
+### 41. 
+### 43. 
+
+### 44. PDF Page Numbering
+- **Description**: Add page numbers to PDF
+- **Features**:
+  - Choose position and style
+  - Font and size selection
+  - Starting number option
+  - Download numbered PDF
+- **Technologies**: PDF-lib with text rendering
+
+### 45. Image Merger
+- **Description**: Combine multiple images
+- **Features**:
+  - Upload multiple images
+  - Grid or horizontal layout
+  - Spacing controls
+  - Output format selection
+- **Technologies**: Canvas API
+
+### 46. Image Splitter
+- **Description**: Split images into parts
+- **Features**:
+  - Grid splitting (2x2, 3x3, etc.)
+  - Custom dimensions
+  - Download individual pieces
+  - Maintain aspect ratio
+- **Technologies**: Canvas API
+
+### 47. Batch Image Resizer
+- **Description**: Resize multiple images at once
+- **Features**:
+  - Upload multiple images
+  - Set target dimensions
+  - Maintain aspect ratio
+  - Quality control
+  - Batch download
+- **Technologies**: Canvas API, File API
+
+### 48. PDF to Word Converter
+- **Description**: Convert PDF to editable Word document
+- **Features**:
+  - PDF upload
+  - Text extraction
+  - Basic formatting preservation
+  - Download as .docx
+- **Technologies**: PDF parsing + document generation
+
+### 49. Image Format Converter
+- **Description**: Convert between image formats
+- **Features**:
+  - JPEG, PNG, WebP, GIF support
+  - Quality settings
+  - Batch conversion
+  - Download converted images
+- **Technologies**: Canvas API, File API
+
+### 50. PDF Compressor
+- **Description**: Reduce PDF file size
+- **Features**:
+  - Quality adjustment
+  - Image compression
+  - Remove unnecessary elements
+  - Size comparison
+  - Download compressed PDF
+- **Technologies**: PDF-lib library
+
 ## Template Improvements
 
 ### Planned Enhancements
@@ -417,4 +469,26 @@ Each tool follows the same pattern as the PDF converter:
 37. UUID Generator (developer tool)
 38. Icon Generator (design tool)
 39. JavaScript Obfuscator (developer tool)
+28. Website Screenshot Tool (web utility)
+29. Meta Tag Generator (webmaster tool)
+30. CSS Gradient Generator (design tool)
+31. Font Pairing Tool (design tool)
+32. Plagiarism Checker (content tool)
+33. Grammar and Spell Checker (writing tool)
+34. Language Translator (communication tool)
+35. Morse Code Converter (fun utility)
+36. Number Base Converter (developer tool)
+37. UUID Generator (developer tool)
+38. Icon Generator (design tool)
+39. JavaScript Obfuscator (developer tool)
 40. Social Media Post Preview (content creation)
+41. PDF Merger (document tool - high demand)
+42. PDF Splitter (document tool - high demand)
+43. Batch Image Resizer (image tool - high demand)
+44. PDF Compressor (document tool)
+45. Image Format Converter (image tool)
+46. PDF Page Remover (document tool)
+47. PDF Page Numbering (document tool)
+48. Image Merger (image tool)
+49. Image Splitter (image tool)
+50. PDF to Word Converter (conversion tool)

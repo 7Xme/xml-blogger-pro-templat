@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .icon-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+        .controls-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        select, input[type="range"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-preview {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .icon-canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .size-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .download-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .presets-section {
+            margin-top: 30px;
+        }
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .preset-icon {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .preset-icon:hover {
+            border-color: #dc143c;
+            transform: scale(1.1);
+        }
+        .preset-icon svg {
+            width: 30px;
+            height: 30px;
+        }
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .color-swatch {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            transition: border-color 0.3s ease;
+        }
+        .color-swatch:hover {
+            border-color: #333;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .icon-container {
+                padding: 20px;
+            }
+            .presets-grid {
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="icon-container">
+        <h1>Icon Generator</h1>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="control-group">
+                    <h3>Shape</h3>
+                    <label for="shape">Icon Shape:</label>
+                    <select id="shape">
+                        <option value="circle">Circle</option>
+                        <option value="square">Square</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="star">Star</option>
+                        <option value="heart">Heart</option>
+                        <option value="diamond">Diamond</option>
+                        <option value="hexagon">Hexagon</option>
+                        <option value="pentagon">Pentagon</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3>Size</h3>
+                    <label for="size">Size (pixels):</label>
+                    <input type="range" id="size" min="32" max="512" value="128" step="16">
+                    <div style="text-align: center; margin-top: 5px; color: #666; font-size: 12px;">
+                        <span id="sizeValue">128</span>px
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Colors</h3>
+                    <label for="fillColor">Fill Color:</label>
+                    <input type="color" id="fillColor" value="#dc143c">
+
+                    <label for="strokeColor" style="margin-top: 10px;">Stroke Color:</label>
+                    <input type="color" id="strokeColor" value="#000000">
+
+                    <label for="strokeWidth" style="margin-top: 10px;">Stroke Width:</label>
+                    <input type="range" id="strokeWidth" min="0" max="20" value="2">
+                    <div style="text-align: center; margin-top: 5px; color: #666; font-size: 12px;">
+                        <span id="strokeValue">2</span>px
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="noFill" onchange="updateIcon()">
+                        <label for="noFill">No Fill (Outline Only)</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Quick Colors</h3>
+                    <div class="color-swatches">
+                        <div class="color-swatch" style="background: #dc143c;" onclick="setColor('#dc143c')"></div>
+                        <div class="color-swatch" style="background: #28a745;" onclick="setColor('#28a745')"></div>
+                        <div class="color-swatch" style="background: #007bff;" onclick="setColor('#007bff')"></div>
+                        <div class="color-swatch" style="background: #ffc107;" onclick="setColor('#ffc107')"></div>
+                        <div class="color-swatch" style="background: #6c757d;" onclick="setColor('#6c757d')"></div>
+                        <div class="color-swatch" style="background: #e83e8c;" onclick="setColor('#e83e8c')"></div>
+                        <div class="color-swatch" style="background: #17a2b8;" onclick="setColor('#17a2b8')"></div>
+                        <div class="color-swatch" style="background: #fd7e14;" onclick="setColor('#fd7e14')"></div>
+                        <div class="color-swatch" style="background: #20c997;" onclick="setColor('#20c997')"></div>
+                        <div class="color-swatch" style="background: #6f42c1;" onclick="setColor('#6f42c1')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="icon-preview">
+                    <canvas id="iconCanvas" class="icon-canvas" width="200" height="200"></canvas>
+                    <div class="size-display" id="sizeDisplay">128px</div>
+                </div>
+
+                <div class="download-section">
+                    <button class="download-btn" onclick="downloadPNG()">Download PNG</button>
+                    <button class="download-btn" onclick="downloadSVG()">Download SVG</button>
+                </div>
+
+                <div class="presets-section">
+                    <h3>Shape Presets</h3>
+                    <div class="presets-grid">
+                        <div class="preset-icon" onclick="setShape('circle')">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('square')">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('triangle')">
+                            <svg viewBox="0 0 24 24"><polygon points="12,2 22,22 2,22" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('star')">
+                            <svg viewBox="0 0 24 24"><polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('heart')">
+                            <svg viewBox="0 0 24 24"><path d="M12,21.35l-1.45-1.32C5.4,15.36,2,12.28,2,8.5,2,5.42,4.42,3,7.5,3c1.74,0,3.41,0.81,4.5,2.09C13.09,3.81,14.76,3,16.5,3,19.58,3,22,5.42,22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('diamond')">
+                            <svg viewBox="0 0 24 24"><polygon points="12,2 22,12 12,22 2,12" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('hexagon')">
+                            <svg viewBox="0 0 24 24"><polygon points="12,2 20,7 20,17 12,22 4,17 4,7" fill="currentColor"/></svg>
+                        </div>
+                        <div class="preset-icon" onclick="setShape('pentagon')">
+                            <svg viewBox="0 0 24 24"><polygon points="12,2 22,8.5 18,21 6,21 2,8.5" fill="currentColor"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        const shapeSelect = document.getElementById('shape');
+        const sizeSlider = document.getElementById('size');
+        const sizeValue = document.getElementById('sizeValue');
+        const sizeDisplay = document.getElementById('sizeDisplay');
+        const fillColor = document.getElementById('fillColor');
+        const strokeColor = document.getElementById('strokeColor');
+        const strokeWidth = document.getElementById('strokeWidth');
+        const strokeValue = document.getElementById('strokeValue');
+        const noFill = document.getElementById('noFill');
+
+        // Current settings
+        let currentSize = 128;
+
+        // Event listeners
+        shapeSelect.addEventListener('change', updateIcon);
+        sizeSlider.addEventListener('input', updateSize);
+        fillColor.addEventListener('input', updateIcon);
+        strokeColor.addEventListener('input', updateIcon);
+        strokeWidth.addEventListener('input', updateStroke);
+        noFill.addEventListener('change', updateIcon);
+
+        // Initialize
+        updateIcon();
+
+        function updateSize() {
+            currentSize = parseInt(sizeSlider.value);
+            sizeValue.textContent = currentSize;
+            sizeDisplay.textContent = currentSize + 'px';
+            updateIcon();
+        }
+
+        function updateStroke() {
+            strokeValue.textContent = strokeWidth.value;
+            updateIcon();
+        }
+
+        function updateIcon() {
+            const shape = shapeSelect.value;
+            const fill = noFill.checked ? 'transparent' : fillColor.value;
+            const stroke = strokeColor.value;
+            const strokeW = parseInt(strokeWidth.value);
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Set canvas size for icon
+            const iconSize = Math.min(canvas.width, canvas.height) * 0.8;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Scale factor for the icon
+            const scale = iconSize / currentSize;
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.scale(scale, scale);
+            ctx.translate(-currentSize / 2, -currentSize / 2);
+
+            // Draw shape
+            drawShape(shape, ctx, 0, 0, currentSize, fill, stroke, strokeW);
+
+            ctx.restore();
+        }
+
+        function drawShape(shape, ctx, x, y, size, fill, stroke, strokeWidth) {
+            ctx.beginPath();
+
+            switch (shape) {
+                case 'circle':
+                    ctx.arc(x + size/2, y + size/2, size/2, 0, 2 * Math.PI);
+                    break;
+                case 'square':
+                    ctx.rect(x, y, size, size);
+                    break;
+                case 'triangle':
+                    ctx.moveTo(x + size/2, y);
+                    ctx.lineTo(x + size, y + size);
+                    ctx.lineTo(x, y + size);
+                    ctx.closePath();
+                    break;
+                case 'star':
+                    drawStar(ctx, x + size/2, y + size/2, 5, size/2, size/4);
+                    break;
+                case 'heart':
+                    drawHeart(ctx, x + size/2, y + size/2, size/2);
+                    break;
+                case 'diamond':
+                    ctx.moveTo(x + size/2, y);
+                    ctx.lineTo(x + size, y + size/2);
+                    ctx.lineTo(x + size/2, y + size);
+                    ctx.lineTo(x, y + size/2);
+                    ctx.closePath();
+                    break;
+                case 'hexagon':
+                    drawPolygon(ctx, x + size/2, y + size/2, 6, size/2);
+                    break;
+                case 'pentagon':
+                    drawPolygon(ctx, x + size/2, y + size/2, 5, size/2);
+                    break;
+            }
+
+            if (fill !== 'transparent') {
+                ctx.fillStyle = fill;
+                ctx.fill();
+            }
+
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = stroke;
+                ctx.lineWidth = strokeWidth;
+                ctx.stroke();
+            }
+        }
+
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            const step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+        }
+
+        function drawHeart(ctx, cx, cy, size) {
+            const topCurveHeight = size * 0.3;
+            ctx.moveTo(cx, cy + topCurveHeight);
+
+            // Left curve
+            ctx.bezierCurveTo(
+                cx, cy,
+                cx - size, cy,
+                cx - size, cy + topCurveHeight
+            );
+
+            // Left bottom
+            ctx.bezierCurveTo(
+                cx - size, cy + (topCurveHeight * 2),
+                cx, cy + (size + topCurveHeight),
+                cx, cy + size
+            );
+
+            // Right bottom
+            ctx.bezierCurveTo(
+                cx, cy + (size + topCurveHeight),
+                cx + size, cy + (topCurveHeight * 2),
+                cx + size, cy + topCurveHeight
+            );
+
+            // Right curve
+            ctx.bezierCurveTo(
+                cx + size, cy,
+                cx, cy,
+                cx, cy + topCurveHeight
+            );
+        }
+
+        function drawPolygon(ctx, cx, cy, sides, radius) {
+            ctx.moveTo(cx + radius * Math.cos(0), cy + radius * Math.sin(0));
+
+            for (let i = 1; i <= sides; i++) {
+                const angle = (i * 2 * Math.PI) / sides;
+                ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
+            }
+
+            ctx.closePath();
+        }
+
+        function setShape(shape) {
+            shapeSelect.value = shape;
+            updateIcon();
+        }
+
+        function setColor(color) {
+            fillColor.value = color;
+            updateIcon();
+        }
+
+        function downloadPNG() {
+            const link = document.createElement('a');
+            link.download = `icon_${shapeSelect.value}_${currentSize}px.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadSVG() {
+            const shape = shapeSelect.value;
+            const fill = noFill.checked ? 'none' : fillColor.value;
+            const stroke = strokeColor.value;
+            const strokeW = strokeWidth.value;
+
+            let svgPath = '';
+
+            // Generate SVG path based on shape
+            switch (shape) {
+                case 'circle':
+                    svgPath = `<circle cx="${currentSize/2}" cy="${currentSize/2}" r="${currentSize/2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'square':
+                    svgPath = `<rect x="0" y="0" width="${currentSize}" height="${currentSize}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'triangle':
+                    svgPath = `<polygon points="${currentSize/2},0 ${currentSize},${currentSize} 0,${currentSize}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'diamond':
+                    svgPath = `<polygon points="${currentSize/2},0 ${currentSize},${currentSize/2} ${currentSize/2},${currentSize} 0,${currentSize/2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'star':
+                    svgPath = `<polygon points="${currentSize/2},0 ${currentSize*0.6},${currentSize*0.35} ${currentSize},${currentSize*0.35} ${currentSize*0.7},${currentSize*0.6} ${currentSize*0.8},${currentSize} ${currentSize/2},${currentSize*0.75} ${currentSize*0.2},${currentSize} ${currentSize*0.3},${currentSize*0.6} 0,${currentSize*0.35} ${currentSize*0.4},${currentSize*0.35}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'heart':
+                    const heartPath = `M${currentSize/2},${currentSize*0.85} Q${currentSize/2},${currentSize*0.3} ${currentSize*0.15},${currentSize*0.3} Q0,${currentSize*0.6} 0,${currentSize*0.85} Q0,${currentSize} ${currentSize/2},${currentSize*1.2} Q${currentSize},${currentSize} ${currentSize},${currentSize*0.85} Q${currentSize},${currentSize*0.6} ${currentSize*0.85},${currentSize*0.3} Q${currentSize/2},${currentSize*0.3} ${currentSize/2},${currentSize*0.85} Z`;
+                    svgPath = `<path d="${heartPath}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'hexagon':
+                    svgPath = `<polygon points="${currentSize/2},0 ${currentSize*0.93},${currentSize/4} ${currentSize*0.93},${currentSize*0.75} ${currentSize/2},${currentSize} ${currentSize*0.07},${currentSize*0.75} ${currentSize*0.07},${currentSize/4}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+                case 'pentagon':
+                    svgPath = `<polygon points="${currentSize/2},0 ${currentSize*0.95},${currentSize*0.35} ${currentSize*0.78},${currentSize} ${currentSize*0.22},${currentSize} ${currentSize*0.05},${currentSize*0.35}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>`;
+                    break;
+            }
+
+            const svgContent = `<svg width="${currentSize}" height="${currentSize}" xmlns="http://www.w3.org/2000/svg">${svgPath}</svg>`;
+
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = `icon_${shape}_${currentSize}px.svg`;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
