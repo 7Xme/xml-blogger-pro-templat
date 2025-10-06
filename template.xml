@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:version='2' class='v2' expr:class='data:blog.pageType' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gadget' xmlns:expr='http://www.google.com/2005/gadget/expr'>
+<head>
+  <!-- Basic HTML Meta -->
+  <meta charset='utf-8'/>
+  <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+  <title><data:blog.pageTitle/></title>
+
+  <!-- SEO Meta Tags -->
+  <meta expr:content='data:blog.metaDescription' name='description'/>
+  <meta name='keywords' content='portfolio, web development, mobile apps, SEO'/>
+  <meta name='author' content='Your Name'/> <!-- Replace with your name -->
+  <link expr:href='data:blog.url' rel='canonical'/>
+
+  <!-- Open Graph Tags for Social Sharing -->
+  <meta expr:content='data:blog.pageTitle' property='og:title'/>
+  <meta content='website' property='og:type'/>
+  <meta expr:content='data:blog.url' property='og:url'/>
+  <meta expr:content='data:blog.metaDescription' property='og:description'/>
+  <meta content='image-url.jpg' property='og:image'/> <!-- Replace with actual image URL -->
+
+  <!-- Twitter Card -->
+  <meta name='twitter:card' content='summary_large_image'/>
+  <meta expr:content='data:blog.pageTitle' name='twitter:title'/>
+  <meta expr:content='data:blog.metaDescription' name='twitter:description'/>
+  <meta content='@youractualusername' name='twitter:site'/> <!-- Replace with your actual Twitter handle -->
+
+  <!-- Schema Markup for Person/Portfolio -->
+  <script type='application/ld+json'>
+  <![CDATA[
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "<data:blog.title/>", <!-- This will use your blog title -->
+    "jobTitle": "Full-Stack Web and Mobile App Developer",
+    "url": "<data:blog.url/>",
+    "sameAs": [
+      "https://github.com/yourusername", <!-- Replace with your actual GitHub URL -->
+      "https://www.linkedin.com/in/youractualprofile", <!-- Replace with your actual LinkedIn URL -->
+      "https://twitter.com/youractualusername"  <!-- Replace with your actual Twitter URL -->
+    ],
+    "knowsAbout": ["Web Development", "Mobile Apps", "SEO", "JavaScript", "React", "Node.js"]
+  }
+  ]]>
+  </script>
+
+  <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&amp;display=swap' rel='stylesheet'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'/>
+  <b:skin>
+    <![CDATA[
+/* Reset and Base Styles */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Poppins', sans-serif; line-height: 1.6; color: #fff; background: #000; min-height: 100vh; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* Header Styles */
+header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 30px 0; border-radius: 0 0 20px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+header h1 { margin: 0; font-size: 2.5em; color: #000; font-weight: 700; }
+nav ul { list-style: none; padding: 0; display: flex; justify-content: center; gap: 30px; }
+nav a { text-decoration: none; color: #000; font-weight: 600; transition: all 0.3s ease; position: relative; }
+nav a:hover { color: #dc143c; transform: translateY(-2px); }
+nav a::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%; background: #dc143c; transition: all 0.3s ease; }
+nav a:hover::after { width: 100%; left: 0; }
+
+/* Main Section */
+.main { padding: 60px 0; background: rgba(255, 255, 255, 0.05); } /* Added background to main section */
+/* .post styles moved inside the widget for specificity */
+/* .post { margin-bottom: 40px; background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px); transition: transform 0.3s ease; } */
+/* .post:hover { transform: translateY(-5px); } */
+
+/* Portfolio Section */
+.portfolio { background: rgba(255, 255, 255, 0.05); padding: 60px 0; border-radius: 20px; margin: 20px 0; }
+.project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+.project-card { background: rgba(255, 255, 255, 0.9); padding: 25px; border-radius: 15px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: all 0.4s ease; backdrop-filter: blur(10px); }
+.project-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
+.project-card img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; }
+.project-card h3 { margin: 15px 0 10px; color: #000; font-weight: 600; }
+.project-card p { color: #333; margin-bottom: 15px; }
+.project-card a { display: inline-block; background: #dc143c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; }
+.project-card a:hover { background: #b22222; transform: scale(1.05); }
+
+/* Contact Section */
+.contact { background: linear-gradient(135deg, #000 0%, #333 100%); color: #fff; padding: 80px 0; border-radius: 20px; margin: 20px 0; position: relative; overflow: hidden; }
+.contact::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.05); backdrop-filter: blur(0px); z-index: 1; }
+.contact > .container { position: relative; z-index: 2; }
+.contact h2 { margin-bottom: 50px; font-size: 2.5em; font-weight: 700; }
+.contact-content { display: grid; grid-template-columns: 1fr 2fr; gap: 60px; max-width: 1200px; margin: 0 auto; }
+.contact-info { text-align: left; }
+.contact-info h3 { margin-bottom: 30px; font-size: 1.8em; color: #dc143c; }
+.contact-item { display: flex; align-items: center; margin-bottom: 20px; }
+.contact-item i { font-size: 1.5em; color: #dc143c; margin-right: 15px; width: 30px; text-align: center; }
+.contact-item div { font-size: 1.1em; }
+.contact-form { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; backdrop-filter: blur(10px); }
+.contact-form h3 { margin-bottom: 30px; font-size: 1.8em; text-align: center; }
+.contact input, .contact textarea { width: 100%; padding: 15px 20px; margin: 10px 0; border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; background: rgba(255, 255, 255, 0.2); color: #fff; font-size: 16px; transition: all 0.3s ease; }
+.contact input:focus, .contact textarea:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 10px rgba(220,20,60,0.5); }
+.contact input::placeholder, .contact textarea::placeholder { color: rgba(255,255,255,0.7); }
+.contact button { background: #dc143c; color: #fff; padding: 15px 40px; border: none; border-radius: 25px; cursor: pointer; font-size: 18px; font-weight: 600; transition: all 0.3s ease; margin-top: 20px; }
+.contact button:hover { background: #b22222; transform: scale(1.05); box-shadow: 0 5px 15px rgba(220,20,60,0.3); }
+
+/* Footer */
+footer { background: #000; color: #fff; padding: 30px 0; text-align: center; backdrop-filter: blur(10px); }
+footer p { margin: 0; font-weight: 300; }
+
+/* Hero Section */
+.hero { height: 100vh; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; text-align: center; }
+.hero-content { max-width: 800px; }
+.hero h2 { font-size: 3em; margin-bottom: 20px; font-weight: 700; }
+.hero p { font-size: 1.2em; margin-bottom: 30px; }
+.profile-pic { width: 150px; height: 150px; border-radius: 50%; margin-bottom: 20px; object-fit: cover; border: 5px solid #dc143c; }
+.cta-button { background: #dc143c; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; display: inline-block; }
+.cta-button:hover { background: #b22222; transform: scale(1.05); }
+
+/* About Section */
+.about { padding: 60px 0; background: rgba(255, 255, 255, 0.9); color: #000; } /* Added color for contrast */
+.about h2 { text-align: center; margin-bottom: 30px; color: #000; }
+
+/* Skills Section */
+.skills { padding: 60px 0; background: rgba(255, 255, 255, 0.05); }
+.skills h2 { text-align: center; margin-bottom: 40px; color: #fff; }
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+.skill-item { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); backdrop-filter: blur(10px); transition: transform 0.3s ease; color: #000; } /* Added color for contrast */
+.skill-item:hover { transform: translateY(-5px); }
+.skill-item h3 { margin-bottom: 20px; color: #000; }
+.skill-item ul { list-style: none; padding: 0; }
+.skill-item li { margin-bottom: 10px; color: #333; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header h1 { font-size: 2em; }
+  nav ul { flex-direction: column; gap: 15px; }
+  .project-grid { grid-template-columns: 1fr; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .container { padding: 0 15px; }
+  .contact h2, .hero h2 { font-size: 2em; }
+  .hero { height: auto; padding: 100px 0; }
+  .contact-content { grid-template-columns: 1fr; gap: 40px; }
+  .contact-info { text-align: center; }
+  .contact-item { justify-content: center; }
+  .contact-form { padding: 30px 20px; }
+}
+  ]]>
+  </b:skin>
+
+  <b:template-skin>
+    <b:variable default='960px' name='content.width' type='length' value='1200px'/>
+    <b:variable default='0' name='main.column.left.width' type='length' value='0px'/>
+    <b:variable default='310px' name='main.column.right.width' type='length' value='0px'/>
+  </b:template-skin>
+</head>
+
+<body>
+  <header class='container'>
+    <h1><data:blog.title/></h1>
+    <nav>
+      <ul>
+        <li><a href='/'>Home</a></li>
+        <li><a href='#about'>About</a></li>
+        <li><a href='#skills'>Skills</a></li>
+        <li><a href='#my-portfolio'>Portfolio</a></li>
+        <li><a href='/search'>Blog</a></li>
+        <li><a href='#contact'>Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  <b:if cond='data:blog.pageType == "static_page"'>
+    <section class='page-content'>
+      <div class='container'>
+        <h1><data:blog.page.title/></h1>
+        <div><data:blog.page.content/></div>
+      </div>
+    </section>
+  </b:if>
+  <b:if cond='data:blog.pageType == "index"'>
+    <b:section class='hero' id='hero' showaddelement='yes'>
+      <b:widget id='HTML4' locked='false' title='Hero Section' type='HTML'>
+        <b:includable id='main'>
+          <div class='container'>
+            <div class='hero-content'>
+              <img class='profile-pic' src='https://via.placeholder.com/150' alt='Your Name'/><!-- Replace with your actual image URL -->
+              <h2>Hi, I'm <data:blog.title/></h2>
+              <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
+              <a class='cta-button' href='#my-portfolio'>View My Work</a>
+            </div>
+          </div>
+        </b:includable>
+      </b:widget>
+    </b:section>
+
+  <b:section class='about' id='about' showaddelement='yes'>
+    <b:widget id='HTML2' locked='false' title='About Section' type='HTML'>
+      <b:includable id='main'>
+        <div class='container'>
+          <h2>About Me</h2>
+          <p>I am a passionate full-stack developer with expertise in web and mobile technologies. With years of experience, I create user-friendly applications and websites that drive results.</p>
+        </div>
+      </b:includable>
+    </b:widget>
+  </b:section>
+
+  <b:section class='skills' id='skills' showaddelement='yes'>
+    <b:widget id='HTML3' locked='false' title='Skills Section' type='HTML'>
+      <b:includable id='main'>
+        <div class='container'>
+          <h2>My Skills</h2>
+          <div class='skills-grid'>
+            <div class='skill-item'>
+              <h3>Frontend</h3>
+              <ul>
+                <li>HTML5</li>
+                <li>CSS3</li>
+                <li>JavaScript</li>
+                <li>React</li>
+              </ul>
+            </div>
+            <div class='skill-item'>
+              <h3>Backend</h3>
+              <ul>
+                <li>Node.js</li>
+                <li>Express</li>
+                <li>MongoDB</li>
+                <li>SQL</li>
+              </ul>
+            </div>
+            <div class='skill-item'>
+              <h3>Mobile</h3>
+              <ul>
+                <li>React Native</li>
+                <li>Flutter</li>
+                <li>iOS/Android</li>
+              </ul>
+            </div>
+            <div class='skill-item'>
+              <h3>Tools</h3>
+              <ul>
+                <li>Git</li>
+                <li>Docker</li>
+                <li>AWS</li>
+                <li>SEO</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </b:includable>
+    </b:widget>
+  </b:section>
+
+  <b:section class='portfolio' id='my-portfolio' showaddelement='yes'>
+    <b:widget id='HTML1' locked='false' title='Portfolio Projects' type='HTML'>
+      <b:includable id='main'>
+        <div class='container'>
+          <h2>My Projects</h2>
+          <div class='project-grid'>
+            <div class='project-card'>
+              <img src='project1.jpg' alt='Project 1'/> <!-- Replace with actual image -->
+              <h3>E-commerce App</h3>
+              <p>A full-stack e-commerce platform with payment integration.</p>
+              <a href='#'>View Project</a>
+            </div>
+            <div class='project-card'>
+              <img src='project2.jpg' alt='Project 2'/> <!-- Replace with actual image -->
+              <h3>Mobile Chat App</h3>
+              <p>Real-time messaging app built with React Native.</p>
+              <a href='#'>View Project</a>
+            </div>
+            <div class='project-card'>
+              <img src='project3.jpg' alt='Project 3'/> <!-- Replace with actual image -->
+              <h3>Portfolio Website</h3>
+              <p>Responsive portfolio site showcasing my work.</p>
+              <a href='#'>View Project</a>
+            </div>
+            <!-- Add more projects -->
+          </div>
+        </div>
+      </b:includable>
+    </b:widget>
+  </b:section>
+</b:if>
+
+  <!-- Corrected Blog Section -->
+  <b:section class='main' id='main' showaddelement='yes'>
+    <b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog'>
+      <b:includable id='main'>
+        <b:if cond='data:blog.pageType == "item"'>
+          <!-- Single post view -->
+          <div class='container'>
+            <b:loop values='data:posts' var='post'>
+              <article class='post hentry'>
+                <b:if cond='data:post.thumbnailUrl'>
+                  <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
+                </b:if>
+                <h2 class='post-title entry-title'><data:post.title/></h2>
+                <div expr:class='"post-body entry-content " + data:post.id'>
+                  <data:post.body/>
+                </div>
+                <b:if cond='data:post.labels'>
+                  <div class='post-labels'>
+                    <b:loop values='data:post.labels' var='label'>
+                      <a expr:href='data:label.url' rel='tag'><data:label.name/></a>
+                      <b:if cond='data:label.isLast != "true"'>, </b:if>
+                    </b:loop>
+                  </div>
+                </b:if>
+              </article>
+            </b:loop>
+          </div>
+        <b:else/>
+          <!-- List view -->
+          <div class='container'>
+            <b:loop values='data:posts' var='post'>
+              <article class='post hentry' expr:onclick='"window.location.href=\"" + data:post.url + "\";"'>
+                <b:if cond='data:post.thumbnailUrl'>
+                  <img expr:src='data:post.thumbnailUrl' alt='Post Thumbnail' class='post-thumbnail'/>
+                </b:if>
+                <h2 class='post-title entry-title'><a expr:href='data:post.url' rel='bookmark'><data:post.title/></a></h2>
+                <div expr:class='"post-body entry-content " + data:post.id'>
+                  <data:post.snippet/>
+                </div>
+                <b:if cond='data:post.labels'>
+                  <div class='post-labels'>
+                    <b:loop values='data:post.labels' var='label'>
+                      <a expr:href='data:label.url' rel='tag'><data:label.name/></a>
+                      <b:if cond='data:label.isLast != "true"'>, </b:if>
+                    </b:loop>
+                  </div>
+                </b:if>
+              </article>
+            </b:loop>
+          </div>
+        </b:if>
+        <style type='text/css'>
+          /* Specific styles for blog posts within the main section */
+          .main .post {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+          }
+          .main .post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+          }
+          .main .post-thumbnail {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: block;
+          }
+          .main .post-title {
+            margin-top: 0;
+            color: #000;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+          }
+          .main .post-title a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+          }
+          .main .post-title a:hover {
+            color: #dc143c;
+          }
+          .main .post-body {
+            color: #333;
+            line-height: 1.6;
+          }
+          .main .post-labels {
+            margin-top: 15px;
+            font-size: 0.9em;
+          }
+          .main .post-labels a {
+            color: #dc143c;
+            text-decoration: none;
+            margin-right: 10px;
+          }
+          .main .post-labels a:hover {
+            text-decoration: underline;
+          }
+        </style>
+      </b:includable>
+    </b:widget>
+  </b:section>
+
+
+  <b:section class='contact' id='contact' showaddelement='yes'>
+    <b:widget id='ContactForm1' locked='false' title='Contact Form' type='ContactForm'>
+      <b:includable id='main'>
+        <div class='container'>
+          <h2>Contact Me</h2>
+          <div class='contact-content'>
+            <div class='contact-info'>
+              <h3>Get In Touch</h3>
+              <div class='contact-item'>
+                <i class='fas fa-envelope'></i>
+                <div>
+                  <strong>Email</strong><br/>
+                  your.email@example.com <!-- Replace with your actual email -->
+                </div>
+              </div>
+              <div class='contact-item'>
+                <i class='fas fa-phone'></i>
+                <div>
+                  <strong>Phone</strong><br/>
+                  +1 (123) 456-7890 <!-- Replace with your actual phone -->
+                </div>
+              </div>
+              <div class='contact-item'>
+                <i class='fas fa-map-marker-alt'></i>
+                <div>
+                  <strong>Location</strong><br/>
+                  Your City, Country <!-- Replace with your location -->
+                </div>
+              </div>
+              <div class='contact-item'>
+                <i class='fas fa-clock'></i>
+                <div>
+                  <strong>Response Time</strong><br/>
+                  Within 24 hours
+                </div>
+              </div>
+            </div>
+            <div class='contact-form'>
+              <h3>Send Message</h3>
+              <!-- Note: Blogger ContactForm widget usually handles action internally -->
+              <form name='contact-form' method='post' expr:action='data:blog.contactFormMessageUrl'>
+                <input class='contact-form-name' expr:dir='data:blog.languageDirection' id='ContactForm1_contact-form-name' name='name' placeholder='Your Name' size='30' type='text' value=''/>
+                <input class='contact-form-email' expr:dir='data:blog.languageDirection' id='ContactForm1_contact-form-email' name='email' placeholder='Your Email' size='30' type='text' value=''/>
+                <textarea class='contact-form-email-message' expr:dir='data:blog.languageDirection' id='ContactForm1_contact-form-email-message' name='email-message' placeholder='Your Message' rows='5'></textarea>
+                <input class='contact-form-button contact-form-button-submit' expr:dir='data:blog.languageDirection' id='ContactForm1_contact-form-submit' type='submit' value='Send Message'/>
+                <div class='contact-form-error-message' id='ContactForm1_contact-form-error-message'/>
+                <div class='contact-form-success-message' id='ContactForm1_contact-form-success-message'/>
+              </form>
+            </div>
+          </div>
+        </div>
+      </b:includable>
+    </b:widget>
+  </b:section>
+
+  <footer class='container'>
+    <p>&#169; <data:blog.title/>. All rights reserved.</p> <!-- Replace with your name if desired -->
+  </footer>
+
+  <b:section class='sidebar' id='sidebar' showaddelement='yes'>
+    <!-- Optional sidebar widgets -->
+  </b:section>
+</body>
+</html>
