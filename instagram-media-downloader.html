@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Media Downloader</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .url-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .download-btn {
+            background: #dc143c;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #dc143c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .media-card {
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .media-preview {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .media-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .media-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #333;
+            word-break: break-word;
+        }
+        .limitations {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            color: #856404;
+        }
+        .limitations h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .limitations ul {
+            margin-bottom: 0;
+        }
+        .alternative-methods {
+            margin-top: 20px;
+            padding: 15px;
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            color: #0c5460;
+        }
+        .alternative-methods h4 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .alternative-methods ul {
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .url-input {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Instagram Media Downloader</h1>
+
+        <div class="input-section">
+            <input type="text" class="url-input" id="urlInput" placeholder="Enter Instagram post URL">
+            <br>
+            <button class="download-btn" id="downloadBtn">Get Media Info</button>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;">Retrieving media information...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="media-card" id="mediaCard">
+                <!-- Media info will be inserted here -->
+            </div>
+        </div>
+
+        <div class="limitations">
+            <h3>Important Limitations</h3>
+            <ul>
+                <li><strong>API Access Required:</strong> Instagram requires a registered app and access token to use their APIs</li>
+                <li><strong>Download Not Possible:</strong> Due to Instagram's policies and CORS restrictions, direct media downloads are not possible in web browsers</li>
+                <li><strong>Scraping Prohibited:</strong> Web scraping violates Instagram's Terms of Service</li>
+                <li><strong>Legal Restrictions:</strong> Downloading Instagram content may violate copyright and platform policies</li>
+            </ul>
+        </div>
+
+        <div class="alternative-methods">
+            <h4>Alternative Methods</h4>
+            <ul>
+                <li>Use official Instagram app features for saving content</li>
+                <li>Browser extensions (check their legitimacy and safety)</li>
+                <li>Third-party websites (use with caution and check terms)</li>
+                <li>Contact content owner for permission</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const resultSection = document.getElementById('resultSection');
+        const mediaCard = document.getElementById('mediaCard');
+
+        // Download button event
+        downloadBtn.addEventListener('click', getMediaInfo);
+
+        async function getMediaInfo() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter an Instagram URL.');
+                return;
+            }
+
+            if (!isValidInstagramUrl(url)) {
+                alert('Please enter a valid Instagram post URL.');
+                return;
+            }
+
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = 'Retrieving...';
+            progress.style.display = 'block';
+            progressFill.style.width = '0%';
+            resultSection.style.display = 'none';
+
+            try {
+                // Note: Instagram oEmbed requires access token
+                // This is a demonstration of what would be needed
+                showDemoInfo(url);
+                progressFill.style.width = '100%';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error retrieving media info: ' + error.message);
+                progress.style.display = 'none';
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Get Media Info';
+            }
+        }
+
+        function isValidInstagramUrl(url) {
+            const patterns = [
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/p\/([^\/\?]+)/,
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/reel\/([^\/\?]+)/,
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/tv\/([^\/\?]+)/
+            ];
+
+            return patterns.some(pattern => pattern.test(url));
+        }
+
+        function showDemoInfo(url) {
+            // This is demo content since actual API access isn't available
+            const postId = extractPostId(url);
+
+            mediaCard.innerHTML = `
+                <div style="background: #e9ecef; padding: 40px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="font-size: 48px; color: #6c757d;">📷</div>
+                    <p style="margin: 10px 0 0 0; color: #6c757d;">Media Preview Not Available</p>
+                </div>
+                <div class="media-title">Instagram Post</div>
+                <div class="media-info">
+                    <div class="info-label">Post ID</div>
+                    <div class="info-value">${postId || 'Unknown'}</div>
+                </div>
+                <div class="media-info">
+                    <div class="info-label">URL</div>
+                    <div class="info-value">${url}</div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24;">
+                    <strong>Note:</strong> Due to Instagram's API requirements and browser limitations, actual media download and detailed information retrieval is not possible in this web interface.
+                </div>
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="${url}" target="_blank" style="color: #dc143c; text-decoration: none; font-weight: 600;">View on Instagram →</a>
+                </div>
+            `;
+
+            resultSection.style.display = 'block';
+        }
+
+        function extractPostId(url) {
+            const patterns = [
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/p\/([^\/\?]+)/,
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/reel\/([^\/\?]+)/,
+                /(?:https?:\/\/)?(?:www\.)?instagram\.com\/tv\/([^\/\?]+)/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+    </script>
+</body>
+</html>

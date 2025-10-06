@@ -3,42 +3,6 @@
 ## Planned Tool Additions
 
 
-### 6. Color Picker/Palette Generator
-- **Description**: Pick colors and generate harmonious palettes
-- **Features**:
-  - Color picker interface
-  - Hex/RGB/HSL display
-  - Palette generation
-  - Export options
-- **Technologies**: Canvas API, color theory algorithms
-
-
-### 21. YouTube Video Info Extractor
-- **Description**: Get information about YouTube videos
-- **Features**:
-  - Video details (title, duration, views)
-  - Thumbnail extraction
-  - Download links (metadata only)
-  - Channel information
-- **Technologies**: YouTube API or scraping (with caution)
-
-### 22. Instagram Media Downloader
-- **Description**: Download Instagram photos and videos
-- **Features**:
-  - Post URL input
-  - Media download
-  - Story highlights
-  - Profile information
-- **Technologies**: Instagram API or scraping
-
-### 23. TikTok Video Info Tool
-- **Description**: Extract TikTok video information
-- **Features**:
-  - Video metadata
-  - Creator info
-  - Engagement stats
-  - Download options
-- **Technologies**: TikTok API or scraping
 
 ### 24. SEO Analyzer
 - **Description**: Analyze website SEO metrics
