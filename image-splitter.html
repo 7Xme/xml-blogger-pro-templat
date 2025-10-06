@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Splitter</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .splitter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .mode-options {
+            display: none;
+        }
+        .mode-options.active {
+            display: block;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.02);
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #dc143c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .pieces-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .piece-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .piece-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+        }
+        .download-all-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .download-all-btn:hover {
+            background: #0056b3;
+            transform: scale(1.02);
+        }
+        @media (max-width: 768px) {
+            .splitter-container {
+                padding: 20px;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .pieces-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="splitter-container">
+        <h1>Image Splitter</h1>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="imageFile">Select Image:</label>
+                <input type="file" id="imageFile" accept="image/*">
+            </div>
+
+            <div class="control-group">
+                <label for="mode">Split Mode:</label>
+                <select id="mode">
+                    <option value="grid">Grid</option>
+                    <option value="custom">Custom Dimensions</option>
+                </select>
+            </div>
+
+            <div class="mode-options" id="gridOptions">
+                <div class="control-group">
+                    <label for="rows">Rows:</label>
+                    <input type="number" id="rows" min="2" max="10" value="2">
+                </div>
+                <div class="control-group">
+                    <label for="cols">Columns:</label>
+                    <input type="number" id="cols" min="2" max="10" value="2">
+                </div>
+            </div>
+
+            <div class="mode-options" id="customOptions">
+                <div class="control-group">
+                    <label for="pieceWidth">Piece Width (px):</label>
+                    <input type="number" id="pieceWidth" min="50" value="200">
+                </div>
+                <div class="control-group">
+                    <label for="pieceHeight">Piece Height (px):</label>
+                    <input type="number" id="pieceHeight" min="50" value="200">
+                </div>
+                <div class="control-group">
+                    <label><input type="checkbox" id="maintainAspect"> Maintain aspect ratio</label>
+                </div>
+            </div>
+        </div>
+
+        <button id="splitBtn">Split Image</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;">Splitting image...</div>
+        </div>
+
+        <button class="download-all-btn" id="downloadAllBtn" style="display: none;">Download All Pieces (ZIP)</button>
+
+        <div class="pieces-container" id="piecesContainer"></div>
+    </div>
+
+    <script>
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const modeSelect = document.getElementById('mode');
+        const gridOptions = document.getElementById('gridOptions');
+        const customOptions = document.getElementById('customOptions');
+        const rowsInput = document.getElementById('rows');
+        const colsInput = document.getElementById('cols');
+        const pieceWidthInput = document.getElementById('pieceWidth');
+        const pieceHeightInput = document.getElementById('pieceHeight');
+        const maintainAspectCheckbox = document.getElementById('maintainAspect');
+        const splitBtn = document.getElementById('splitBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const piecesContainer = document.getElementById('piecesContainer');
+
+        let originalImage = null;
+        let pieces = [];
+
+        // Mode change
+        modeSelect.addEventListener('change', () => {
+            gridOptions.classList.toggle('active', modeSelect.value === 'grid');
+            customOptions.classList.toggle('active', modeSelect.value === 'custom');
+        });
+
+        // Split button event
+        splitBtn.addEventListener('click', splitImage);
+
+        async function splitImage() {
+            const file = imageFile.files[0];
+            if (!file) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            progressContainer.style.display = 'block';
+            piecesContainer.innerHTML = '';
+            pieces = [];
+            downloadAllBtn.style.display = 'none';
+            splitBtn.disabled = true;
+            splitBtn.textContent = 'Splitting...';
+
+            try {
+                await loadImage(file);
+                await createPieces();
+                displayPieces();
+                downloadAllBtn.style.display = 'block';
+            } catch (error) {
+                console.error('Error splitting image:', error);
+                alert(`Error splitting image: ${error.message}`);
+            }
+
+            progressContainer.style.display = 'none';
+            splitBtn.disabled = false;
+            splitBtn.textContent = 'Split Image';
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    resolve();
+                };
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function createPieces() {
+            const mode = modeSelect.value;
+            let rows, cols, pieceWidth, pieceHeight;
+
+            if (mode === 'grid') {
+                rows = parseInt(rowsInput.value);
+                cols = parseInt(colsInput.value);
+                pieceWidth = Math.floor(originalImage.naturalWidth / cols);
+                pieceHeight = Math.floor(originalImage.naturalHeight / rows);
+            } else {
+                pieceWidth = parseInt(pieceWidthInput.value);
+                pieceHeight = parseInt(pieceHeightInput.value);
+                if (maintainAspectCheckbox.checked) {
+                    const aspectRatio = originalImage.naturalWidth / originalImage.naturalHeight;
+                    pieceWidth = Math.min(pieceWidth, pieceHeight * aspectRatio);
+                    pieceHeight = Math.min(pieceHeight, pieceWidth / aspectRatio);
+                }
+                rows = Math.ceil(originalImage.naturalHeight / pieceHeight);
+                cols = Math.ceil(originalImage.naturalWidth / pieceWidth);
+            }
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    const x = col * pieceWidth;
+                    const y = row * pieceHeight;
+                    const width = Math.min(pieceWidth, originalImage.naturalWidth - x);
+                    const height = Math.min(pieceHeight, originalImage.naturalHeight - y);
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(originalImage, x, y, width, height, 0, 0, width, height);
+
+                    const piece = await canvasToBlob(canvas);
+                    pieces.push({
+                        blob: piece,
+                        row: row + 1,
+                        col: col + 1,
+                        dataUrl: canvas.toDataURL()
+                    });
+
+                    // Update progress
+                    const progress = ((row * cols + col + 1) / (rows * cols)) * 100;
+                    progressFill.style.width = progress + '%';
+                }
+            }
+        }
+
+        function canvasToBlob(canvas) {
+            return new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/png');
+            });
+        }
+
+        function displayPieces() {
+            pieces.forEach((piece, index) => {
+                const card = document.createElement('div');
+                card.className = 'piece-card';
+
+                const img = document.createElement('img');
+                img.src = piece.dataUrl;
+                img.className = 'piece-image';
+                img.alt = `Piece ${index + 1}`;
+
+                const info = document.createElement('div');
+                info.textContent = `Row ${piece.row}, Col ${piece.col}`;
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'download-btn';
+                downloadBtn.textContent = 'Download';
+                downloadBtn.onclick = () => downloadPiece(piece, index);
+
+                card.appendChild(img);
+                card.appendChild(info);
+                card.appendChild(downloadBtn);
+
+                piecesContainer.appendChild(card);
+            });
+        }
+
+        function downloadPiece(piece, index) {
+            const link = document.createElement('a');
+            link.href = piece.dataUrl;
+            link.download = `piece_${piece.row}_${piece.col}.png`;
+            link.click();
+        }
+
+        // Download all as ZIP (simplified - just download each)
+        downloadAllBtn.addEventListener('click', () => {
+            pieces.forEach((piece, index) => {
+                setTimeout(() => downloadPiece(piece, index), index * 100);
+            });
+        });
+
+        // Initialize mode
+        modeSelect.dispatchEvent(new Event('change'));
+    </script>
+</body>
+</html>
