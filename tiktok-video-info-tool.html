@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Video Info Tool</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .url-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .extract-btn {
+            background: #dc143c;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .extract-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .extract-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #dc143c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .video-card {
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .thumbnail {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .video-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .video-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            color: #333;
+            word-break: break-word;
+        }
+        .creator-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .creator-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .creator-url {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .creator-url:hover {
+            text-decoration: underline;
+        }
+        .limitations {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            color: #856404;
+        }
+        .limitations h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .limitations ul {
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .video-info {
+                grid-template-columns: 1fr;
+            }
+            .url-input {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TikTok Video Info Tool</h1>
+
+        <div class="input-section">
+            <input type="text" class="url-input" id="urlInput" placeholder="Enter TikTok video URL">
+            <br>
+            <button class="extract-btn" id="extractBtn">Extract Video Info</button>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;">Extracting video information...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="video-card" id="videoCard">
+                <!-- Video info will be inserted here -->
+            </div>
+        </div>
+
+        <div class="limitations">
+            <h3>Limitations</h3>
+            <ul>
+                <li>This tool uses TikTok's public oEmbed API to extract basic video information</li>
+                <li>Advanced details like view count, likes, and video downloads are not available due to API restrictions</li>
+                <li>Only works with public TikTok videos</li>
+                <li>Respects TikTok's terms of service and API usage policies</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const urlInput = document.getElementById('urlInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const resultSection = document.getElementById('resultSection');
+        const videoCard = document.getElementById('videoCard');
+
+        // Extract button event
+        extractBtn.addEventListener('click', extractVideoInfo);
+
+        async function extractVideoInfo() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('Please enter a TikTok URL.');
+                return;
+            }
+
+            if (!isValidTikTokUrl(url)) {
+                alert('Please enter a valid TikTok video URL.');
+                return;
+            }
+
+            extractBtn.disabled = true;
+            extractBtn.textContent = 'Extracting...';
+            progress.style.display = 'block';
+            progressFill.style.width = '0%';
+            resultSection.style.display = 'none';
+
+            try {
+                const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
+                const response = await fetch(oembedUrl);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch video information. Video might be private or unavailable.');
+                }
+
+                const data = await response.json();
+                progressFill.style.width = '100%';
+
+                displayVideoInfo(data, url);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error extracting video info: ' + error.message);
+                progress.style.display = 'none';
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.textContent = 'Extract Video Info';
+                progress.style.display = 'none';
+            }
+        }
+
+        function isValidTikTokUrl(url) {
+            const patterns = [
+                /(?:https?:\/\/)?(?:www\.|m\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/,
+                /(?:https?:\/\/)?(?:www\.|m\.)?tiktok\.com\/t\/\w+/
+            ];
+
+            return patterns.some(pattern => pattern.test(url));
+        }
+
+        function displayVideoInfo(data, url) {
+            const thumbnailUrl = data.thumbnail_url;
+
+            videoCard.innerHTML = `
+                <img src="${thumbnailUrl}" alt="Video thumbnail" class="thumbnail">
+                <h2 class="video-title">${data.title}</h2>
+                <div class="video-info">
+                    <div class="info-item">
+                        <div class="info-label">Provider</div>
+                        <div class="info-value">${data.provider_name}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Type</div>
+                        <div class="info-value">${data.type}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Width × Height</div>
+                        <div class="info-value">${data.width} × ${data.height}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">URL</div>
+                        <div class="info-value">${url}</div>
+                    </div>
+                </div>
+                <div class="creator-info">
+                    <div class="creator-name">${data.author_name}</div>
+                    <a href="${data.author_url}" target="_blank" class="creator-url">${data.author_url}</a>
+                </div>
+                <div style="margin-top: 15px; text-align: center;">
+                    <a href="${url}" target="_blank" style="color: #dc143c; text-decoration: none; font-weight: 600;">Watch on TikTok →</a>
+                </div>
+            `;
+
+            resultSection.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

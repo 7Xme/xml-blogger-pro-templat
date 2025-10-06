@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashtag Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+        select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        .generate-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .generate-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .results-section {
+            margin-top: 30px;
+        }
+        .hashtags-display {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .hashtags-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .hashtags-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .hashtag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .hashtag:hover {
+            background: #dc143c;
+            color: white;
+        }
+        .hashtags-text {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .select-all-btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .select-all-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .trending-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .trending-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .limitations {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #721c24;
+        }
+        .limitations h3 {
+            margin-top: 0;
+            color: #721c24;
+        }
+        .limitations ul {
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hashtag Generator</h1>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="keyword">Enter a keyword or topic:</label>
+                <input type="text" id="keyword" placeholder="e.g., photography, travel, food">
+            </div>
+            
+            <div class="input-group">
+                <label for="platform">Select platform:</label>
+                <select id="platform">
+                    <option value="instagram">Instagram</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="general">General</option>
+                </select>
+            </div>
+            
+            <button class="generate-btn" id="generateBtn">Generate Hashtags</button>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="hashtags-display">
+                <div class="hashtags-title">Generated Hashtags</div>
+                <div class="hashtags-grid" id="hashtagsGrid"></div>
+                <div class="hashtags-text" id="hashtagsText"></div>
+                <div class="action-btns">
+                    <button class="select-all-btn" id="selectAllBtn">Select All</button>
+                    <button class="copy-btn" id="copyBtn">Copy Selected</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="trending-section">
+            <div class="trending-title">Popular Trending Hashtags</div>
+            <div class="hashtags-grid" id="trendingHashtags">
+                <!-- Trending hashtags will be populated -->
+            </div>
+        </div>
+
+        <div class="limitations">
+            <h3>Limitations</h3>
+            <ul>
+                <li><strong>No Real-time Trending:</strong> True trending hashtags require API access which isn't available</li>
+                <li><strong>Algorithmic Generation:</strong> Hashtags are generated based on keywords and patterns, not actual trends</li>
+                <li><strong>Platform Differences:</strong> Each platform has different hashtag best practices</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const keywordInput = document.getElementById('keyword');
+        const platformSelect = document.getElementById('platform');
+        const generateBtn = document.getElementById('generateBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const hashtagsGrid = document.getElementById('hashtagsGrid');
+        const hashtagsText = document.getElementById('hashtagsText');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const trendingHashtags = document.getElementById('trendingHashtags');
+
+        let generatedHashtags = [];
+        let selectedHashtags = new Set();
+
+        // Generate button event
+        generateBtn.addEventListener('click', generateHashtags);
+
+        // Action buttons
+        selectAllBtn.addEventListener('click', selectAllHashtags);
+        copyBtn.addEventListener('click', copySelectedHashtags);
+
+        // Load trending hashtags
+        loadTrendingHashtags();
+
+        function generateHashtags() {
+            const keyword = keywordInput.value.trim().toLowerCase();
+            const platform = platformSelect.value;
+
+            if (!keyword) {
+                alert('Please enter a keyword.');
+                return;
+            }
+
+            generatedHashtags = createHashtags(keyword, platform);
+            selectedHashtags.clear();
+            displayHashtags();
+            resultsSection.style.display = 'block';
+        }
+
+        function createHashtags(keyword, platform) {
+            const hashtags = [];
+            const words = keyword.split(/\s+/);
+            
+            // Basic variations
+            hashtags.push(`#${keyword.replace(/\s+/g, '')}`);
+            if (words.length > 1) {
+                hashtags.push(`#${words.join('')}`);
+                hashtags.push(`#${words[0]}${words[1]}`);
+            }
+
+            // Platform-specific additions
+            const platformTags = getPlatformTags(platform);
+            hashtags.push(...platformTags);
+
+            // Related variations
+            const variations = [
+                `${keyword}life`, `${keyword}tips`, `${keyword}inspo`, 
+                `my${keyword}`, `best${keyword}`, `${keyword}community`,
+                `${keyword}daily`, `${keyword}world`, `${keyword}art`
+            ];
+
+            variations.forEach(variation => {
+                hashtags.push(`#${variation.replace(/\s+/g, '')}`);
+            });
+
+            // Remove duplicates and limit
+            return [...new Set(hashtags)].slice(0, 30);
+        }
+
+        function getPlatformTags(platform) {
+            const tags = {
+                instagram: ['#instagood', '#photooftheday', '#love', '#beautiful', '#picoftheday', '#happy', '#instagram', '#follow', '#like', '#explore'],
+                twitter: ['#TwitterAfterDark', '#NowPlaying', '#MusicMonday', '#ThrowbackThursday', '#MotivationMonday', '#WeekendVibes', '#LifeHacks', '#BreakingNews'],
+                tiktok: ['#fyp', '#foryou', '#tiktok', '#viral', '#trending', '#duet', '#stitch', '#dance', '#music', '#funny'],
+                general: ['#love', '#life', '#happy', '#motivation', '#inspiration', '#success', '#goals', '#dreams', '#positive', '#smile']
+            };
+            return tags[platform] || tags.general;
+        }
+
+        function displayHashtags() {
+            hashtagsGrid.innerHTML = '';
+            hashtagsText.textContent = '';
+
+            generatedHashtags.forEach((hashtag, index) => {
+                const hashtagEl = document.createElement('div');
+                hashtagEl.className = 'hashtag';
+                hashtagEl.textContent = hashtag;
+                hashtagEl.addEventListener('click', () => toggleHashtag(index));
+                hashtagsGrid.appendChild(hashtagEl);
+            });
+        }
+
+        function toggleHashtag(index) {
+            const hashtag = generatedHashtags[index];
+            const hashtagEl = hashtagsGrid.children[index];
+
+            if (selectedHashtags.has(index)) {
+                selectedHashtags.delete(index);
+                hashtagEl.style.backgroundColor = '';
+                hashtagEl.style.color = '';
+            } else {
+                selectedHashtags.add(index);
+                hashtagEl.style.backgroundColor = '#dc143c';
+                hashtagEl.style.color = 'white';
+            }
+
+            updateHashtagsText();
+        }
+
+        function selectAllHashtags() {
+            selectedHashtags.clear();
+            for (let i = 0; i < generatedHashtags.length; i++) {
+                selectedHashtags.add(i);
+                const hashtagEl = hashtagsGrid.children[i];
+                hashtagEl.style.backgroundColor = '#dc143c';
+                hashtagEl.style.color = 'white';
+            }
+            updateHashtagsText();
+        }
+
+        function updateHashtagsText() {
+            const selected = Array.from(selectedHashtags).map(i => generatedHashtags[i]);
+            hashtagsText.textContent = selected.join(' ');
+        }
+
+        function copySelectedHashtags() {
+            const text = hashtagsText.textContent;
+            if (!text) {
+                alert('Please select some hashtags first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy Selected';
+                }, 2000);
+            });
+        }
+
+        function loadTrendingHashtags() {
+            // Mock trending hashtags since real trending requires API
+            const trending = [
+                '#love', '#instagood', '#photooftheday', '#beautiful', '#happy', 
+                '#cute', '#tbt', '#like4like', '#followme', '#picoftheday',
+                '#fyp', '#viral', '#tiktok', '#dance', '#music'
+            ];
+
+            trending.forEach(tag => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'hashtag';
+                tagEl.textContent = tag;
+                tagEl.addEventListener('click', () => {
+                    keywordInput.value = tag.substring(1);
+                    platformSelect.value = 'general';
+                });
+                trendingHashtags.appendChild(tagEl);
+            });
+        }
+    </script>
+</body>
+</html>

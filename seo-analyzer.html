@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Analyzer</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .input-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+            transition: background 0.3s ease;
+        }
+        .input-tab.active {
+            background: #dc143c;
+            color: white;
+        }
+        .input-content {
+            display: none;
+        }
+        .input-content.active {
+            display: block;
+        }
+        .url-input, .html-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: monospace;
+            min-height: 100px;
+        }
+        .html-input {
+            min-height: 300px;
+            resize: vertical;
+        }
+        .analyze-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        .analyze-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .analyze-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .results-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .results-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+            transition: background 0.3s ease;
+        }
+        .results-tab.active {
+            background: #007bff;
+            color: white;
+        }
+        .results-content {
+            display: none;
+        }
+        .results-content.active {
+            display: block;
+        }
+        .analysis-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .meta-item:last-child {
+            border-bottom: none;
+        }
+        .meta-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .meta-value {
+            color: #333;
+            max-width: 60%;
+            word-break: break-word;
+            text-align: right;
+        }
+        .status-good {
+            color: #28a745;
+        }
+        .status-warning {
+            color: #ffc107;
+        }
+        .status-error {
+            color: #dc3545;
+        }
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .keyword-item:last-child {
+            border-bottom: none;
+        }
+        .keyword-text {
+            font-weight: 600;
+            color: #333;
+        }
+        .keyword-count {
+            background: #dc143c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+        .limitations {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            color: #856404;
+        }
+        .limitations h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .limitations ul {
+            margin-bottom: 0;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .input-tabs, .results-tabs {
+                flex-direction: column;
+            }
+            .input-tab, .results-tab {
+                margin-bottom: 5px;
+            }
+            .meta-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .meta-value {
+                max-width: 100%;
+                text-align: left;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SEO Analyzer</h1>
+
+        <div class="input-section">
+            <div class="input-tabs">
+                <div class="input-tab active" data-input="url">URL Input</div>
+                <div class="input-tab" data-input="html">HTML Input</div>
+            </div>
+            
+            <div class="input-content active" id="urlInput">
+                <input type="text" class="url-input" placeholder="Enter website URL (note: CORS may prevent analysis)">
+            </div>
+            
+            <div class="input-content" id="htmlInput">
+                <textarea class="html-input" placeholder="Paste HTML source code here for analysis"></textarea>
+            </div>
+            
+            <button class="analyze-btn" id="analyzeBtn">Analyze SEO</button>
+        </div>
+
+        <div class="progress" id="progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;">Analyzing SEO...</div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-tabs">
+                <div class="results-tab active" data-result="meta">Meta Tags</div>
+                <div class="results-tab" data-result="keywords">Keywords</div>
+                <div class="results-tab" data-result="score">SEO Score</div>
+            </div>
+            
+            <div class="results-content active" id="metaResults">
+                <div class="analysis-card">
+                    <div class="card-title">Meta Tags Analysis</div>
+                    <div id="metaItems"></div>
+                </div>
+            </div>
+            
+            <div class="results-content" id="keywordResults">
+                <div class="analysis-card">
+                    <div class="card-title">Keyword Analysis</div>
+                    <div id="keywordItems"></div>
+                </div>
+            </div>
+            
+            <div class="results-content" id="scoreResults">
+                <div class="analysis-card">
+                    <div class="card-title">SEO Score</div>
+                    <div id="seoScore"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="limitations">
+            <h3>Limitations</h3>
+            <ul>
+                <li><strong>CORS Restrictions:</strong> Cannot fetch external URLs directly due to browser security policies</li>
+                <li><strong>API Requirements:</strong> Page speed and mobile-friendliness analysis require Google APIs with keys</li>
+                <li><strong>HTML Input Recommended:</strong> For full analysis, paste HTML source code</li>
+                <li><strong>Limited Scope:</strong> Browser-based analysis cannot access server-side SEO factors</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const inputTabs = document.querySelectorAll('.input-tab');
+        const inputContents = document.querySelectorAll('.input-content');
+        const resultsTabs = document.querySelectorAll('.results-tab');
+        const resultsContents = document.querySelectorAll('.results-content');
+
+        inputTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                inputTabs.forEach(t => t.classList.remove('active'));
+                inputContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.input + 'Input').classList.add('active');
+            });
+        });
+
+        resultsTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                resultsTabs.forEach(t => t.classList.remove('active'));
+                resultsContents.forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.result + 'Results').classList.add('active');
+            });
+        });
+
+        // Analysis
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const progress = document.getElementById('progress');
+        const progressFill = document.getElementById('progressFill');
+        const resultsSection = document.getElementById('resultsSection');
+        const urlInput = document.querySelector('.url-input');
+        const htmlInput = document.querySelector('.html-input');
+
+        analyzeBtn.addEventListener('click', analyzeSEO);
+
+        async function analyzeSEO() {
+            const activeInput = document.querySelector('.input-content.active');
+            let html = '';
+
+            if (activeInput.id === 'urlInput') {
+                const url = urlInput.value.trim();
+                if (!url) {
+                    alert('Please enter a URL.');
+                    return;
+                }
+                try {
+                    const response = await fetch(url);
+                    html = await response.text();
+                } catch (error) {
+                    alert('Cannot fetch URL due to CORS policy. Please use HTML input instead.');
+                    return;
+                }
+            } else {
+                html = htmlInput.value.trim();
+                if (!html) {
+                    alert('Please paste HTML source code.');
+                    return;
+                }
+            }
+
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            progress.style.display = 'block';
+            progressFill.style.width = '0%';
+            resultsSection.style.display = 'none';
+
+            // Analyze HTML
+            const analysis = analyzeHTML(html);
+            progressFill.style.width = '100%';
+
+            displayResults(analysis);
+
+            progress.style.display = 'none';
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Analyze SEO';
+            resultsSection.style.display = 'block';
+        }
+
+        function analyzeHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Meta tags
+            const metaTags = {};
+            doc.querySelectorAll('meta').forEach(meta => {
+                const name = meta.getAttribute('name') || meta.getAttribute('property') || meta.getAttribute('http-equiv');
+                const content = meta.getAttribute('content');
+                if (name && content) {
+                    metaTags[name] = content;
+                }
+            });
+
+            // Title
+            const title = doc.querySelector('title')?.textContent || '';
+
+            // Headings
+            const headings = {};
+            for (let i = 1; i <= 6; i++) {
+                headings[`h${i}`] = doc.querySelectorAll(`h${i}`).length;
+            }
+
+            // Keywords (simple word frequency)
+            const textContent = doc.body?.textContent || '';
+            const words = textContent.toLowerCase().match(/\b\w{3,}\b/g) || [];
+            const wordCount = {};
+            words.forEach(word => {
+                wordCount[word] = (wordCount[word] || 0) + 1;
+            });
+            const topKeywords = Object.entries(wordCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 20);
+
+            // Images without alt
+            const imagesWithoutAlt = doc.querySelectorAll('img:not([alt])').length;
+            const totalImages = doc.querySelectorAll('img').length;
+
+            return {
+                metaTags,
+                title,
+                headings,
+                topKeywords,
+                imagesWithoutAlt,
+                totalImages,
+                wordCount: words.length
+            };
+        }
+
+        function displayResults(analysis) {
+            // Meta tags
+            const metaItems = document.getElementById('metaItems');
+            metaItems.innerHTML = '';
+
+            const importantMeta = [
+                { key: 'title', value: analysis.title, label: 'Page Title' },
+                { key: 'description', value: analysis.metaTags['description'], label: 'Meta Description' },
+                { key: 'keywords', value: analysis.metaTags['keywords'], label: 'Meta Keywords' },
+                { key: 'viewport', value: analysis.metaTags['viewport'], label: 'Viewport' },
+                { key: 'og:title', value: analysis.metaTags['og:title'], label: 'Open Graph Title' },
+                { key: 'og:description', value: analysis.metaTags['og:description'], label: 'Open Graph Description' },
+                { key: 'twitter:title', value: analysis.metaTags['twitter:title'], label: 'Twitter Title' },
+                { key: 'twitter:description', value: analysis.metaTags['twitter:description'], label: 'Twitter Description' }
+            ];
+
+            importantMeta.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'meta-item';
+                
+                let statusClass = 'status-good';
+                let value = item.value || 'Not found';
+                
+                if (!item.value) {
+                    statusClass = 'status-error';
+                } else if (item.key === 'description' && item.value.length < 120) {
+                    statusClass = 'status-warning';
+                }
+
+                div.innerHTML = `
+                    <span class="meta-label">${item.label}</span>
+                    <span class="meta-value ${statusClass}">${value}</span>
+                `;
+                metaItems.appendChild(div);
+            });
+
+            // Keywords
+            const keywordItems = document.getElementById('keywordItems');
+            keywordItems.innerHTML = '';
+
+            analysis.topKeywords.forEach(([word, count]) => {
+                const div = document.createElement('div');
+                div.className = 'keyword-item';
+                div.innerHTML = `
+                    <span class="keyword-text">${word}</span>
+                    <span class="keyword-count">${count}</span>
+                `;
+                keywordItems.appendChild(div);
+            });
+
+            // SEO Score
+            const seoScore = document.getElementById('seoScore');
+            let score = 100;
+            let issues = [];
+
+            if (!analysis.title) {
+                score -= 20;
+                issues.push('Missing page title');
+            }
+            if (!analysis.metaTags['description']) {
+                score -= 15;
+                issues.push('Missing meta description');
+            }
+            if (analysis.imagesWithoutAlt > 0) {
+                score -= 10;
+                issues.push(`${analysis.imagesWithoutAlt} images without alt text`);
+            }
+            if (analysis.headings.h1 === 0) {
+                score -= 10;
+                issues.push('Missing H1 heading');
+            }
+
+            seoScore.innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; font-weight: bold; color: ${score >= 80 ? '#28a745' : score >= 60 ? '#ffc107' : '#dc3545'};">${score}%</div>
+                    <div style="font-size: 18px; color: #666;">SEO Score</div>
+                </div>
+                <div>
+                    <h4>Issues Found:</h4>
+                    <ul>
+                        ${issues.map(issue => `<li>${issue}</li>`).join('') || '<li>No major issues found</li>'}
+                    </ul>
+                </div>
+                <div>
+                    <h4>Content Stats:</h4>
+                    <ul>
+                        <li>Total words: ${analysis.wordCount}</li>
+                        <li>Images: ${analysis.totalImages}</li>
+                        <li>H1 headings: ${analysis.headings.h1}</li>
+                        <li>H2 headings: ${analysis.headings.h2}</li>
+                    </ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
