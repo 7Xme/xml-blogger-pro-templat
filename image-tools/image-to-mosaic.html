@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to Painting Converter</title>
+    <title>Image to Mosaic Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             margin: 0;
             padding: 20px;
             min-height: 100vh;
@@ -25,7 +25,7 @@
             text-align: center;
             color: #333;
             margin-bottom: 30px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #48bb78, #38a169);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -35,7 +35,7 @@
             text-align: center;
         }
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 3px dashed #48bb78;
             border-radius: 15px;
             padding: 40px;
             text-align: center;
@@ -43,11 +43,11 @@
             cursor: pointer;
             position: relative;
             margin-bottom: 20px;
-            background: rgba(102, 126, 234, 0.05);
+            background: rgba(72, 187, 120, 0.05);
         }
         .upload-area:hover, .upload-area.dragover {
-            border-color: #5a67d8;
-            background: rgba(102, 126, 234, 0.1);
+            border-color: #2f855a;
+            background: rgba(72, 187, 120, 0.1);
             transform: scale(1.02);
         }
         .upload-area input[type="file"] {
@@ -61,9 +61,9 @@
         }
         .upload-icon {
             font-size: 48px;
-            color: #667eea;
+            color: #48bb78;
             margin-bottom: 15px;
-            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
+            filter: drop-shadow(0 0 10px rgba(72, 187, 120, 0.5));
         }
         .upload-text {
             font-size: 18px;
@@ -81,11 +81,11 @@
         }
         .preview-container {
             display: inline-block;
-            border: 3px solid #667eea;
+            border: 3px solid #48bb78;
             border-radius: 15px;
             padding: 20px;
             background: white;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.2);
         }
         .preview-image {
             max-width: 300px;
@@ -93,15 +93,15 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .painting-result {
+        .mosaic-result {
             display: none;
             margin-bottom: 30px;
         }
-        .painting-container {
+        .mosaic-container {
             position: relative;
             max-width: 100%;
             margin: 0 auto;
-            border: 3px solid #667eea;
+            border: 3px solid #48bb78;
             border-radius: 15px;
             overflow: hidden;
             display: flex;
@@ -109,7 +109,7 @@
             align-items: center;
             min-height: 400px;
         }
-        .painting-canvas {
+        .mosaic-canvas {
             max-width: 100%;
             max-height: 600px;
             display: block;
@@ -130,7 +130,7 @@
             color: #333;
             font-size: 16px;
         }
-        .painting-styles {
+        .mosaic-styles {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 15px;
@@ -146,14 +146,14 @@
             background: white;
         }
         .style-option:hover, .style-option.active {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.05);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.2);
         }
         .style-icon {
             font-size: 28px;
-            color: #667eea;
+            color: #48bb78;
             margin-bottom: 10px;
         }
         .style-name {
@@ -189,15 +189,15 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: #667eea;
+            background: #48bb78;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 6px rgba(72, 187, 120, 0.3);
         }
         .control-group input[type="range"]::-moz-range-thumb {
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: #667eea;
+            background: #48bb78;
             cursor: pointer;
             border: none;
         }
@@ -225,8 +225,8 @@
             transition: all 0.3s ease;
         }
         .preset-btn:hover, .preset-btn.active {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
         }
         .color-controls {
             display: grid;
@@ -244,8 +244,8 @@
             background: white;
         }
         .color-preset:hover, .color-preset.active {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
+            border-color: #48bb78;
+            background: rgba(72, 187, 120, 0.1);
         }
         .color-sample {
             width: 20px;
@@ -262,7 +262,7 @@
             flex-wrap: wrap;
         }
         .convert-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #48bb78, #38a169);
             color: white;
             padding: 15px 40px;
             border: none;
@@ -271,11 +271,11 @@
             font-size: 18px;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
         }
         .convert-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
         }
         .convert-btn:disabled {
             background: #ccc;
@@ -322,7 +322,7 @@
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #48bb78, #38a169);
             width: 0%;
             transition: width 0.3s ease;
             border-radius: 10px;
@@ -366,7 +366,7 @@
             border-radius: 8px;
         }
         .download-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #48bb78, #38a169);
             color: white;
             padding: 15px 30px;
             border: none;
@@ -376,11 +376,11 @@
             font-weight: 600;
             transition: all 0.3s ease;
             margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
         }
         .download-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
         }
         .status {
             padding: 15px;
@@ -422,7 +422,7 @@
         }
         .info-label {
             font-weight: 600;
-            color: #667eea;
+            color: #48bb78;
         }
         .info-value {
             color: #333;
@@ -434,7 +434,7 @@
             .upload-area {
                 padding: 30px 20px;
             }
-            .painting-styles {
+            .mosaic-styles {
                 grid-template-columns: 1fr;
             }
             .preset-buttons {
@@ -456,12 +456,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎨 Image to Painting Converter</h1>
+        <h1>🧩 Image to Mosaic Converter</h1>
 
         <div class="upload-section">
             <div class="upload-area" id="uploadArea">
                 <input type="file" id="imageFile" accept="image/*">
-                <div class="upload-icon">🖌️</div>
+                <div class="upload-icon">🧩</div>
                 <div class="upload-text">Drop image here or click to browse</div>
                 <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
             </div>
@@ -482,8 +482,8 @@
                     <span class="info-value" id="imageFormat"></span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Painting Style:</span>
-                    <span class="info-value" id="paintingStyle">None</span>
+                    <span class="info-label">Mosaic Style:</span>
+                    <span class="info-value" id="mosaicStyle">None</span>
                 </div>
             </div>
         </div>
@@ -494,35 +494,35 @@
             </div>
         </div>
 
-        <div class="painting-result" id="paintingResult">
-            <div class="painting-container" id="paintingContainer">
-                <canvas id="paintingCanvas" class="painting-canvas"></canvas>
+        <div class="mosaic-result" id="mosaicResult">
+            <div class="mosaic-container" id="mosaicContainer">
+                <canvas id="mosaicCanvas" class="mosaic-canvas"></canvas>
             </div>
         </div>
 
         <div class="conversion-controls" id="conversionControls">
             <div class="control-section">
-                <h3>Painting Styles</h3>
-                <div class="painting-styles">
-                    <div class="style-option active" onclick="selectPaintingStyle('oil')">
-                        <div class="style-icon">🖌️</div>
-                        <div class="style-name">Oil Painting</div>
-                        <div class="style-description">Rich textures and depth</div>
+                <h3>Mosaic Styles</h3>
+                <div class="mosaic-styles">
+                    <div class="style-option active" onclick="selectMosaicStyle('pixel')">
+                        <div class="style-icon">📐</div>
+                        <div class="style-name">Pixel Mosaic</div>
+                        <div class="style-description">Classic pixelation</div>
                     </div>
-                    <div class="style-option" onclick="selectPaintingStyle('watercolor')">
-                        <div class="style-icon">🎨</div>
-                        <div class="style-name">Watercolor</div>
-                        <div class="style-description">Soft, flowing colors</div>
+                    <div class="style-option" onclick="selectMosaicStyle('hexagon')">
+                        <div class="style-icon">⬡</div>
+                        <div class="style-name">Hexagon Mosaic</div>
+                        <div class="style-description">Honeycomb pattern</div>
                     </div>
-                    <div class="style-option" onclick="selectPaintingStyle('acrylic')">
-                        <div class="style-icon">🖼️</div>
-                        <div class="style-name">Acrylic</div>
-                        <div class="style-description">Vibrant modern look</div>
+                    <div class="style-option" onclick="selectMosaicStyle('circle')">
+                        <div class="style-icon">⭕</div>
+                        <div class="style-name">Circle Mosaic</div>
+                        <div class="style-description">Rounded tiles</div>
                     </div>
-                    <div class="style-option" onclick="selectPaintingStyle('pastel')">
-                        <div class="style-icon">✏️</div>
-                        <div class="style-name">Pastel</div>
-                        <div class="style-description">Soft, powdery effect</div>
+                    <div class="style-option" onclick="selectMosaicStyle('diamond')">
+                        <div class="style-icon">💎</div>
+                        <div class="style-name">Diamond Mosaic</div>
+                        <div class="style-description">Angular pattern</div>
                     </div>
                 </div>
             </div>
@@ -530,19 +530,19 @@
             <div class="control-section">
                 <h3>Effect Intensity</h3>
                 <div class="control-group">
-                    <label for="brushSize">Brush Size</label>
-                    <input type="range" id="brushSize" min="1" max="20" value="5" step="1">
+                    <label for="tileSize">Tile Size</label>
+                    <input type="range" id="tileSize" min="2" max="50" value="10" step="1">
                     <div class="slider-info">
-                        <span>Fine Detail</span>
-                        <span>Broad Strokes</span>
+                        <span>Small Tiles</span>
+                        <span>Large Tiles</span>
                     </div>
                 </div>
                 <div class="control-group">
-                    <label for="textureStrength">Texture Strength</label>
-                    <input type="range" id="textureStrength" min="1" max="10" value="5" step="1">
+                    <label for="spacing">Tile Spacing</label>
+                    <input type="range" id="spacing" min="0" max="5" value="1" step="1">
                     <div class="slider-info">
-                        <span>Smooth</span>
-                        <span>Textured</span>
+                        <span>No Spacing</span>
+                        <span>Wide Spacing</span>
                     </div>
                 </div>
                 <div class="control-group">
@@ -566,12 +566,12 @@
             <div class="control-section">
                 <h3>Style Presets</h3>
                 <div class="preset-buttons">
-                    <button class="preset-btn" onclick="applyPreset('classical')">Classical</button>
-                    <button class="preset-btn" onclick="applyPreset('impressionist')">Impressionist</button>
+                    <button class="preset-btn" onclick="applyPreset('classic')">Classic</button>
                     <button class="preset-btn" onclick="applyPreset('modern')">Modern</button>
-                    <button class="preset-btn" onclick="applyPreset('abstract')">Abstract</button>
-                    <button class="preset-btn" onclick="applyPreset('portrait')">Portrait</button>
-                    <button class="preset-btn" onclick="applyPreset('landscape')">Landscape</button>
+                    <button class="preset-btn" onclick="applyPreset('artistic')">Artistic</button>
+                    <button class="preset-btn" onclick="applyPreset('retro')">Retro</button>
+                    <button class="preset-btn" onclick="applyPreset('minimal')">Minimal</button>
+                    <button class="preset-btn" onclick="applyPreset('bold')">Bold</button>
                 </div>
             </div>
 
@@ -598,32 +598,32 @@
             </div>
 
             <div class="action-buttons">
-                <button class="convert-btn" id="convertBtn" onclick="convertToPainting()">🎨 Create Painting</button>
+                <button class="convert-btn" id="convertBtn" onclick="convertToMosaic()">🧩 Create Mosaic</button>
                 <button class="reset-btn" onclick="resetConverter()">🔄 Reset</button>
             </div>
         </div>
 
         <div class="progress-section" id="progressSection">
-            <div class="progress-title">Creating Painting...</div>
+            <div class="progress-title">Creating Mosaic...</div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText">Applying painting effects...</div>
+            <div class="progress-text" id="progressText">Applying mosaic effects...</div>
         </div>
 
         <div class="download-section" id="downloadSection">
-            <div class="download-title">Painting Created Successfully!</div>
+            <div class="download-title">Mosaic Created Successfully!</div>
             <div class="before-after">
                 <div class="comparison-item">
                     <div class="comparison-label">Original Image</div>
                     <img id="originalComparison" class="comparison-image" alt="Original">
                 </div>
                 <div class="comparison-item">
-                    <div class="comparison-label">Painting Result</div>
-                    <canvas id="paintingComparison" class="comparison-image" style="border: 2px solid #667eea;"></canvas>
+                    <div class="comparison-label">Mosaic Result</div>
+                    <canvas id="mosaicComparison" class="comparison-image" style="border: 2px solid #48bb78;"></canvas>
                 </div>
             </div>
-            <button class="download-btn" onclick="downloadPainting()">💾 Download Painting</button>
+            <button class="download-btn" onclick="downloadMosaic()">💾 Download Mosaic</button>
         </div>
 
         <div class="status" id="status"></div>
@@ -633,9 +633,9 @@
         let canvas = null;
         let ctx = null;
         let image = null;
-        let paintingStyle = 'oil';
-        let brushSize = 5;
-        let textureStrength = 5;
+        let mosaicStyle = 'pixel';
+        let tileSize = 10;
+        let spacing = 1;
         let brightnessBoost = 10;
         let saturationBoost = 20;
         let colorPalette = 'original';
@@ -646,16 +646,16 @@
         const uploadArea = document.getElementById('uploadArea');
         const previewSection = document.getElementById('previewSection');
         const previewImage = document.getElementById('previewImage');
-        const paintingResult = document.getElementById('paintingResult');
-        const paintingCanvas = document.getElementById('paintingCanvas');
-        const paintingContainer = document.getElementById('paintingContainer');
+        const mosaicResult = document.getElementById('mosaicResult');
+        const mosaicCanvas = document.getElementById('mosaicCanvas');
+        const mosaicContainer = document.getElementById('mosaicContainer');
         const conversionControls = document.getElementById('conversionControls');
         const progressSection = document.getElementById('progressSection');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
         const downloadSection = document.getElementById('downloadSection');
         const originalComparison = document.getElementById('originalComparison');
-        const paintingComparison = document.getElementById('paintingComparison');
+        const mosaicComparison = document.getElementById('mosaicComparison');
         const statusDiv = document.getElementById('status');
 
         // Event listeners
@@ -663,8 +663,8 @@
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleFileDrop);
-        document.getElementById('brushSize').addEventListener('input', updateBrushSize);
-        document.getElementById('textureStrength').addEventListener('input', updateTextureStrength);
+        document.getElementById('tileSize').addEventListener('input', updateTileSize);
+        document.getElementById('spacing').addEventListener('input', updateSpacing);
         document.getElementById('brightnessBoost').addEventListener('input', updateBrightness);
         document.getElementById('saturationBoost').addEventListener('input', updateSaturation);
 
@@ -716,7 +716,7 @@
                     setupCanvas();
                     displayImageInfo(file);
                     originalImageData = e.target.result;
-                    showStatus(`Image "${file.name}" loaded successfully. Select a painting style and adjust settings.`, 'success');
+                    showStatus(`Image "${file.name}" loaded successfully. Select a mosaic style and adjust settings.`, 'success');
                 };
                 image.src = e.target.result;
             };
@@ -724,7 +724,7 @@
         }
 
         function setupCanvas() {
-            const containerRect = paintingContainer.getBoundingClientRect();
+            const containerRect = mosaicContainer.getBoundingClientRect();
             const maxWidth = containerRect.width - 40;
             const maxHeight = 600;
 
@@ -744,13 +744,13 @@
                 canvasWidth *= ratio;
             }
 
-            paintingCanvas.width = canvasWidth;
-            paintingCanvas.height = canvasHeight;
-            ctx = paintingCanvas.getContext('2d');
+            mosaicCanvas.width = canvasWidth;
+            mosaicCanvas.height = canvasHeight;
+            ctx = mosaicCanvas.getContext('2d');
 
             // Show sections
             previewSection.style.display = 'block';
-            paintingResult.style.display = 'block';
+            mosaicResult.style.display = 'block';
             conversionControls.style.display = 'block';
             downloadSection.style.display = 'none';
 
@@ -761,10 +761,10 @@
         function drawImage() {
             if (!ctx || !image) return;
 
-            ctx.clearRect(0, 0, paintingCanvas.width, paintingCanvas.height);
+            ctx.clearRect(0, 0, mosaicCanvas.width, mosaicCanvas.height);
 
-            const canvasWidth = paintingCanvas.width;
-            const canvasHeight = paintingCanvas.height;
+            const canvasWidth = mosaicCanvas.width;
+            const canvasHeight = mosaicCanvas.height;
 
             // Calculate image size to fit
             const scale = Math.min(canvasWidth / image.width, canvasHeight / image.height) * 0.9;
@@ -779,21 +779,21 @@
             ctx.drawImage(image, x, y, drawWidth, drawHeight);
         }
 
-        function selectPaintingStyle(style) {
-            paintingStyle = style;
+        function selectMosaicStyle(style) {
+            mosaicStyle = style;
 
             document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('active'));
             event.currentTarget.classList.add('active');
 
-            document.getElementById('paintingStyle').textContent = style.charAt(0).toUpperCase() + style.slice(1);
+            document.getElementById('mosaicStyle').textContent = style.charAt(0).toUpperCase() + style.slice(1);
         }
 
-        function updateBrushSize() {
-            brushSize = parseInt(this.value);
+        function updateTileSize() {
+            tileSize = parseInt(this.value);
         }
 
-        function updateTextureStrength() {
-            textureStrength = parseInt(this.value);
+        function updateSpacing() {
+            spacing = parseInt(this.value);
         }
 
         function updateBrightness() {
@@ -809,59 +809,59 @@
             event.currentTarget.classList.add('active');
 
             switch (preset) {
-                case 'classical':
-                    brushSize = 8;
-                    textureStrength = 7;
-                    brightnessBoost = 15;
+                case 'classic':
+                    tileSize = 15;
+                    spacing = 2;
+                    brightnessBoost = 5;
                     saturationBoost = 10;
-                    paintingStyle = 'oil';
-                    break;
-                case 'impressionist':
-                    brushSize = 12;
-                    textureStrength = 4;
-                    brightnessBoost = 20;
-                    saturationBoost = 30;
-                    paintingStyle = 'watercolor';
+                    mosaicStyle = 'pixel';
                     break;
                 case 'modern':
-                    brushSize = 5;
-                    textureStrength = 3;
+                    tileSize = 8;
+                    spacing = 1;
                     brightnessBoost = 10;
-                    saturationBoost = 40;
-                    paintingStyle = 'acrylic';
-                    break;
-                case 'abstract':
-                    brushSize = 15;
-                    textureStrength = 9;
-                    brightnessBoost = 5;
-                    saturationBoost = 25;
-                    paintingStyle = 'pastel';
-                    break;
-                case 'portrait':
-                    brushSize = 6;
-                    textureStrength = 5;
-                    brightnessBoost = 12;
-                    saturationBoost = 15;
-                    paintingStyle = 'oil';
-                    break;
-                case 'landscape':
-                    brushSize = 10;
-                    textureStrength = 6;
-                    brightnessBoost = 18;
                     saturationBoost = 20;
-                    paintingStyle = 'acrylic';
+                    mosaicStyle = 'circle';
+                    break;
+                case 'artistic':
+                    tileSize = 20;
+                    spacing = 3;
+                    brightnessBoost = 15;
+                    saturationBoost = 30;
+                    mosaicStyle = 'hexagon';
+                    break;
+                case 'retro':
+                    tileSize = 12;
+                    spacing = 1;
+                    brightnessBoost = 0;
+                    saturationBoost = -10;
+                    mosaicStyle = 'pixel';
+                    break;
+                case 'minimal':
+                    tileSize = 25;
+                    spacing = 0;
+                    brightnessBoost = 20;
+                    saturationBoost = 0;
+                    mosaicStyle = 'diamond';
+                    break;
+                case 'bold':
+                    tileSize = 6;
+                    spacing = 2;
+                    brightnessBoost = -5;
+                    saturationBoost = 40;
+                    mosaicStyle = 'circle';
                     break;
             }
 
             // Update UI
-            document.getElementById('brushSize').value = brushSize;
-            document.getElementById('textureStrength').value = textureStrength;
+            document.getElementById('tileSize').value = tileSize;
+            document.getElementById('spacing').value = spacing;
             document.getElementById('brightnessBoost').value = brightnessBoost;
             document.getElementById('saturationBoost').value = saturationBoost;
 
             document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('active'));
-            document.querySelector(`.style-option[onclick*="${paintingStyle}"]`).classList.add('active');
-            document.getElementById('paintingStyle').textContent = paintingStyle.charAt(0).toUpperCase() + paintingStyle.slice(1);
+            document.querySelector(`.style-option[onclick*="${mosaicStyle}"]`).classList.add('active');
+            document.getElementById('mosaicStyle').textContent = mosaicStyle.charAt(0).toUpperCase() + mosaicStyle.slice(1);
         }
 
         function setColorPalette(palette) {
@@ -871,7 +871,7 @@
             event.currentTarget.classList.add('active');
         }
 
-        async function convertToPainting() {
+        async function convertToMosaic() {
             if (!image) {
                 showStatus('Please load an image first.', 'error');
                 return;
@@ -885,38 +885,38 @@
 
             try {
                 progressFill.style.width = '25%';
-                progressText.textContent = 'Applying painting effects...';
+                progressText.textContent = 'Applying mosaic effects...';
 
-                // Apply painting effects
-                await applyPaintingEffect();
+                // Apply mosaic effects
+                await applyMosaicEffect();
 
                 progressFill.style.width = '75%';
-                progressText.textContent = 'Adding texture and details...';
+                progressText.textContent = 'Adding tile patterns...';
 
                 // Additional processing
-                await enhancePainting();
+                await enhanceMosaic();
 
                 progressFill.style.width = '100%';
-                progressText.textContent = 'Painting complete!';
+                progressText.textContent = 'Mosaic complete!';
 
                 setTimeout(() => {
                     displayDownloadSection();
                 }, 500);
 
             } catch (error) {
-                console.error('Painting conversion error:', error);
+                console.error('Mosaic conversion error:', error);
                 progressSection.style.display = 'none';
                 conversionControls.style.display = 'block';
-                showStatus('Error creating painting: ' + error.message, 'error');
+                showStatus('Error creating mosaic: ' + error.message, 'error');
             }
         }
 
-        async function applyPaintingEffect() {
+        async function applyMosaicEffect() {
             // Get image data
-            const imageData = ctx.getImageData(0, 0, paintingCanvas.width, paintingCanvas.height);
+            const imageData = ctx.getImageData(0, 0, mosaicCanvas.width, mosaicCanvas.height);
             const data = imageData.data;
-            const width = paintingCanvas.width;
-            const height = paintingCanvas.height;
+            const width = mosaicCanvas.width;
+            const height = mosaicCanvas.height;
 
             // Step 1: Apply brightness and saturation adjustments
             for (let i = 0; i < data.length; i += 4) {
@@ -939,37 +939,24 @@
                 data[i + 2] = b;
             }
 
-            // Step 2: Apply style-specific effects
-            switch (paintingStyle) {
-                case 'oil':
-                    applyOilPainting(data, width, height);
-                    break;
-                case 'watercolor':
-                    applyWatercolorPainting(data, width, height);
-                    break;
-                case 'acrylic':
-                    applyAcrylicPainting(data, width, height);
-                    break;
-                case 'pastel':
-                    applyPastelPainting(data, width, height);
-                    break;
-            }
+            // Step 2: Apply mosaic effect
+            applyMosaicStyle(data, width, height);
 
             ctx.putImageData(imageData, 0, 0);
         }
 
-        function applyOilPainting(data, width, height) {
-            // Oil painting effect with brush strokes
-            const tempData = new Uint8ClampedArray(data);
-            const size = brushSize;
+        function applyMosaicStyle(data, width, height) {
+            ctx.clearRect(0, 0, width, height);
+
+            const size = tileSize + spacing;
 
             for (let y = 0; y < height; y += size) {
                 for (let x = 0; x < width; x += size) {
+                    // Get average color for this tile
                     let r = 0, g = 0, b = 0, count = 0;
 
-                    // Average colors in brush area
-                    for (let dy = 0; dy < size && y + dy < height; dy++) {
-                        for (let dx = 0; dx < size && x + dx < width; dx++) {
+                    for (let dy = 0; dy < tileSize && y + dy < height; dy++) {
+                        for (let dx = 0; dx < tileSize && x + dx < width; dx++) {
                             const idx = ((y + dy) * width + (x + dx)) * 4;
                             r += data[idx];
                             g += data[idx + 1];
@@ -978,131 +965,54 @@
                         }
                     }
 
-                    r = Math.floor(r / count);
-                    g = Math.floor(g / count);
-                    b = Math.floor(b / count);
+                    if (count > 0) {
+                        r = Math.floor(r / count);
+                        g = Math.floor(g / count);
+                        b = Math.floor(b / count);
 
-                    // Add texture
-                    const texture = textureStrength / 10;
-                    for (let dy = 0; dy < size && y + dy < height; dy++) {
-                        for (let dx = 0; dx < size && x + dx < width; dx++) {
-                            const idx = ((y + dy) * width + (x + dx)) * 4;
-                            const noise = (Math.random() - 0.5) * texture * 50;
-                            tempData[idx] = Math.max(0, Math.min(255, r + noise));
-                            tempData[idx + 1] = Math.max(0, Math.min(255, g + noise));
-                            tempData[idx + 2] = Math.max(0, Math.min(255, b + noise));
+                        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+
+                        const centerX = x + tileSize / 2;
+                        const centerY = y + tileSize / 2;
+
+                        switch (mosaicStyle) {
+                            case 'pixel':
+                                ctx.fillRect(x, y, tileSize, tileSize);
+                                break;
+                            case 'circle':
+                                ctx.beginPath();
+                                ctx.arc(centerX, centerY, tileSize / 2, 0, 2 * Math.PI);
+                                ctx.fill();
+                                break;
+                            case 'hexagon':
+                                drawHexagon(ctx, centerX, centerY, tileSize / 2);
+                                break;
+                            case 'diamond':
+                                ctx.beginPath();
+                                ctx.moveTo(centerX, centerY - tileSize / 2);
+                                ctx.lineTo(centerX + tileSize / 2, centerY);
+                                ctx.lineTo(centerX, centerY + tileSize / 2);
+                                ctx.lineTo(centerX - tileSize / 2, centerY);
+                                ctx.closePath();
+                                ctx.fill();
+                                break;
                         }
                     }
                 }
             }
-
-            // Copy result back
-            for (let i = 0; i < data.length; i++) {
-                data[i] = tempData[i];
-            }
         }
 
-        function applyWatercolorPainting(data, width, height) {
-            // Soft, blended watercolor effect
-            const tempData = new Uint8ClampedArray(data);
-
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    const idx = (y * width + x) * 4;
-                    let r = 0, g = 0, b = 0, count = 0;
-
-                    // Average with neighboring pixels for bleed effect
-                    for (let dy = -1; dy <= 1; dy++) {
-                        for (let dx = -1; dx <= 1; dx++) {
-                            const nidx = ((y + dy) * width + (x + dx)) * 4;
-                            r += data[nidx];
-                            g += data[nidx + 1];
-                            b += data[nidx + 2];
-                            count++;
-                        }
-                    }
-
-                    // Reduce saturation slightly for watercolor look
-                    const avg = (r + g + b) / count / 3;
-                    const factor = 1 - (textureStrength / 20);
-                    tempData[idx] = Math.floor((r / count) * factor + avg * (1 - factor));
-                    tempData[idx + 1] = Math.floor((g / count) * factor + avg * (1 - factor));
-                    tempData[idx + 2] = Math.floor((b / count) * factor + avg * (1 - factor));
-                }
+        function drawHexagon(ctx, x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i;
+                const hx = x + Math.cos(angle) * radius;
+                const hy = y + Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(hx, hy);
+                else ctx.lineTo(hx, hy);
             }
-
-            // Copy result back
-            for (let i = 0; i < data.length; i++) {
-                data[i] = tempData[i];
-            }
-        }
-
-        function applyAcrylicPainting(data, width, height) {
-            // Vibrant, smooth acrylic effect
-            for (let i = 0; i < data.length; i += 4) {
-                let r = data[i];
-                let g = data[i + 1];
-                let b = data[i + 2];
-
-                // Increase saturation and brightness
-                const hsl = rgbToHsl(r, g, b);
-                hsl[1] = Math.min(1, hsl[1] + 0.2);
-                hsl[2] = Math.min(1, hsl[2] + 0.1);
-                [r, g, b] = hslToRgb(hsl[0], hsl[1], hsl[2]);
-
-                // Add slight texture
-                const texture = textureStrength / 10;
-                const noise = (Math.random() - 0.5) * texture * 20;
-                data[i] = Math.max(0, Math.min(255, r + noise));
-                data[i + 1] = Math.max(0, Math.min(255, g + noise));
-                data[i + 2] = Math.max(0, Math.min(255, b + noise));
-            }
-        }
-
-        function applyPastelPainting(data, width, height) {
-            // Soft, powdery pastel effect
-            for (let i = 0; i < data.length; i += 4) {
-                let r = data[i];
-                let g = data[i + 1];
-                let b = data[i + 2];
-
-                // Reduce contrast and add softness
-                const gray = (r * 0.299 + g * 0.587 + b * 0.114);
-                const softFactor = textureStrength / 10;
-                r = r * (1 - softFactor) + gray * softFactor;
-                g = g * (1 - softFactor) + gray * softFactor;
-                b = b * (1 - softFactor) + gray * softFactor;
-
-                // Add subtle noise for texture
-                const noise = (Math.random() - 0.5) * 10;
-                data[i] = Math.max(0, Math.min(255, r + noise));
-                data[i + 1] = Math.max(0, Math.min(255, g + noise));
-                data[i + 2] = Math.max(0, Math.min(255, b + noise));
-            }
-        }
-
-        function detectEdges(data, width, height) {
-            const edges = new Uint8ClampedArray(width * height);
-
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    const idx = y * width + x;
-                    const idx4 = idx * 4;
-
-                    // Simple Sobel edge detection
-                    const gx = -data[((y-1)*width + (x-1))*4] + data[((y-1)*width + (x+1))*4] +
-                              -2 * data[(y*width + (x-1))*4] + 2 * data[(y*width + (x+1))*4] +
-                              -data[((y+1)*width + (x-1))*4] + data[((y+1)*width + (x+1))*4];
-
-                    const gy = -data[((y-1)*width + (x-1))*4] - 2 * data[((y-1)*width + x)*4] - data[((y-1)*width + (x+1))*4] +
-                              data[((y+1)*width + (x-1))*4] + 2 * data[((y+1)*width + x)*4] + data[((y+1)*width + (x+1))*4];
-
-                    const edgeStrength = Math.sqrt(gx * gx + gy * gy) / 4;
-                    edges[idx] = Math.min(255, edgeStrength);
-                }
-            }
-
-            return edges;
+            ctx.closePath();
+            ctx.fill();
         }
 
         function rgbToHsl(r, g, b) {
@@ -1155,7 +1065,7 @@
             return [r * 255, g * 255, b * 255];
         }
 
-        async function enhancePainting() {
+        async function enhanceMosaic() {
             // Additional enhancement pass
             return new Promise(resolve => {
                 setTimeout(() => {
@@ -1171,16 +1081,16 @@
 
             // Set up comparison images
             originalComparison.src = originalImageData;
-            paintingComparison.width = paintingCanvas.width;
-            paintingComparison.height = paintingCanvas.height;
-            const ctx2 = paintingComparison.getContext('2d');
-            ctx2.drawImage(paintingCanvas, 0, 0);
+            mosaicComparison.width = mosaicCanvas.width;
+            mosaicComparison.height = mosaicCanvas.height;
+            const ctx2 = mosaicComparison.getContext('2d');
+            ctx2.drawImage(mosaicCanvas, 0, 0);
         }
 
-        function downloadPainting() {
+        function downloadMosaic() {
             const link = document.createElement('a');
-            link.download = 'painting.png';
-            link.href = paintingCanvas.toDataURL();
+            link.download = 'mosaic.png';
+            link.href = mosaicCanvas.toDataURL();
             link.click();
         }
 
@@ -1188,12 +1098,12 @@
             image = null;
             originalImageData = null;
             previewSection.style.display = 'none';
-            paintingResult.style.display = 'none';
+            mosaicResult.style.display = 'none';
             conversionControls.style.display = 'none';
             downloadSection.style.display = 'none';
             statusDiv.style.display = 'none';
             document.getElementById('imageInfo').style.display = 'none';
-           
+            imageFile.value = '';
         }
 
         function displayImageInfo(file) {

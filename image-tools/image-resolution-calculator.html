@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resolution Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .calculator-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .calc-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .calc-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+        .calc-btn {
+            background: linear-gradient(45deg, #48bb78, #38a169);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+        }
+        .result-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: none;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .result-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .result-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #48bb78;
+            font-family: 'Courier New', monospace;
+        }
+        .common-sizes {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        .sizes-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sizes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .size-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .size-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.2);
+            border: 2px solid #48bb78;
+        }
+        .size-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .size-dimensions {
+            font-size: 14px;
+            color: #666;
+        }
+        .units-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .unit-btn {
+            background: #e9ecef;
+            color: #666;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        .unit-btn.active {
+            background: #48bb78;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .calculator-section {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+            }
+            .sizes-grid {
+                grid-template-columns: 1fr;
+            }
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📐 Image Resolution Calculator</h1>
+
+        <div class="units-toggle">
+            <button class="unit-btn active" id="inchesBtn" onclick="setUnit('inches')">Inches</button>
+            <button class="unit-btn" id="cmBtn" onclick="setUnit('cm')">Centimeters</button>
+        </div>
+
+        <div class="calculator-section">
+            <div class="calc-card">
+                <div class="calc-title">📏 Pixels to Physical Size</div>
+                <div class="input-group">
+                    <label for="pixelWidth">Width (pixels)</label>
+                    <input type="number" id="pixelWidth" placeholder="1920">
+                </div>
+                <div class="input-group">
+                    <label for="pixelHeight">Height (pixels)</label>
+                    <input type="number" id="pixelHeight" placeholder="1080">
+                </div>
+                <div class="input-group">
+                    <label for="ppi1">Resolution (PPI/DPI)</label>
+                    <input type="number" id="ppi1" placeholder="72" value="72">
+                </div>
+                <button class="calc-btn" onclick="calculatePhysicalSize()">Calculate Physical Size</button>
+            </div>
+
+            <div class="calc-card">
+                <div class="calc-title">🖼️ Physical Size to Pixels</div>
+                <div class="input-group">
+                    <label for="physicalWidth">Width (inches/cm)</label>
+                    <input type="number" id="physicalWidth" placeholder="8.5">
+                </div>
+                <div class="input-group">
+                    <label for="physicalHeight">Height (inches/cm)</label>
+                    <input type="number" id="physicalHeight" placeholder="11">
+                </div>
+                <div class="input-group">
+                    <label for="ppi2">Resolution (PPI/DPI)</label>
+                    <input type="number" id="ppi2" placeholder="300" value="300">
+                </div>
+                <button class="calc-btn" onclick="calculatePixelSize()">Calculate Pixel Size</button>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">📊 Calculation Results</div>
+            <div class="result-grid" id="resultGrid"></div>
+        </div>
+
+        <div class="common-sizes">
+            <div class="sizes-title">📋 Common Print Sizes</div>
+            <div class="sizes-grid">
+                <div class="size-card" onclick="setCommonSize(4, 6)">
+                    <div class="size-name">4x6 Photo</div>
+                    <div class="size-dimensions">4 × 6 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(5, 7)">
+                    <div class="size-name">5x7 Photo</div>
+                    <div class="size-dimensions">5 × 7 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(8, 10)">
+                    <div class="size-name">8x10 Photo</div>
+                    <div class="size-dimensions">8 × 10 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(8.5, 11)">
+                    <div class="size-name">Letter</div>
+                    <div class="size-dimensions">8.5 × 11 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(11, 17)">
+                    <div class="size-name">Tabloid</div>
+                    <div class="size-dimensions">11 × 17 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(24, 36)">
+                    <div class="size-name">Poster</div>
+                    <div class="size-dimensions">24 × 36 inches</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(11, 14)">
+                    <div class="size-name">A4</div>
+                    <div class="size-dimensions">11 × 14 cm</div>
+                </div>
+                <div class="size-card" onclick="setCommonSize(21, 29.7)">
+                    <div class="size-name">A3</div>
+                    <div class="size-dimensions">21 × 29.7 cm</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let unit = 'inches';
+        let conversionFactor = 1; // inches to cm
+
+        function setUnit(selectedUnit) {
+            unit = selectedUnit;
+            conversionFactor = unit === 'inches' ? 1 : 2.54;
+
+            document.getElementById('inchesBtn').classList.toggle('active', unit === 'inches');
+            document.getElementById('cmBtn').classList.toggle('active', unit === 'cm');
+
+            // Update placeholders
+            updatePlaceholders();
+        }
+
+        function updatePlaceholders() {
+            const widthInput1 = document.getElementById('physicalWidth');
+            const heightInput1 = document.getElementById('physicalHeight');
+
+            if (unit === 'inches') {
+                widthInput1.placeholder = '8.5';
+                heightInput1.placeholder = '11';
+            } else {
+                widthInput1.placeholder = '21.6';
+                heightInput1.placeholder = '27.9';
+            }
+        }
+
+        function calculatePhysicalSize() {
+            const width = parseFloat(document.getElementById('pixelWidth').value);
+            const height = parseFloat(document.getElementById('pixelHeight').value);
+            const ppi = parseFloat(document.getElementById('ppi1').value);
+
+            if (!width || !height || !ppi) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const physicalWidth = width / ppi;
+            const physicalHeight = height / ppi;
+
+            displayResults({
+                'Pixel Width': `${width}px`,
+                'Pixel Height': `${height}px`,
+                'Resolution': `${ppi} PPI`,
+                'Physical Width': formatSize(physicalWidth),
+                'Physical Height': formatSize(physicalHeight),
+                'Total Pixels': `${(width * height).toLocaleString()}`,
+                'Aspect Ratio': `${(width / height).toFixed(2)}:1`
+            });
+        }
+
+        function calculatePixelSize() {
+            const width = parseFloat(document.getElementById('physicalWidth').value);
+            const height = parseFloat(document.getElementById('physicalHeight').value);
+            const ppi = parseFloat(document.getElementById('ppi2').value);
+
+            if (!width || !height || !ppi) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Convert to inches if in cm
+            const widthInches = unit === 'inches' ? width : width / 2.54;
+            const heightInches = unit === 'inches' ? height : height / 2.54;
+
+            const pixelWidth = Math.round(widthInches * ppi);
+            const pixelHeight = Math.round(heightInches * ppi);
+
+            displayResults({
+                'Physical Width': formatSize(width),
+                'Physical Height': formatSize(height),
+                'Resolution': `${ppi} PPI`,
+                'Pixel Width': `${pixelWidth}px`,
+                'Pixel Height': `${pixelHeight}px`,
+                'Total Pixels': `${(pixelWidth * pixelHeight).toLocaleString()}`,
+                'Aspect Ratio': `${(pixelWidth / pixelHeight).toFixed(2)}:1`
+            });
+        }
+
+        function formatSize(size) {
+            if (unit === 'inches') {
+                return `${size.toFixed(2)} inches`;
+            } else {
+                return `${size.toFixed(2)} cm`;
+            }
+        }
+
+        function displayResults(results) {
+            const resultGrid = document.getElementById('resultGrid');
+            resultGrid.innerHTML = '';
+
+            Object.entries(results).forEach(([label, value]) => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-label">${label}</div>
+                    <div class="result-value">${value}</div>
+                `;
+                resultGrid.appendChild(resultItem);
+            });
+
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        function setCommonSize(width, height) {
+            if (unit === 'inches') {
+                document.getElementById('physicalWidth').value = width;
+                document.getElementById('physicalHeight').value = height;
+            } else {
+                // Convert inches to cm
+                document.getElementById('physicalWidth').value = (width * 2.54).toFixed(1);
+                document.getElementById('physicalHeight').value = (height * 2.54).toFixed(1);
+            }
+        }
+
+        // Initialize
+        updatePlaceholders();
+    </script>
+</body>
+</html>
