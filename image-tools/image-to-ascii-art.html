@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to ASCII Art Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #00ff88;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+            background: rgba(0, 255, 136, 0.05);
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #00cc66;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #00ff88;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5));
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #f0f0f0;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .preview-section {
+            display: none;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .preview-container {
+            display: inline-block;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+        .ascii-result {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .ascii-container {
+            background: #000;
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+        .ascii-art {
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 8px;
+            color: #f0f0f0;
+            white-space: pre;
+            text-align: center;
+            background: #000;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+        .ascii-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .ascii-btn {
+            background: #333;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .ascii-btn:hover {
+            background: #555;
+            border-color: #00ff88;
+        }
+        .conversion-controls {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .control-section {
+            margin-bottom: 20px;
+        }
+        .control-section h3 {
+            margin: 0 0 15px 0;
+            color: #00ff88;
+            font-size: 16px;
+        }
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .style-option {
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #2a2a2a;
+        }
+        .style-option:hover, .style-option.active {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        .style-icon {
+            font-size: 24px;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+        .style-name {
+            font-weight: 600;
+            color: #f0f0f0;
+            margin-bottom: 3px;
+        }
+        .style-description {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #f0f0f0;
+            font-weight: 500;
+        }
+        .control-group input, .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #555;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #2a2a2a;
+            color: #f0f0f0;
+        }
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+        .size-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .size-option {
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: #2a2a2a;
+        }
+        .size-option:hover, .size-option.active {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        .color-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .color-preset {
+            border: 2px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            background: #2a2a2a;
+        }
+        .color-preset:hover, .color-preset.active {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+        .color-sample {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid #555;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .convert-btn {
+            background: #00ff88;
+            color: #1a1a1a;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        .convert-btn:hover {
+            background: #00cc66;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        .convert-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .reset-btn {
+            background: #555;
+            color: #f0f0f0;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .reset-btn:hover {
+            background: #777;
+            transform: scale(1.05);
+        }
+        .progress-section {
+            background: #333;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .progress-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #555;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00cc66);
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+        .progress-text {
+            color: #f0f0f0;
+            font-size: 14px;
+        }
+        .download-section {
+            background: #333;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #00ff88;
+            color: #1a1a1a;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        .download-btn:hover {
+            background: #00cc66;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        .status.error {
+            background: rgba(255, 100, 100, 0.1);
+            color: #ff6464;
+            border: 1px solid #ff6464;
+        }
+        .status.info {
+            background: rgba(100, 149, 255, 0.1);
+            color: #6495ff;
+            border: 1px solid #6495ff;
+        }
+        .image-info {
+            display: none;
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #00ff88;
+        }
+        .info-value {
+            color: #f0f0f0;
+        }
+        .presets-section {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .preset-sample {
+            background: #000;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .preset-sample:hover, .preset-sample.active {
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        .preset-art {
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            line-height: 6px;
+            color: #f0f0f0;
+            margin-bottom: 8px;
+        }
+        .preset-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #00ff88;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .style-selector {
+                grid-template-columns: 1fr;
+            }
+            .size-controls {
+                grid-template-columns: 1fr;
+            }
+            .color-controls {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .presets-grid {
+                grid-template-columns: 1fr;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image to ASCII Art</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">🎨</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+            </div>
+        </div>
+
+        <div class="image-info" id="imageInfo">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Original Size:</span>
+                    <span class="info-value" id="originalSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    <span class="info-value" id="imageDimensions"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value" id="imageFormat"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">ASCII Size:</span>
+                    <span class="info-value" id="asciiSize">Not generated</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-container">
+                <img id="previewImage" class="preview-image" alt="Preview">
+            </div>
+        </div>
+
+        <div class="presets-section" id="presetsSection">
+            <h3 style="margin: 0 0 15px 0; color: #00ff88;">Style Presets</h3>
+            <div class="presets-grid">
+                <div class="preset-sample" onclick="applyPreset('standard')">
+                    <div class="preset-art">@%#*+=-:. </div>
+                    <div class="preset-name">Standard</div>
+                </div>
+                <div class="preset-sample active" onclick="applyPreset('detailed')">
+                    <div class="preset-art">$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,"^`'. </div>
+                    <div class="preset-name">Detailed</div>
+                </div>
+                <div class="preset-sample" onclick="applyPreset('simple')">
+                    <div class="preset-art">█▓▒░ </div>
+                    <div class="preset-name">Simple</div>
+                </div>
+                <div class="preset-sample" onclick="applyPreset('blocks')">
+                    <div class="preset-art">█▉▊▋▌▍▎▏ </div>
+                    <div class="preset-name">Blocks</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-controls" id="conversionControls">
+            <div class="control-section">
+                <h3>Art Style</h3>
+                <div class="style-selector">
+                    <div class="style-option active" onclick="setArtStyle('grayscale')">
+                        <div class="style-icon">⚫</div>
+                        <div class="style-name">Grayscale</div>
+                        <div class="style-description">Classic ASCII art</div>
+                    </div>
+                    <div class="style-option" onclick="setArtStyle('binary')">
+                        <div class="style-icon">⚪</div>
+                        <div class="style-name">Binary</div>
+                        <div class="style-description">Black & white only</div>
+                    </div>
+                    <div class="style-option" onclick="setArtStyle('colored')">
+                        <div class="style-icon">🌈</div>
+                        <div class="style-name">Colored</div>
+                        <div class="style-description">With HTML colors</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Output Size</h3>
+                <div class="size-controls">
+                    <div class="size-option active" onclick="setOutputSize('small')">Small</div>
+                    <div class="size-option" onclick="setOutputSize('medium')">Medium</div>
+                    <div class="size-option" onclick="setOutputSize('large')">Large</div>
+                    <div class="size-option" onclick="setOutputSize('xlarge')">X-Large</div>
+                </div>
+                <div class="control-group" style="margin-top: 15px;">
+                    <label for="customWidth">Custom Width (characters)</label>
+                    <input type="number" id="customWidth" min="20" max="200" value="80" placeholder="80">
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Color Scheme</h3>
+                <div class="color-controls">
+                    <div class="color-preset active" onclick="setColorScheme('green')">
+                        <span class="color-sample" style="background: #00ff88;"></span>
+                        Matrix Green
+                    </div>
+                    <div class="color-preset" onclick="setColorScheme('blue')">
+                        <span class="color-sample" style="background: #0088ff;"></span>
+                        Electric Blue
+                    </div>
+                    <div class="color-preset" onclick="setColorScheme('amber')">
+                        <span class="color-sample" style="background: #ffb000;"></span>
+                        Amber Glow
+                    </div>
+                    <div class="color-preset" onclick="setColorScheme('rainbow')">
+                        <span class="color-sample" style="background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);"></span>
+                        Rainbow
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="convert-btn" id="convertBtn" onclick="convertToASCII()">🎨 Generate ASCII Art</button>
+                <button class="reset-btn" onclick="resetConverter()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="ascii-result" id="asciiResult">
+            <div class="ascii-container">
+                <div class="ascii-controls">
+                    <button class="ascii-btn" onclick="copyToClipboard()">📋 Copy</button>
+                    <button class="ascii-btn" onclick="downloadText()">💾 Download</button>
+                </div>
+                <div id="asciiArt" class="ascii-art"></div>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-title">Converting to ASCII Art...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Analyzing image pixels...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">ASCII Art Generated Successfully!</div>
+            <p style="color: #f0f0f0; margin-bottom: 20px;">Your image has been converted to ASCII art. Use the buttons above to copy or download the result.</p>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let asciiArt = '';
+        let artStyle = 'grayscale';
+        let outputSize = 'medium';
+        let colorScheme = 'green';
+        let customWidth = 80;
+
+        // ASCII character sets for different densities
+        const charSets = {
+            standard: '@%#*+=-:. ',
+            detailed: '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ',
+            simple: '█▓▒░ ',
+            blocks: '█▉▊▋▌▍▎▏ '
+        };
+
+        // Size configurations
+        const sizeConfigs = {
+            small: { width: 40, fontSize: 6 },
+            medium: { width: 80, fontSize: 8 },
+            large: { width: 120, fontSize: 10 },
+            xlarge: { width: 160, fontSize: 12 }
+        };
+
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const conversionControls = document.getElementById('conversionControls');
+        const presetsSection = document.getElementById('presetsSection');
+        const asciiResult = document.getElementById('asciiResult');
+        const asciiArtDiv = document.getElementById('asciiArt');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        imageFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+        document.getElementById('customWidth').addEventListener('input', updateCustomWidth);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage = new Image();
+                currentImage.onload = function() {
+                    previewImage.src = e.target.result;
+                    previewSection.style.display = 'block';
+                    conversionControls.style.display = 'block';
+                    presetsSection.style.display = 'block';
+
+                    displayImageInfo(file);
+                    showStatus(`Image "${file.name}" loaded successfully. Choose your ASCII art settings and generate!`, 'success');
+                };
+                currentImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyPreset(preset) {
+            document.querySelectorAll('.preset-sample').forEach(sample => sample.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Apply preset character set
+            // This would normally change the character set, but for demo we'll keep detailed
+        }
+
+        function setArtStyle(style) {
+            artStyle = style;
+
+            document.querySelectorAll('.style-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function setOutputSize(size) {
+            outputSize = size;
+
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update custom width to match preset
+            if (size !== 'custom') {
+                document.getElementById('customWidth').value = sizeConfigs[size].width;
+                customWidth = sizeConfigs[size].width;
+            }
+        }
+
+        function updateCustomWidth() {
+            customWidth = parseInt(this.value) || 80;
+            outputSize = 'custom';
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('active'));
+        }
+
+        function setColorScheme(scheme) {
+            colorScheme = scheme;
+
+            document.querySelectorAll('.color-preset').forEach(preset => preset.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        async function convertToASCII() {
+            if (!currentImage) {
+                showStatus('Please load an image first.', 'error');
+                return;
+            }
+
+            // Show progress
+            progressSection.style.display = 'block';
+            conversionControls.style.display = 'none';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Setting up canvas...';
+
+            try {
+                progressFill.style.width = '25%';
+                progressText.textContent = 'Processing image data...';
+
+                // Create canvas for image processing
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Calculate dimensions
+                const aspectRatio = currentImage.height / currentImage.width;
+                const width = customWidth;
+                const height = Math.floor(width * aspectRatio * 0.5); // Adjust for font aspect ratio
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and scale image
+                ctx.drawImage(currentImage, 0, 0, width, height);
+
+                progressFill.style.width = '50%';
+                progressText.textContent = 'Converting pixels to ASCII...';
+
+                // Get image data
+                const imageData = ctx.getImageData(0, 0, width, height);
+                const data = imageData.data;
+
+                // Generate ASCII art
+                asciiArt = generateASCIIArt(data, width, height);
+
+                progressFill.style.width = '75%';
+                progressText.textContent = 'Applying styling...';
+
+                // Apply color styling if needed
+                if (artStyle === 'colored') {
+                    asciiArt = applyColorStyling(asciiArt, data, width, height);
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'ASCII art complete!';
+
+                setTimeout(() => {
+                    displayASCIIResult();
+                }, 500);
+
+            } catch (error) {
+                console.error('ASCII conversion error:', error);
+                progressSection.style.display = 'none';
+                conversionControls.style.display = 'block';
+                showStatus('Error converting to ASCII: ' + error.message, 'error');
+            }
+        }
+
+        function generateASCIIArt(data, width, height) {
+            const chars = charSets.detailed;
+            let result = '';
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+
+                    // Calculate brightness (grayscale)
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    const brightness = (r + g + b) / 3;
+
+                    // Map brightness to character
+                    const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
+                    result += chars[chars.length - 1 - charIndex];
+                }
+                result += '\n';
+            }
+
+            return result;
+        }
+
+        function applyColorStyling(asciiText, data, width, height) {
+            const lines = asciiText.split('\n');
+            let coloredResult = '';
+
+            for (let y = 0; y < height && y < lines.length; y++) {
+                const line = lines[y];
+                let coloredLine = '';
+
+                for (let x = 0; x < width && x < line.length; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+
+                    // Apply color scheme
+                    let color;
+                    switch (colorScheme) {
+                        case 'green':
+                            color = '#00ff88';
+                            break;
+                        case 'blue':
+                            color = '#0088ff';
+                            break;
+                        case 'amber':
+                            color = '#ffb000';
+                            break;
+                        case 'rainbow':
+                            // Simple rainbow based on position
+                            const hue = (x / width) * 360;
+                            color = `hsl(${hue}, 100%, 50%)`;
+                            break;
+                        default:
+                            color = '#00ff88';
+                    }
+
+                    coloredLine += `<span style="color: ${color}">${line[x]}</span>`;
+                }
+
+                coloredResult += coloredLine + '\n';
+            }
+
+            return coloredResult;
+        }
+
+        function displayASCIIResult() {
+            progressSection.style.display = 'none';
+
+            asciiArtDiv.innerHTML = asciiArt.replace(/\n/g, '<br>');
+            asciiResult.style.display = 'block';
+            downloadSection.style.display = 'block';
+
+            // Update font size based on output size
+            const fontSize = sizeConfigs[outputSize] ? sizeConfigs[outputSize].fontSize : 8;
+            asciiArtDiv.style.fontSize = fontSize + 'px';
+            asciiArtDiv.style.lineHeight = fontSize + 'px';
+
+            document.getElementById('asciiSize').textContent = `${customWidth} × ${Math.floor(customWidth * currentImage.height / currentImage.width * 0.5)} chars`;
+
+            showStatus('ASCII art generated successfully! Use the controls above to copy or download.', 'success');
+        }
+
+        function copyToClipboard() {
+            // Create a temporary textarea to copy from
+            const textarea = document.createElement('textarea');
+            textarea.value = asciiArt.replace(/<[^>]*>/g, ''); // Remove HTML tags
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showStatus('ASCII art copied to clipboard!', 'success');
+        }
+
+        function downloadText() {
+            const plainText = asciiArt.replace(/<[^>]*>/g, ''); // Remove HTML tags
+            const blob = new Blob([plainText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ascii-art.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('ASCII art downloaded as text file!', 'success');
+        }
+
+        function resetConverter() {
+            currentImage = null;
+            asciiArt = '';
+            asciiResult.style.display = 'none';
+            previewSection.style.display = 'none';
+            conversionControls.style.display = 'none';
+            presetsSection.style.display = 'none';
+            downloadSection.style.display = 'none';
+            progressSection.style.display = 'none';
+
+            // Clear inputs
+            imageFile.value = '';
+
+            showStatus('Converter reset. Upload a new image to get started.', 'info');
+        }
+
+        function displayImageInfo(file) {
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('imageDimensions').textContent = `${currentImage.naturalWidth} × ${currentImage.naturalHeight}px`;
+            document.getElementById('imageFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('asciiSize').textContent = 'Not generated';
+            imageInfo.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        imageFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

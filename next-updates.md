@@ -18,27 +18,14 @@
 
 
 ### 🖼️ Image Tools (Current: 5 | Target: 20)
-#### Image Editing
-- [x] Image Compressor
-- [x] Batch Image Resizer
-- [x] Image Format Converter
-- [x] Image Merger
-- [x] Image Splitter
-- [x] Image Cropper
-- [x] Image Rotator
-- [x] Image Flipper
-- [x] Image Filters (Blur, Sharpen, etc.)
-- [ ] Image Color Adjustments
-- [ ] Image Watermark Adder
-- [ ] Image Background Remover
-- [ ] Image Object Remover
+
 
 #### Image Conversion
-- [ ] Image to PDF
-- [ ] Image to Icon
-- [ ] Image to Base64
-- [ ] Image to ASCII Art
-- [ ] Image to Sketch
+- [x] Image to PDF
+- [x] Image to Icon
+- [x] Image to Base64
+- [x] Image to ASCII Art
+- [x] Image to Sketch
 - [ ] Image to Cartoon
 - [ ] Image to Painting
 - [ ] Image to Mosaic

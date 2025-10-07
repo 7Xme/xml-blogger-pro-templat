@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Background Remover</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #218838;
+            background: #e8f5e8;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .removal-workspace {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .removal-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+        .removal-canvas {
+            max-width: 100%;
+            max-height: 600px;
+            display: block;
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        .removal-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .control-section {
+            margin-bottom: 20px;
+        }
+        .control-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .removal-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .method-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .method-option:hover, .method-option.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .method-icon {
+            font-size: 24px;
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+        .method-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .method-description {
+            font-size: 12px;
+            color: #666;
+        }
+        .color-picker-section, .tolerance-section {
+            display: none;
+        }
+        .color-sample {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .tolerance-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .tolerance-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+        .tolerance-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #28a745;
+            cursor: pointer;
+        }
+        .tolerance-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #28a745;
+            cursor: pointer;
+            border: none;
+        }
+        .tolerance-value {
+            min-width: 35px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+        .edge-refinement {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .refine-btn {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .refine-btn:hover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .remove-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .remove-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .undo-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .undo-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .preview-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .image-info {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .instructions h4 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        .instructions p {
+            margin: 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .removal-methods {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .preview-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Image Background Remover</h1>
+
+        <div class="instructions">
+            <h4>🎨 How Background Removal Works</h4>
+            <p>This tool uses color-based selection to remove backgrounds. For best results, use images with solid, uniform backgrounds that contrast well with the subject. Click on the background area to select the color to remove.</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+            </div>
+        </div>
+
+        <div class="image-info" id="imageInfo">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Original Size:</span>
+                    <span class="info-value" id="originalSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    <span class="info-value" id="imageDimensions"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value" id="imageFormat"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Background:</span>
+                    <span class="info-value" id="backgroundStatus">Original</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="removal-workspace" id="removalWorkspace">
+            <div class="removal-container" id="removalContainer">
+                <canvas id="removalCanvas" class="removal-canvas"></canvas>
+            </div>
+        </div>
+
+        <div class="removal-controls" id="removalControls">
+            <div class="control-section">
+                <h3>Removal Method</h3>
+                <div class="removal-methods">
+                    <div class="method-option active" onclick="selectMethod('color')">
+                        <div class="method-icon">🎨</div>
+                        <div class="method-name">Color Selection</div>
+                        <div class="method-description">Click to select background color</div>
+                    </div>
+                    <div class="method-option" onclick="selectMethod('auto')">
+                        <div class="method-icon">🤖</div>
+                        <div class="method-name">Smart Detection</div>
+                        <div class="method-description">Automatic edge detection</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="colorPickerSection" class="color-picker-section">
+                <div class="control-section">
+                    <h3>Background Color Selection</h3>
+                    <p>Click on the background area in the image above to select the color to remove.</p>
+                    <div style="margin: 15px 0;">
+                        <label>Selected Color: </label>
+                        <div class="color-sample" id="selectedColor" style="background: transparent;"></div>
+                        <span id="colorValue" style="margin-left: 10px; font-weight: 600;">None selected</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Tolerance Settings</h3>
+                <div class="tolerance-controls">
+                    <span>Precise</span>
+                    <input type="range" class="tolerance-slider" id="toleranceSlider" min="0" max="100" value="20" step="1">
+                    <span class="tolerance-value" id="toleranceValue">20</span>
+                    <span>Tolerant</span>
+                </div>
+                <small style="color: #666; margin-top: 5px; display: block;">Higher tolerance removes more similar colors</small>
+            </div>
+
+            <div class="control-section">
+                <h3>Edge Refinement</h3>
+                <div class="edge-refinement">
+                    <button class="refine-btn" onclick="applyRefinement('smooth')">Smooth Edges</button>
+                    <button class="refine-btn" onclick="applyRefinement('feather')">Feather Edges</button>
+                    <button class="refine-btn" onclick="applyRefinement('contract')">Contract</button>
+                    <button class="refine-btn" onclick="applyRefinement('expand')">Expand</button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="remove-btn" id="removeBtn" onclick="removeBackground()">🎭 Remove Background</button>
+                <button class="undo-btn" onclick="resetImage()">↶ Reset</button>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-title">Background Removed Successfully!</div>
+            <div class="preview-grid">
+                <div class="preview-item">
+                    <div class="preview-label">Original</div>
+                    <img id="originalPreview" class="preview-image" alt="Original image">
+                </div>
+                <div class="preview-item">
+                    <div class="preview-label">Background Removed</div>
+                    <img id="removedPreview" class="preview-image" alt="Background removed image">
+                </div>
+            </div>
+            <button class="download-btn" onclick="downloadImage()">💾 Download Image (PNG)</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let canvas = null;
+        let ctx = null;
+        let image = null;
+        let removalMethod = 'color';
+        let selectedColor = null;
+        let tolerance = 20;
+        let originalImageData = null;
+        let processedImageData = null;
+        let removedBlob = null;
+
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const removalWorkspace = document.getElementById('removalWorkspace');
+        const removalContainer = document.getElementById('removalContainer');
+        const removalCanvas = document.getElementById('removalCanvas');
+        const removalControls = document.getElementById('removalControls');
+        const previewSection = document.getElementById('previewSection');
+        const originalPreview = document.getElementById('originalPreview');
+        const removedPreview = document.getElementById('removedPreview');
+        const imageInfo = document.getElementById('imageInfo');
+        const statusDiv = document.getElementById('status');
+        const selectedColorDiv = document.getElementById('selectedColor');
+        const colorValueSpan = document.getElementById('colorValue');
+
+        // Event listeners
+        imageFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+        removalCanvas.addEventListener('click', handleCanvasClick);
+        document.getElementById('toleranceSlider').addEventListener('input', updateTolerance);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image = new Image();
+                image.onload = function() {
+                    setupCanvas();
+                    displayImageInfo(file);
+                    originalPreview.src = e.target.result;
+                    originalImageData = e.target.result;
+                    selectedColor = null;
+                    updateColorDisplay();
+                    showStatus(`Image "${file.name}" loaded successfully. Select a background color to remove.`, 'success');
+                };
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupCanvas() {
+            const containerRect = removalContainer.getBoundingClientRect();
+            const maxWidth = containerRect.width - 40;
+            const maxHeight = 600;
+
+            // Calculate canvas size to fit image
+            let canvasWidth = image.width;
+            let canvasHeight = image.height;
+
+            if (canvasWidth > maxWidth) {
+                const ratio = maxWidth / canvasWidth;
+                canvasWidth = maxWidth;
+                canvasHeight *= ratio;
+            }
+
+            if (canvasHeight > maxHeight) {
+                const ratio = maxHeight / canvasHeight;
+                canvasHeight = maxHeight;
+                canvasWidth *= ratio;
+            }
+
+            removalCanvas.width = canvasWidth;
+            removalCanvas.height = canvasHeight;
+            ctx = removalCanvas.getContext('2d');
+
+            // Show workspace and controls
+            removalWorkspace.style.display = 'block';
+            removalControls.style.display = 'block';
+            previewSection.style.display = 'none';
+
+            // Initial draw
+            drawImage();
+        }
+
+        function drawImage() {
+            if (!ctx || !image) return;
+
+            ctx.clearRect(0, 0, removalCanvas.width, removalCanvas.height);
+
+            const canvasWidth = removalCanvas.width;
+            const canvasHeight = removalCanvas.height;
+
+            // Calculate image size to fit
+            const scale = Math.min(canvasWidth / image.width, canvasHeight / image.height) * 0.9;
+            const drawWidth = image.width * scale;
+            const drawHeight = image.height * scale;
+
+            // Center the image
+            const x = (canvasWidth - drawWidth) / 2;
+            const y = (canvasHeight - drawHeight) / 2;
+
+            // Draw image
+            ctx.drawImage(image, x, y, drawWidth, drawHeight);
+        }
+
+        function selectMethod(method) {
+            removalMethod = method;
+
+            document.querySelectorAll('.method-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const colorSection = document.getElementById('colorPickerSection');
+            colorSection.style.display = method === 'color' ? 'block' : 'none';
+        }
+
+        function handleCanvasClick(event) {
+            if (removalMethod !== 'color') return;
+
+            const rect = removalCanvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            // Get color at clicked position
+            const imageData = ctx.getImageData(x, y, 1, 1);
+            const data = imageData.data;
+            selectedColor = {
+                r: data[0],
+                g: data[1],
+                b: data[2],
+                a: data[3]
+            };
+
+            updateColorDisplay();
+            showStatus('Background color selected. Click "Remove Background" to process.', 'info');
+        }
+
+        function updateColorDisplay() {
+            if (selectedColor) {
+                const colorString = `rgb(${selectedColor.r}, ${selectedColor.g}, ${selectedColor.b})`;
+                selectedColorDiv.style.background = colorString;
+                colorValueSpan.textContent = `RGB(${selectedColor.r}, ${selectedColor.g}, ${selectedColor.b})`;
+            } else {
+                selectedColorDiv.style.background = 'transparent';
+                colorValueSpan.textContent = 'None selected';
+            }
+        }
+
+        function updateTolerance() {
+            tolerance = parseInt(this.value);
+            document.getElementById('toleranceValue').textContent = tolerance;
+        }
+
+        function applyRefinement(type) {
+            if (!processedImageData) {
+                showStatus('Please remove background first before applying refinements.', 'error');
+                return;
+            }
+
+            // Apply edge refinement
+            switch (type) {
+                case 'smooth':
+                    applySmoothing();
+                    break;
+                case 'feather':
+                    applyFeathering();
+                    break;
+                case 'contract':
+                    applyContraction();
+                    break;
+                case 'expand':
+                    applyExpansion();
+                    break;
+            }
+
+            drawProcessedImage();
+            showStatus(`${type.charAt(0).toUpperCase() + type.slice(1)} applied to edges.`, 'info');
+        }
+
+        function removeBackground() {
+            if (!selectedColor && removalMethod === 'color') {
+                showStatus('Please click on the background color first.', 'error');
+                return;
+            }
+
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, removalCanvas.width, removalCanvas.height);
+            const data = imageData.data;
+            processedImageData = new Uint8ClampedArray(data);
+
+            if (removalMethod === 'color') {
+                // Color-based removal using flood fill algorithm
+                removeColorBackground(data, processedImageData);
+            } else if (removalMethod === 'auto') {
+                // Simple edge detection based removal
+                removeAutoBackground(data, processedImageData);
+            }
+
+            drawProcessedImage();
+            document.getElementById('backgroundStatus').textContent = 'Removed';
+            showStatus('Background removal applied. Use edge refinement tools if needed.', 'success');
+        }
+
+        function removeColorBackground(originalData, processedData) {
+            // Simple color distance based removal
+            const threshold = tolerance * 2.55; // Convert percentage to 0-255 range
+
+            for (let i = 0; i < originalData.length; i += 4) {
+                const r = originalData[i];
+                const g = originalData[i + 1];
+                const b = originalData[i + 2];
+
+                // Calculate color distance
+                const distance = Math.sqrt(
+                    Math.pow(r - selectedColor.r, 2) +
+                    Math.pow(g - selectedColor.g, 2) +
+                    Math.pow(b - selectedColor.b, 2)
+                );
+
+                if (distance <= threshold) {
+                    // Make pixel transparent
+                    processedData[i + 3] = 0; // Alpha channel
+                }
+            }
+        }
+
+        function removeAutoBackground(originalData, processedData) {
+            // Simple corner-based background detection
+            const width = removalCanvas.width;
+            const height = removalCanvas.height;
+
+            // Sample corners for background color
+            const corners = [
+                { x: 0, y: 0 },
+                { x: width - 1, y: 0 },
+                { x: 0, y: height - 1 },
+                { x: width - 1, y: height - 1 }
+            ];
+
+            let bgColor = { r: 0, g: 0, b: 0, count: 0 };
+
+            // Average corner colors
+            corners.forEach(corner => {
+                const idx = (corner.y * width + corner.x) * 4;
+                bgColor.r += originalData[idx];
+                bgColor.g += originalData[idx + 1];
+                bgColor.b += originalData[idx + 2];
+                bgColor.count++;
+            });
+
+            bgColor.r = Math.round(bgColor.r / bgColor.count);
+            bgColor.g = Math.round(bgColor.g / bgColor.count);
+            bgColor.b = Math.round(bgColor.b / bgColor.count);
+
+            selectedColor = bgColor;
+            removeColorBackground(originalData, processedData);
+        }
+
+        function applySmoothing() {
+            // Simple blur filter for edge smoothing
+            const kernel = [
+                [1, 2, 1],
+                [2, 4, 2],
+                [1, 2, 1]
+            ];
+
+            applyConvolution(processedImageData, removalCanvas.width, removalCanvas.height, kernel, true);
+        }
+
+        function applyFeathering() {
+            // Create soft edges by adjusting alpha values near transparent pixels
+            const width = removalCanvas.width;
+            const height = removalCanvas.height;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    if (processedImageData[idx + 3] === 0) {
+                        // Check neighboring pixels
+                        let alphaSum = 0;
+                        let count = 0;
+
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                const nx = x + dx;
+                                const ny = y + dy;
+
+                                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                    const nidx = (ny * width + nx) * 4;
+                                    alphaSum += processedImageData[nidx + 3];
+                                    count++;
+                                }
+                            }
+                        }
+
+                        if (count > 0) {
+                            processedImageData[idx + 3] = Math.max(0, alphaSum / count - 20);
+                        }
+                    }
+                }
+            }
+        }
+
+        function applyContraction() {
+            // Contract edges by making semi-transparent pixels fully transparent
+            for (let i = 0; i < processedImageData.length; i += 4) {
+                if (processedImageData[i + 3] < 128) {
+                    processedImageData[i + 3] = 0;
+                }
+            }
+        }
+
+        function applyExpansion() {
+            // Expand edges by making transparent pixels semi-transparent if they neighbor opaque pixels
+            const width = removalCanvas.width;
+            const height = removalCanvas.height;
+            const newData = new Uint8ClampedArray(processedImageData);
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    if (processedImageData[idx + 3] === 0) {
+                        // Check if any neighbor is opaque
+                        let hasOpaqueNeighbor = false;
+                        for (let dy = -1; dy <= 1 && !hasOpaqueNeighbor; dy++) {
+                            for (let dx = -1; dx <= 1 && !hasOpaqueNeighbor; dx++) {
+                                const nx = x + dx;
+                                const ny = y + dy;
+
+                                if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                    const nidx = (ny * width + nx) * 4;
+                                    if (processedImageData[nidx + 3] > 128) {
+                                        hasOpaqueNeighbor = true;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (hasOpaqueNeighbor) {
+                            newData[idx + 3] = 64; // Semi-transparent
+                        }
+                    }
+                }
+            }
+
+            processedImageData = newData;
+        }
+
+        function applyConvolution(data, width, height, kernel, normalize = false) {
+            const kernelSize = kernel.length;
+            const half = Math.floor(kernelSize / 2);
+            const output = new Uint8ClampedArray(data);
+
+            for (let y = half; y < height - half; y++) {
+                for (let x = half; x < width - half; x++) {
+                    let r = 0, g = 0, b = 0, a = 0, weight = 0;
+
+                    for (let ky = 0; ky < kernelSize; ky++) {
+                        for (let kx = 0; kx < kernelSize; kx++) {
+                            const px = x + kx - half;
+                            const py = y + ky - half;
+                            const idx = (py * width + px) * 4;
+                            const w = kernel[ky][kx];
+
+                            r += data[idx] * w;
+                            g += data[idx + 1] * w;
+                            b += data[idx + 2] * w;
+                            a += data[idx + 3] * w;
+                            weight += w;
+                        }
+                    }
+
+                    const idx = (y * width + x) * 4;
+                    if (normalize && weight > 0) {
+                        output[idx] = r / weight;
+                        output[idx + 1] = g / weight;
+                        output[idx + 2] = b / weight;
+                        output[idx + 3] = a / weight;
+                    } else {
+                        output[idx] = Math.max(0, Math.min(255, r));
+                        output[idx + 1] = Math.max(0, Math.min(255, g));
+                        output[idx + 2] = Math.max(0, Math.min(255, b));
+                        output[idx + 3] = Math.max(0, Math.min(255, a));
+                    }
+                }
+            }
+
+            // Copy output back to data
+            for (let i = 0; i < data.length; i++) {
+                data[i] = output[i];
+            }
+        }
+
+        function drawProcessedImage() {
+            const imageData = new ImageData(processedImageData, removalCanvas.width, removalCanvas.height);
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function resetImage() {
+            selectedColor = null;
+            processedImageData = null;
+            updateColorDisplay();
+            if (originalImageData) {
+                image.src = originalImageData;
+                drawImage();
+                document.getElementById('backgroundStatus').textContent = 'Original';
+                previewSection.style.display = 'none';
+                showStatus('Image reset to original state.', 'info');
+            }
+        }
+
+        function downloadImage() {
+            if (!processedImageData) {
+                showStatus('No processed image available to download.', 'error');
+                return;
+            }
+
+            // Create image from processed data
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = removalCanvas.width;
+            tempCanvas.height = removalCanvas.height;
+
+            const imageData = new ImageData(processedImageData, removalCanvas.width, removalCanvas.height);
+            tempCtx.putImageData(imageData, 0, 0);
+
+            tempCanvas.toBlob(function(blob) {
+                removedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'background-removed.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showStatus('Background removed image downloaded successfully!', 'success');
+            }, 'image/png');
+        }
+
+        function displayImageInfo(file) {
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('imageDimensions').textContent = `${image.width} × ${image.height}px`;
+            document.getElementById('imageFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('backgroundStatus').textContent = 'Original';
+            imageInfo.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        imageFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

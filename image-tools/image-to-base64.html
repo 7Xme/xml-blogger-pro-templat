@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Base64 Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #218838;
+            background: #e8f5e8;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .image-preview {
+            display: none;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .preview-container {
+            display: inline-block;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .conversion-result {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .result-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #28a745;
+            border-bottom-color: #28a745;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .code-output {
+            position: relative;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .output-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .code-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            resize: vertical;
+            background: white;
+        }
+        .code-textarea:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        .stats-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .usage-examples {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .examples-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .example-tab {
+            padding: 8px 16px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .example-tab:hover, .example-tab.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .example-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .example-code {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .convert-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .convert-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .image-info {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        .progress-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .progress-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            color: #666;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .result-tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .examples-tabs {
+                justify-content: center;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image to Base64 Converter</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+            </div>
+        </div>
+
+        <div class="image-info" id="imageInfo">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Original Size:</span>
+                    <span class="info-value" id="originalSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    <span class="info-value" id="imageDimensions"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value" id="imageFormat"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Base64 Length:</span>
+                    <span class="info-value" id="base64Length"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-preview" id="imagePreview">
+            <div class="preview-container">
+                <img id="previewImage" class="preview-image" alt="Preview">
+            </div>
+        </div>
+
+        <div class="stats-section" id="statsSection">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="compressionRatio">0%</div>
+                    <div class="stat-label">Base64 Overhead</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="dataUriSize">0 KB</div>
+                    <div class="stat-label">Data URI Size</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="efficiency">0%</div>
+                    <div class="stat-label">Efficiency</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-result" id="conversionResult">
+            <div class="result-tabs">
+                <button class="tab-btn active" onclick="switchTab('html')">HTML</button>
+                <button class="tab-btn" onclick="switchTab('css')">CSS</button>
+                <button class="tab-btn" onclick="switchTab('javascript')">JavaScript</button>
+                <button class="tab-btn" onclick="switchTab('json')">JSON</button>
+                <button class="tab-btn" onclick="switchTab('raw')">Raw Base64</button>
+            </div>
+
+            <div id="htmlTab" class="tab-content active">
+                <div class="code-output">
+                    <div class="output-label">HTML Image Tag</div>
+                    <textarea id="htmlCode" class="code-textarea" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('htmlCode')">Copy</button>
+                </div>
+            </div>
+
+            <div id="cssTab" class="tab-content">
+                <div class="code-output">
+                    <div class="output-label">CSS Background Image</div>
+                    <textarea id="cssCode" class="code-textarea" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('cssCode')">Copy</button>
+                </div>
+            </div>
+
+            <div id="javascriptTab" class="tab-content">
+                <div class="code-output">
+                    <div class="output-label">JavaScript String</div>
+                    <textarea id="jsCode" class="code-textarea" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('jsCode')">Copy</button>
+                </div>
+            </div>
+
+            <div id="jsonTab" class="tab-content">
+                <div class="code-output">
+                    <div class="output-label">JSON Format</div>
+                    <textarea id="jsonCode" class="code-textarea" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('jsonCode')">Copy</button>
+                </div>
+            </div>
+
+            <div id="rawTab" class="tab-content">
+                <div class="code-output">
+                    <div class="output-label">Raw Base64 String</div>
+                    <textarea id="rawCode" class="code-textarea" readonly></textarea>
+                    <button class="copy-btn" onclick="copyToClipboard('rawCode')">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="usage-examples" id="usageExamples">
+            <h3 style="margin: 0 0 15px 0; color: #333;">Usage Examples</h3>
+            <div class="examples-tabs">
+                <button class="example-tab active" onclick="switchExample('html')">HTML</button>
+                <button class="example-tab" onclick="switchExample('css')">CSS</button>
+                <button class="example-tab" onclick="switchExample('email')">Email</button>
+                <button class="example-tab" onclick="switchExample('svg')">SVG</button>
+                <button class="example-tab" onclick="switchExample('markdown')">Markdown</button>
+            </div>
+            <div class="example-content">
+                <div id="htmlExample" class="example-content active">
+                    <strong>Embedding images in HTML without external files:</strong>
+                    <div class="example-code" id="htmlExampleCode">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" alt="Embedded image">
+                    </div>
+                </div>
+                <div id="cssExample" class="example-content">
+                    <strong>Using Base64 in CSS backgrounds:</strong>
+                    <div class="example-code" id="cssExampleCode">
+.element {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+}
+                    </div>
+                </div>
+                <div id="emailExample" class="example-content">
+                    <strong>Email signatures and inline images:</strong>
+                    <div class="example-code" id="emailExampleCode">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+     alt="Company Logo"
+     style="max-width: 200px;">
+                    </div>
+                </div>
+                <div id="svgExample" class="example-content">
+                    <strong>SVG with embedded raster images:</strong>
+                    <div class="example-code" id="svgExampleCode">
+<image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+       x="10" y="10" width="100" height="100"/>
+                    </div>
+                </div>
+                <div id="markdownExample" class="example-content">
+                    <strong>Markdown with inline images:</strong>
+                    <div class="example-code" id="markdownExampleCode">
+![Alt text](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="convert-btn" id="convertBtn" onclick="convertToBase64()">🔄 Convert to Base64</button>
+            <button class="reset-btn" onclick="resetConverter()">🔄 Reset</button>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-title">Converting to Base64...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processing image...</div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let base64Data = null;
+        let currentTab = 'html';
+        let currentExample = 'html';
+
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const conversionResult = document.getElementById('conversionResult');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        imageFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage = new Image();
+                currentImage.onload = function() {
+                    previewImage.src = e.target.result;
+                    imagePreview.style.display = 'block';
+
+                    displayImageInfo(file);
+                    showStatus(`Image "${file.name}" loaded successfully. Click "Convert to Base64" to generate the encoded string.`, 'success');
+                };
+                currentImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function convertToBase64() {
+            if (!currentImage) {
+                showStatus('Please load an image first.', 'error');
+                return;
+            }
+
+            // Show progress
+            progressSection.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Converting to Base64...';
+
+            // Simulate progress (actual conversion is instant)
+            setTimeout(() => {
+                progressFill.style.width = '50%';
+                progressText.textContent = 'Generating code formats...';
+            }, 200);
+
+            setTimeout(() => {
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Conversion complete!';
+
+                setTimeout(() => {
+                    completeConversion();
+                }, 300);
+            }, 400);
+        }
+
+        function completeConversion() {
+            progressSection.style.display = 'none';
+
+            // Get the base64 data from the image src
+            base64Data = previewImage.src;
+
+            // Extract just the base64 part (remove data:image/...;base64,)
+            const base64String = base64Data.split(',')[1];
+
+            // Generate different code formats
+            generateCodeFormats(base64Data, base64String);
+
+            // Show results
+            conversionResult.style.display = 'block';
+            statsSection.style.display = 'block';
+            usageExamples.style.display = 'block';
+
+            // Update statistics
+            updateStatistics(base64String);
+
+            showStatus('Image successfully converted to Base64! Use the tabs above to see different code formats.', 'success');
+        }
+
+        function generateCodeFormats(dataUri, base64String) {
+            const mimeType = currentImage.src.split(';')[0].split(':')[1];
+
+            // HTML format
+            document.getElementById('htmlCode').value = `<img src="${dataUri}" alt="Embedded image">`;
+
+            // CSS format
+            document.getElementById('cssCode').value = `.element {\n    background-image: url('${dataUri}');\n}`;
+
+            // JavaScript format
+            document.getElementById('jsCode').value = `const imageData = "${dataUri}";`;
+
+            // JSON format
+            const jsonData = {
+                image: dataUri,
+                mimeType: mimeType,
+                originalSize: currentImage.naturalWidth + 'x' + currentImage.naturalHeight
+            };
+            document.getElementById('jsonCode').value = JSON.stringify(jsonData, null, 2);
+
+            // Raw Base64 format
+            document.getElementById('rawCode').value = base64String;
+
+            // Update examples
+            updateExamples(dataUri);
+        }
+
+        function updateExamples(dataUri) {
+            document.getElementById('htmlExampleCode').textContent =
+                `<img src="${dataUri}" alt="Embedded image">`;
+
+            document.getElementById('cssExampleCode').textContent =
+                `.element {\n    background-image: url('${dataUri}');\n}`;
+
+            document.getElementById('emailExampleCode').textContent =
+                `<img src="${dataUri}"\n     alt="Company Logo"\n     style="max-width: 200px;">`;
+
+            document.getElementById('svgExampleCode').textContent =
+                `<image href="${dataUri}"\n       x="10" y="10" width="100" height="100"/>`;
+
+            document.getElementById('markdownExampleCode').textContent =
+                `![Alt text](${dataUri})`;
+        }
+
+        function updateStatistics(base64String) {
+            const originalSize = currentImage.naturalWidth * currentImage.naturalHeight * 3; // Rough RGB estimate
+            const base64Size = base64String.length;
+            const dataUriSize = base64Data.length;
+
+            // Base64 encoding increases size by ~33%
+            const overhead = ((base64Size / originalSize) - 1) * 100;
+            const efficiency = (originalSize / dataUriSize) * 100;
+
+            document.getElementById('compressionRatio').textContent = overhead.toFixed(1) + '%';
+            document.getElementById('dataUriSize').textContent = formatFileSize(dataUriSize);
+            document.getElementById('efficiency').textContent = efficiency.toFixed(1) + '%';
+            document.getElementById('base64Length').textContent = base64String.length + ' chars';
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+            currentTab = tabName;
+        }
+
+        function switchExample(exampleName) {
+            // Hide all examples
+            document.querySelectorAll('.example-content').forEach(ex => ex.classList.remove('active'));
+            document.querySelectorAll('.example-tab').forEach(tab => tab.classList.remove('active'));
+
+            // Show selected example
+            document.getElementById(exampleName + 'Example').classList.add('active');
+            event.target.classList.add('active');
+            currentExample = exampleName;
+        }
+
+        function copyToClipboard(elementId) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            document.execCommand('copy');
+
+            // Visual feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.style.background = '#28a745';
+
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '';
+            }, 2000);
+
+            showStatus('Code copied to clipboard!', 'success');
+        }
+
+        function resetConverter() {
+            currentImage = null;
+            base64Data = null;
+
+            // Hide sections
+            imagePreview.style.display = 'none';
+            conversionResult.style.display = 'none';
+            statsSection.style.display = 'none';
+            usageExamples.style.display = 'none';
+            progressSection.style.display = 'none';
+
+            // Clear inputs
+            imageFile.value = '';
+
+            showStatus('Converter reset. Upload a new image to get started.', 'info');
+        }
+
+        function displayImageInfo(file) {
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('imageDimensions').textContent = `${currentImage.naturalWidth} × ${currentImage.naturalHeight}px`;
+            document.getElementById('imageFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('base64Length').textContent = 'Not converted';
+            imageInfo.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        imageFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Icon Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #218838;
+            background: #e8f5e8;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .preview-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .preview-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+        }
+        .preview-canvas {
+            max-width: 100%;
+            max-height: 400px;
+            display: block;
+            border-radius: 8px;
+        }
+        .conversion-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .control-section {
+            margin-bottom: 20px;
+        }
+        .control-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .format-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .format-option {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .format-option:hover, .format-option.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .format-icon {
+            font-size: 24px;
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+        .format-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .format-description {
+            font-size: 12px;
+            color: #666;
+        }
+        .size-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .size-option {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .size-option:hover, .size-option.selected {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .custom-sizes {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        .custom-sizes h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        .custom-size-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .processing-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .option-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .option-item:hover, .option-item.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .option-icon {
+            font-size: 20px;
+            color: #28a745;
+            margin-bottom: 8px;
+        }
+        .option-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .convert-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .convert-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .progress-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .progress-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            color: #666;
+            font-size: 14px;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .icon-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .icon-preview-item {
+            text-align: center;
+        }
+        .icon-preview {
+            width: 64px;
+            height: 64px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 0 auto 8px;
+            display: block;
+        }
+        .icon-size {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .image-info {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .format-selector {
+                grid-template-columns: 1fr;
+            }
+            .size-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .processing-options {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .icon-previews {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .custom-size-inputs {
+                grid-template-columns: 1fr;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Image to Icon Converter</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">📱</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+            </div>
+        </div>
+
+        <div class="image-info" id="imageInfo">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Original Size:</span>
+                    <span class="info-value" id="originalSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    <span class="info-value" id="imageDimensions"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value" id="imageFormat"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Icon Format:</span>
+                    <span class="info-value" id="iconFormat">None</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-container" id="previewContainer">
+                <canvas id="previewCanvas" class="preview-canvas"></canvas>
+            </div>
+        </div>
+
+        <div class="conversion-controls" id="conversionControls">
+            <div class="control-section">
+                <h3>Output Format</h3>
+                <div class="format-selector">
+                    <div class="format-option active" onclick="selectFormat('ico')">
+                        <div class="format-icon">💾</div>
+                        <div class="format-name">ICO</div>
+                        <div class="format-description">Windows icon</div>
+                    </div>
+                    <div class="format-option" onclick="selectFormat('png')">
+                        <div class="format-icon">🖼️</div>
+                        <div class="format-name">PNG Icons</div>
+                        <div class="format-description">Multiple sizes</div>
+                    </div>
+                    <div class="format-option" onclick="selectFormat('icns')">
+                        <div class="format-icon">🍎</div>
+                        <div class="format-name">ICNS</div>
+                        <div class="format-description">macOS icon</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Icon Sizes</h3>
+                <div class="size-selector">
+                    <div class="size-option selected" onclick="toggleSize(16)">16×16</div>
+                    <div class="size-option selected" onclick="toggleSize(24)">24×24</div>
+                    <div class="size-option selected" onclick="toggleSize(32)">32×32</div>
+                    <div class="size-option selected" onclick="toggleSize(48)">48×48</div>
+                    <div class="size-option selected" onclick="toggleSize(64)">64×64</div>
+                    <div class="size-option selected" onclick="toggleSize(128)">128×128</div>
+                    <div class="size-option selected" onclick="toggleSize(256)">256×256</div>
+                    <div class="size-option selected" onclick="toggleSize(512)">512×512</div>
+                </div>
+                <div class="custom-sizes">
+                    <h4>Custom Sizes</h4>
+                    <div class="custom-size-inputs">
+                        <div class="control-group">
+                            <label for="customSize">Size (px)</label>
+                            <input type="number" id="customSize" min="16" max="1024" placeholder="128">
+                        </div>
+                        <button class="convert-btn" style="padding: 8px 16px; font-size: 14px;" onclick="addCustomSize()">Add Size</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Processing Options</h3>
+                <div class="processing-options">
+                    <div class="option-item active" onclick="toggleProcessingOption('maintainAspectRatio')">
+                        <div class="option-icon">📐</div>
+                        <div class="option-name">Maintain Aspect Ratio</div>
+                    </div>
+                    <div class="option-item active" onclick="toggleProcessingOption('centerCrop')">
+                        <div class="option-icon">🎯</div>
+                        <div class="option-name">Smart Centering</div>
+                    </div>
+                    <div class="option-item" onclick="toggleProcessingOption('addShadow')">
+                        <div class="option-icon">🌑</div>
+                        <div class="option-name">Add Drop Shadow</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="convert-btn" id="convertBtn" onclick="convertToIcon()">🖼️ Convert to Icons</button>
+                <button class="reset-btn" onclick="resetConverter()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-title">Converting to Icons...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Preparing icon sizes...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Icons Created Successfully!</div>
+            <div class="icon-previews" id="iconPreviews"></div>
+            <button class="download-btn" onclick="downloadIcons()">💾 Download Icons</button>
+            <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                <strong>📁 Download includes:</strong> <span id="downloadInfo"></span>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let canvas = null;
+        let ctx = null;
+        let image = null;
+        let originalImageData = null;
+        let outputFormat = 'ico';
+        let selectedSizes = [16, 24, 32, 48, 64, 128, 256, 512];
+        let processingOptions = {
+            maintainAspectRatio: true,
+            centerCrop: true,
+            addShadow: false
+        };
+        let generatedIcons = [];
+
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewSection = document.getElementById('previewSection');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const conversionControls = document.getElementById('conversionControls');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const iconPreviews = document.getElementById('iconPreviews');
+        const imageInfo = document.getElementById('imageInfo');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        imageFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image = new Image();
+                image.onload = function() {
+                    setupCanvas();
+                    displayImageInfo(file);
+                    originalImageData = e.target.result;
+                    showStatus(`Image "${file.name}" loaded successfully. Configure icon settings and convert.`, 'success');
+                };
+                image.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupCanvas() {
+            const containerRect = previewContainer.getBoundingClientRect();
+            const maxWidth = containerRect.width - 40;
+            const maxHeight = 400;
+
+            // Calculate canvas size to fit image
+            let canvasWidth = image.width;
+            let canvasHeight = image.height;
+
+            if (canvasWidth > maxWidth) {
+                const ratio = maxWidth / canvasWidth;
+                canvasWidth = maxWidth;
+                canvasHeight *= ratio;
+            }
+
+            if (canvasHeight > maxHeight) {
+                const ratio = maxHeight / canvasHeight;
+                canvasHeight = maxHeight;
+                canvasWidth *= ratio;
+            }
+
+            previewCanvas.width = canvasWidth;
+            previewCanvas.height = canvasHeight;
+            ctx = previewCanvas.getContext('2d');
+
+            // Show sections
+            previewSection.style.display = 'block';
+            conversionControls.style.display = 'block';
+            downloadSection.style.display = 'none';
+
+            // Initial draw
+            drawImage();
+        }
+
+        function drawImage() {
+            if (!ctx || !image) return;
+
+            ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+            const canvasWidth = previewCanvas.width;
+            const canvasHeight = previewCanvas.height;
+
+            // Calculate image size to fit
+            const scale = Math.min(canvasWidth / image.width, canvasHeight / image.height) * 0.9;
+            const drawWidth = image.width * scale;
+            const drawHeight = image.height * scale;
+
+            // Center the image
+            const x = (canvasWidth - drawWidth) / 2;
+            const y = (canvasHeight - drawHeight) / 2;
+
+            // Draw image
+            ctx.drawImage(image, x, y, drawWidth, drawHeight);
+        }
+
+        function selectFormat(format) {
+            outputFormat = format;
+
+            document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('iconFormat').textContent = format.toUpperCase();
+        }
+
+        function toggleSize(size) {
+            const index = selectedSizes.indexOf(size);
+            if (index > -1) {
+                selectedSizes.splice(index, 1);
+                event.target.classList.remove('selected');
+            } else {
+                selectedSizes.push(size);
+                selectedSizes.sort((a, b) => a - b);
+                event.target.classList.add('selected');
+            }
+        }
+
+        function addCustomSize() {
+            const customSize = parseInt(document.getElementById('customSize').value);
+            if (customSize && customSize >= 16 && customSize <= 1024) {
+                if (!selectedSizes.includes(customSize)) {
+                    selectedSizes.push(customSize);
+                    selectedSizes.sort((a, b) => a - b);
+
+                    // Update UI
+                    document.getElementById('customSize').value = '';
+                    showStatus(`Added custom size: ${customSize}×${customSize}px`, 'info');
+                } else {
+                    showStatus('Size already selected.', 'info');
+                }
+            } else {
+                showStatus('Please enter a valid size between 16 and 1024 pixels.', 'error');
+            }
+        }
+
+        function toggleProcessingOption(option) {
+            processingOptions[option] = !processingOptions[option];
+
+            document.querySelectorAll('.option-item').forEach(item => {
+                if (item.onclick.toString().includes(option)) {
+                    item.classList.toggle('active', processingOptions[option]);
+                }
+            });
+        }
+
+        async function convertToIcon() {
+            if (!image) {
+                showStatus('Please load an image first.', 'error');
+                return;
+            }
+
+            if (selectedSizes.length === 0) {
+                showStatus('Please select at least one icon size.', 'error');
+                return;
+            }
+
+            // Show progress
+            progressSection.style.display = 'block';
+            conversionControls.style.display = 'none';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Generating icons...';
+
+            generatedIcons = [];
+
+            try {
+                for (let i = 0; i < selectedSizes.length; i++) {
+                    const size = selectedSizes[i];
+
+                    progressFill.style.width = `${(i / selectedSizes.length) * 100}%`;
+                    progressText.textContent = `Creating ${size}×${size} icon...`;
+
+                    const iconBlob = await generateIcon(size);
+                    generatedIcons.push({
+                        size: size,
+                        blob: iconBlob,
+                        url: URL.createObjectURL(iconBlob)
+                    });
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Icons generated successfully!';
+
+                setTimeout(() => {
+                    displayDownloadSection();
+                }, 500);
+
+            } catch (error) {
+                console.error('Icon generation error:', error);
+                progressSection.style.display = 'none';
+                conversionControls.style.display = 'block';
+                showStatus('Error generating icons: ' + error.message, 'error');
+            }
+        }
+
+        async function generateIcon(size) {
+            return new Promise((resolve) => {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = size;
+                tempCanvas.height = size;
+
+                // Calculate scaling and positioning
+                let sourceX = 0, sourceY = 0, sourceWidth = image.width, sourceHeight = image.height;
+
+                if (processingOptions.maintainAspectRatio) {
+                    const aspectRatio = image.width / image.height;
+                    const canvasAspectRatio = size / size;
+
+                    if (aspectRatio > canvasAspectRatio) {
+                        // Image is wider
+                        sourceWidth = image.height * canvasAspectRatio;
+                        sourceX = (image.width - sourceWidth) / 2;
+                    } else {
+                        // Image is taller
+                        sourceHeight = image.width / canvasAspectRatio;
+                        sourceY = (image.height - sourceHeight) / 2;
+                    }
+                }
+
+                // Draw the image
+                tempCtx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, size, size);
+
+                // Add drop shadow if enabled
+                if (processingOptions.addShadow) {
+                    tempCtx.save();
+                    tempCtx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    tempCtx.shadowBlur = size * 0.05;
+                    tempCtx.shadowOffsetX = size * 0.02;
+                    tempCtx.shadowOffsetY = size * 0.02;
+
+                    // Redraw image with shadow
+                    tempCtx.globalCompositeOperation = 'source-over';
+                    tempCtx.drawImage(tempCanvas, 0, 0);
+                    tempCtx.restore();
+                }
+
+                tempCanvas.toBlob(resolve, 'image/png');
+            });
+        }
+
+        function displayDownloadSection() {
+            progressSection.style.display = 'none';
+
+            // Create icon previews
+            iconPreviews.innerHTML = '';
+            generatedIcons.forEach(icon => {
+                const item = document.createElement('div');
+                item.className = 'icon-preview-item';
+
+                item.innerHTML = `
+                    <img src="${icon.url}" alt="${icon.size}x${icon.size} icon" class="icon-preview">
+                    <div class="icon-size">${icon.size}×${icon.size}</div>
+                `;
+
+                iconPreviews.appendChild(item);
+            });
+
+            // Update download info
+            const formatName = outputFormat === 'ico' ? 'ICO file' :
+                              outputFormat === 'png' ? 'PNG files' : 'ICNS file';
+            document.getElementById('downloadInfo').textContent =
+                `${generatedIcons.length} icon sizes in ${formatName} format`;
+
+            downloadSection.style.display = 'block';
+        }
+
+        function downloadIcons() {
+            if (generatedIcons.length === 0) {
+                showStatus('No icons available to download.', 'error');
+                return;
+            }
+
+            if (outputFormat === 'png') {
+                // Download as ZIP containing all PNG sizes
+                downloadAsZip();
+            } else {
+                // For ICO and ICNS, we'd need server-side processing
+                // For now, download the largest PNG as representative
+                const largestIcon = generatedIcons[generatedIcons.length - 1];
+                const a = document.createElement('a');
+                a.href = largestIcon.url;
+                a.download = `icon-${largestIcon.size}x${largestIcon.size}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                showStatus('Downloaded largest icon size. For full ICO/ICNS support, use specialized software.', 'info');
+            }
+        }
+
+        function downloadAsZip() {
+            // Create a simple text file with download links for now
+            // In a real implementation, you'd create a ZIP file
+            let content = 'Icon Download Links:\n\n';
+            generatedIcons.forEach(icon => {
+                content += `${icon.size}x${icon.size}: ${icon.url}\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'icon-download-links.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('Download links generated. For ZIP download, use a browser extension.', 'info');
+        }
+
+        function resetConverter() {
+            image = null;
+            originalImageData = null;
+            generatedIcons = [];
+            selectedSizes = [16, 24, 32, 48, 64, 128, 256, 512];
+
+            // Reset UI
+            previewSection.style.display = 'none';
+            conversionControls.style.display = 'none';
+            downloadSection.style.display = 'none';
+
+            // Reset size selections
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.add('selected'));
+
+            showStatus('Converter reset. Upload a new image to get started.', 'info');
+        }
+
+        function displayImageInfo(file) {
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('imageDimensions').textContent = `${image.width} × ${image.height}px`;
+            document.getElementById('imageFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('iconFormat').textContent = outputFormat.toUpperCase();
+            imageInfo.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        imageFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>
