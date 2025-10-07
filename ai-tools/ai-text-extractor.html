@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Text Extractor</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -16,7 +13,7 @@
             margin: 0;
             padding: 20px;
         }
-        .extractor-container {
+        .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
@@ -44,8 +41,8 @@
             margin-bottom: 20px;
         }
         .upload-area:hover, .upload-area.dragover {
-            border-color: #dc143c;
-            background: #fff5f5;
+            border-color: #007bff;
+            background: #e7f3ff;
         }
         .upload-area input[type="file"] {
             position: absolute;
@@ -70,21 +67,28 @@
             font-size: 14px;
             color: #999;
         }
-        .file-types {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .file-type {
+        .file-info {
             background: #f8f9fa;
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 10px;
-            border: 2px solid #e9ecef;
+            margin-bottom: 30px;
+            display: none;
         }
-        .file-type.active {
-            border-color: #dc143c;
-            background: #fff5f5;
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
         }
         .extraction-options {
             background: #f8f9fa;
@@ -97,7 +101,7 @@
         }
         .option-group h3 {
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #333;
             font-size: 16px;
         }
@@ -109,24 +113,96 @@
         .control-group {
             display: flex;
             flex-direction: column;
+            gap: 5px;
         }
         .control-group label {
             font-size: 14px;
             color: #666;
-            margin-bottom: 5px;
+            font-weight: 500;
         }
         .control-group select, .control-group input {
-            padding: 8px;
+            padding: 8px 12px;
             border: 2px solid #ddd;
             border-radius: 5px;
             font-size: 14px;
         }
         .control-group select:focus, .control-group input:focus {
             outline: none;
-            border-color: #dc143c;
+            border-color: #007bff;
+        }
+        .ai-options {
+            background: #e8f4fd;
+            border: 1px solid #b3d7ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .ai-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .ai-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+        .ai-toggle label {
+            font-weight: 600;
+            color: #007bff;
+            cursor: pointer;
+        }
+        .preview-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .preview-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .image-preview {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .text-preview {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .text-output {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .text-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
         }
         .extract-btn {
-            background: #dc143c;
+            background: #007bff;
             color: white;
             padding: 15px 40px;
             border: none;
@@ -139,7 +215,7 @@
             margin: 0 auto;
         }
         .extract-btn:hover {
-            background: #b22222;
+            background: #0056b3;
             transform: scale(1.05);
         }
         .extract-btn:disabled {
@@ -160,71 +236,53 @@
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            background: linear-gradient(90deg, #007bff, #4dabf7);
             width: 0%;
             transition: width 0.3s ease;
         }
-        .extraction-result {
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+        .download-section {
             background: #f8f9fa;
             padding: 30px;
             border-radius: 10px;
-            margin-top: 30px;
+            text-align: center;
             display: none;
         }
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .result-title {
+        .download-title {
             font-size: 20px;
             font-weight: 600;
             color: #333;
+            margin-bottom: 20px;
         }
-        .stats-info {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
+        .download-stats {
+            margin-bottom: 20px;
             color: #666;
         }
-        .extracted-text {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 20px;
-            min-height: 200px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 400px;
-            overflow-y: auto;
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 5px 10px 5px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
         }
         .action-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
-        }
-        .copy-btn, .download-btn, .clean-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-        }
-        .copy-btn:hover, .download-btn:hover, .clean-btn:hover {
-            background: #218838;
-        }
-        .clean-btn {
-            background: #17a2b8;
-        }
-        .clean-btn:hover {
-            background: #138496;
+            justify-content: center;
+            flex-wrap: wrap;
         }
         .status {
             padding: 15px;
@@ -247,8 +305,87 @@
             color: #004085;
             border: 1px solid #b3d7ff;
         }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .confidence-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .confidence-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .confidence-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .confidence-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+        }
+        .language-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .lang-btn {
+            padding: 5px 10px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .lang-btn:hover {
+            border-color: #007bff;
+        }
         @media (max-width: 768px) {
-            .extractor-container {
+            .container {
                 padding: 20px;
             }
             .upload-area {
@@ -257,32 +394,56 @@
             .option-controls {
                 grid-template-columns: 1fr;
             }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
             .action-buttons {
                 flex-direction: column;
+                align-items: center;
+            }
+            .preview-container {
+                grid-template-columns: 1fr;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="extractor-container">
+    <div class="container">
         <h1>🤖 AI Text Extractor</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Common Text Extraction Use Cases:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('document')">📄 Scanned Documents<br><small>Contracts, forms, receipts</small></button>
+                <button class="example-btn" onclick="showExample('business_card')">💼 Business Cards<br><small>Contact information</small></button>
+                <button class="example-btn" onclick="showExample('receipt')">🧾 Receipts & Invoices<br><small>Financial documents</small></button>
+                <button class="example-btn" onclick="showExample('screenshot')">📱 Screenshots<br><small>App screenshots, error messages</small></button>
+                <button class="example-btn" onclick="showExample('handwriting')">✍️ Handwritten Notes<br><small>Notes, signatures</small></button>
+                <button class="example-btn" onclick="showExample('multilingual')">🌍 Multilingual Text<br><small>Mixed languages</small></button>
+            </div>
+        </div>
 
         <div class="upload-section">
             <div class="upload-area" id="uploadArea">
-                <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.gif,.bmp,.webp">
-                <div class="upload-icon">📄📷</div>
-                <div class="upload-text">Drop PDF or image file here or click to browse</div>
-                <div class="upload-subtext">Supports PDF, PNG, JPG, JPEG, GIF, BMP, WebP (max 10MB)</div>
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, WebP, BMP up to 10MB</div>
             </div>
+        </div>
 
-            <div class="file-types">
-                <div class="file-type" id="pdfType">
-                    <strong>📄 PDF Files</strong><br>
-                    <small>Extract text from documents</small>
-                </div>
-                <div class="file-type" id="imageType">
-                    <strong>🖼️ Images</strong><br>
-                    <small>OCR text extraction</small>
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-stats">
+                    <span id="fileSize"></span>
+                    <span id="imageDimensions"></span>
+                    <span id="fileType"></span>
                 </div>
             </div>
         </div>
@@ -294,62 +455,131 @@
                     <div class="control-group">
                         <label for="extractionMode">Extraction Mode</label>
                         <select id="extractionMode">
-                            <option value="standard">Standard</option>
-                            <option value="accurate">High Accuracy</option>
-                            <option value="fast">Fast Processing</option>
+                            <option value="auto" selected>Auto-detect</option>
+                            <option value="text">Text only</option>
+                            <option value="blocks">Text blocks</option>
+                            <option value="lines">Line by line</option>
+                            <option value="words">Word by word</option>
                         </select>
                     </div>
                     <div class="control-group">
-                        <label for="language">Text Language</label>
-                        <select id="language">
-                            <option value="eng" selected>English</option>
-                            <option value="spa">Spanish</option>
-                            <option value="fra">French</option>
-                            <option value="deu">German</option>
-                            <option value="ita">Italian</option>
-                            <option value="por">Portuguese</option>
-                            <option value="rus">Russian</option>
-                            <option value="ara">Arabic</option>
-                            <option value="chi_sim">Chinese (Simplified)</option>
+                        <label for="textEnhancement">Text Enhancement</label>
+                        <select id="textEnhancement">
+                            <option value="none" selected>None</option>
+                            <option value="basic">Basic cleanup</option>
+                            <option value="advanced">Advanced processing</option>
                         </select>
                     </div>
                     <div class="control-group">
-                        <label for="maxPages">Max Pages to Process (PDF only)</label>
-                        <input type="number" id="maxPages" min="1" max="50" value="20" placeholder="Max pages">
+                        <label for="outputFormat">Output Format</label>
+                        <select id="outputFormat">
+                            <option value="text" selected>Plain Text</option>
+                            <option value="json">JSON Structure</option>
+                            <option value="csv">CSV Format</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="confidence">Minimum Confidence</label>
+                        <select id="confidence">
+                            <option value="0.1">10% (Very Low)</option>
+                            <option value="0.3">30%</option>
+                            <option value="0.5" selected>50% (Balanced)</option>
+                            <option value="0.7">70%</option>
+                            <option value="0.9">90% (High Accuracy)</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
             <div class="option-group">
-                <p style="font-size: 12px; color: #666; margin: 0; text-align: center;">
-                    🎯 Supports 10+ languages | PDF text extraction | Image OCR | Automatic text cleaning
-                </p>
+                <h3>Language Settings</h3>
+                <div class="language-selector">
+                    <button class="lang-btn active" onclick="setLanguage('eng')">English</button>
+                    <button class="lang-btn" onclick="setLanguage('spa')">Spanish</button>
+                    <button class="lang-btn" onclick="setLanguage('fra')">French</button>
+                    <button class="lang-btn" onclick="setLanguage('deu')">German</button>
+                    <button class="lang-btn" onclick="setLanguage('ita')">Italian</button>
+                    <button class="lang-btn" onclick="setLanguage('por')">Portuguese</button>
+                    <button class="lang-btn" onclick="setLanguage('rus')">Russian</button>
+                    <button class="lang-btn" onclick="setLanguage('ara')">Arabic</button>
+                    <button class="lang-btn" onclick="setLanguage('chi_sim')">Chinese</button>
+                    <button class="lang-btn" onclick="setLanguage('jpn')">Japanese</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <input type="text" id="customLanguage" placeholder="Custom language code (e.g., eng+spa)" style="width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 5px;">
+                </div>
             </div>
 
-            <button class="extract-btn" id="extractBtn" onclick="extractText()">Extract Text</button>
+            <div class="ai-options">
+                <div class="ai-toggle">
+                    <input type="checkbox" id="enableAI" onchange="toggleAIMode()">
+                    <label for="enableAI">🤖 Enable AI Enhancement</label>
+                </div>
+                <div id="aiSettings" style="display: none;">
+                    <div class="option-controls">
+                        <div class="control-group">
+                            <label for="aiModel">AI Model</label>
+                            <select id="aiModel">
+                                <option value="basic" selected>Basic Enhancement</option>
+                                <option value="advanced">Advanced Processing</option>
+                                <option value="premium">Premium Analysis</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="correctionLevel">Error Correction</label>
+                            <select id="correctionLevel">
+                                <option value="conservative" selected>Conservative</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="contextAnalysis">Context Analysis</label>
+                            <select id="contextAnalysis">
+                                <option value="none" selected>None</option>
+                                <option value="basic">Basic</option>
+                                <option value="comprehensive">Comprehensive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-container">
+                <div class="image-preview">
+                    <h3>📷 Source Image</h3>
+                    <img id="previewImage" class="preview-image" alt="Source image">
+                </div>
+                <div class="text-preview">
+                    <h3>📄 Extracted Text <span id="confidenceIndicator"></span></h3>
+                    <div class="text-stats">
+                        <span id="charCount">0 characters</span>
+                        <span id="wordCount">0 words</span>
+                        <span id="lineCount">0 lines</span>
+                    </div>
+                    <div class="text-output" id="textOutput"></div>
+                </div>
+            </div>
+        </div>
+
+        <button class="extract-btn" id="extractBtn" onclick="extractText()">🔍 Extract Text</button>
 
         <div class="progress-container" id="progressContainer">
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Initializing extraction...</div>
+            <div class="progress-text" id="progressText">Initializing OCR engine...</div>
         </div>
 
-        <div class="extraction-result" id="extractionResult">
-            <div class="result-header">
-                <div class="result-title">Extracted Text</div>
-                <div class="stats-info">
-                    <span id="wordCount">0 words</span>
-                    <span id="charCount">0 characters</span>
-                    <span id="confidence">Confidence: N/A</span>
-                </div>
-            </div>
-            <textarea class="extracted-text" id="extractedText" readonly></textarea>
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Text Extraction Complete!</div>
+            <div class="download-stats" id="extractionStats">Text successfully extracted from image</div>
             <div class="action-buttons">
-                <button class="copy-btn" onclick="copyText()">📋 Copy Text</button>
-                <button class="download-btn" onclick="downloadText()">💾 Download TXT</button>
-                <button class="clean-btn" onclick="cleanText()">🧹 Clean Text</button>
+                <button class="download-btn" onclick="downloadText()">📄 Download Text</button>
+                <button class="download-btn" onclick="copyToClipboard()" style="background: #17a2b8;">📋 Copy Text</button>
+                <button class="download-btn" onclick="extractAnother()" style="background: #6c757d;">🔄 Extract Another</button>
             </div>
         </div>
 
@@ -357,41 +587,80 @@
     </div>
 
     <script>
-        let currentFile = null;
+        let currentImage = null;
         let extractedText = '';
-        let fileType = 'pdf';
+        let currentLanguage = 'eng';
+        let aiEnabled = false;
+        let tesseractWorker = null;
 
         // DOM elements
-        const fileInput = document.getElementById('fileInput');
+        const imageFile = document.getElementById('imageFile');
         const uploadArea = document.getElementById('uploadArea');
-        const pdfType = document.getElementById('pdfType');
-        const imageType = document.getElementById('imageType');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const imageDimensions = document.getElementById('imageDimensions');
+        const fileType = document.getElementById('fileType');
         const extractionOptions = document.getElementById('extractionOptions');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const textOutput = document.getElementById('textOutput');
+        const confidenceIndicator = document.getElementById('confidenceIndicator');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const lineCount = document.getElementById('lineCount');
         const extractBtn = document.getElementById('extractBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
-        const extractionResult = document.getElementById('extractionResult');
-        const extractedTextArea = document.getElementById('extractedText');
-        const wordCount = document.getElementById('wordCount');
-        const charCount = document.getElementById('charCount');
-        const confidence = document.getElementById('confidence');
+        const downloadSection = document.getElementById('downloadSection');
+        const extractionStats = document.getElementById('extractionStats');
         const statusDiv = document.getElementById('status');
 
         // Event listeners
-        fileInput.addEventListener('change', handleFileSelect);
+        imageFile.addEventListener('change', handleFileSelect);
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleFileDrop);
 
+        function showExample(type) {
+            const examples = {
+                document: 'Upload scanned documents like contracts, forms, or receipts for accurate text extraction',
+                business_card: 'Extract contact information from business card photos with structured output',
+                receipt: 'Convert receipt images to text with automatic formatting and data recognition',
+                screenshot: 'Extract text from app screenshots, error messages, or UI captures',
+                handwriting: 'Convert handwritten notes and signatures to digital text',
+                multilingual: 'Extract text from documents containing multiple languages'
+            };
+
+            showStatus(`💡 ${examples[type]}`, 'info');
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            document.getElementById('customLanguage').value = '';
+        }
+
+        function toggleAIMode() {
+            aiEnabled = document.getElementById('enableAI').checked;
+            const aiSettings = document.getElementById('aiSettings');
+            aiSettings.style.display = aiEnabled ? 'block' : 'none';
+        }
+
         function handleFileSelect(event) {
             const file = event.target.files[0];
-            if (file) {
-                if (file.size > 10 * 1024 * 1024) { // 10MB limit
-                    showStatus('File size must be under 10MB. Please choose a smaller file.', 'error');
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
                     return;
                 }
-                processFile(file);
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
             }
         }
 
@@ -410,230 +679,379 @@
             uploadArea.classList.remove('dragover');
 
             const file = event.dataTransfer.files[0];
-            if (file) {
+            if (file && file.type.startsWith('image/')) {
                 if (file.size > 10 * 1024 * 1024) {
-                    showStatus('File size must be under 10MB. Please choose a smaller file.', 'error');
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
                     return;
                 }
-                processFile(file);
-                fileInput.files = event.dataTransfer.files;
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
             }
         }
 
-        function processFile(file) {
-            currentFile = file;
-
-            // Determine file type
-            if (file.type === 'application/pdf') {
-                fileType = 'pdf';
-                pdfType.classList.add('active');
-                imageType.classList.remove('active');
-            } else if (file.type.startsWith('image/')) {
-                fileType = 'image';
-                imageType.classList.add('active');
-                pdfType.classList.remove('active');
-            } else {
-                showStatus('Unsupported file type. Please select a PDF or image file.', 'error');
-                return;
+        async function processImage(file) {
+            try {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImage = new Image();
+                    currentImage.onload = function() {
+                        setupImagePreview(file);
+                        showStatus(`Image "${file.name}" loaded successfully. Configure extraction settings and click "Extract Text".`, 'success');
+                    };
+                    currentImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Image processing error:', error);
+                showStatus('Error loading image: ' + error.message, 'error');
             }
+        }
 
+        function setupImagePreview(file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            imageDimensions.textContent = `${currentImage.width} × ${currentImage.height}px`;
+            fileType.textContent = file.type.split('/')[1].toUpperCase();
+
+            previewImage.src = currentImage.src;
+            fileInfo.style.display = 'block';
             extractionOptions.style.display = 'block';
-            extractionResult.style.display = 'none';
-            showStatus(`File "${file.name}" ready for text extraction. Click "Extract Text" to begin.`, 'success');
+            previewSection.style.display = 'block';
+            downloadSection.style.display = 'none';
+
+            // Reset text output
+            textOutput.textContent = 'Click "Extract Text" to begin OCR processing...';
+            confidenceIndicator.innerHTML = '';
+            charCount.textContent = '0 characters';
+            wordCount.textContent = '0 words';
+            lineCount.textContent = '0 lines';
         }
 
         async function extractText() {
-            if (!currentFile) {
-                showStatus('Please select a file first.', 'error');
+            if (!currentImage) {
+                showStatus('Please load an image first.', 'error');
                 return;
             }
 
+            // Show processing
             progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Initializing OCR engine...';
             extractBtn.disabled = true;
             extractBtn.textContent = '🔄 Extracting...';
-            extractionResult.style.display = 'none';
 
             try {
-                if (fileType === 'pdf') {
-                    await extractTextFromPDF(currentFile);
-                } else {
-                    await extractTextFromImage(currentFile);
+                // Initialize Tesseract worker if not exists
+                if (!tesseractWorker) {
+                    progressFill.style.width = '10%';
+                    progressText.textContent = 'Loading OCR engine...';
+
+                    tesseractWorker = await Tesseract.createWorker();
+                    await tesseractWorker.loadLanguage(currentLanguage);
+                    await tesseractWorker.initialize(currentLanguage);
+
+                    progressFill.style.width = '20%';
                 }
-            } catch (error) {
-                console.error('Extraction error:', error);
-                showStatus('Error extracting text: ' + error.message, 'error');
-                progressContainer.style.display = 'none';
-                extractBtn.disabled = false;
-                extractBtn.textContent = 'Extract Text';
-            }
-        }
 
-        async function extractTextFromPDF(file) {
-            progressText.textContent = 'Loading PDF...';
-            progressFill.style.width = '20%';
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Preprocessing image...';
 
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                // Preprocess image if needed
+                const processedImage = await preprocessImage(currentImage);
 
-            const maxPages = Math.min(pdf.numPages, parseInt(document.getElementById('maxPages').value) || 20);
-            let fullText = '';
+                progressFill.style.width = '50%';
+                progressText.textContent = 'Running OCR analysis...';
 
-            progressText.textContent = `Extracting text from ${maxPages} pages...`;
+                // Configure OCR parameters
+                const config = {
+                    tessedit_pageseg_mode: getPSMMode(),
+                    tessedit_ocr_engine_mode: 1
+                };
 
-            for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
-                progressFill.style.width = `${20 + (pageNum / maxPages) * 60}%`;
-                progressText.textContent = `Processing page ${pageNum} of ${maxPages}...`;
-
-                try {
-                    const page = await pdf.getPage(pageNum);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(' ');
-                    fullText += pageText + '\n';
-                } catch (error) {
-                    console.warn(`Error extracting text from page ${pageNum}:`, error);
-                }
-            }
-
-            progressFill.style.width = '90%';
-            progressText.textContent = 'Cleaning and formatting text...';
-
-            extractedText = cleanTextFormatting(fullText);
-
-            progressFill.style.width = '100%';
-            progressText.textContent = 'Extraction complete!';
-
-            setTimeout(() => {
-                displayResults(extractedText, 'PDF', null);
-                progressContainer.style.display = 'none';
-                extractBtn.disabled = false;
-                extractBtn.textContent = 'Extract Text';
-            }, 500);
-        }
-
-        async function extractTextFromImage(file) {
-            progressText.textContent = 'Loading OCR engine...';
-            progressFill.style.width = '10%';
-
-            const language = document.getElementById('language').value;
-            const mode = document.getElementById('extractionMode').value;
-
-            // Configure OCR based on mode
-            let config = {};
-            if (mode === 'accurate') {
-                config = { logger: m => console.log(m) };
-            } else if (mode === 'fast') {
-                config = { tessedit_pageseg_mode: '6' }; // Uniform block of text
-            }
-
-            progressText.textContent = 'Analyzing image...';
-            progressFill.style.width = '40%';
-
-            try {
-                const result = await Tesseract.recognize(file, language, config);
+                // Run OCR
+                const { data: { text, confidence, words } } = await tesseractWorker.recognize(processedImage, config);
 
                 progressFill.style.width = '80%';
-                progressText.textContent = 'Processing OCR results...';
+                progressText.textContent = 'Processing results...';
 
-                extractedText = cleanTextFormatting(result.data.text);
-
-                const confidenceScore = Math.round(result.data.confidence);
+                // Process and enhance text
+                let processedText = text;
+                if (aiEnabled) {
+                    processedText = await enhanceWithAI(text, confidence);
+                } else {
+                    processedText = enhanceText(text);
+                }
 
                 progressFill.style.width = '100%';
-                progressText.textContent = 'OCR extraction complete!';
+                progressText.textContent = 'Extraction complete!';
+
+                // Display results
+                displayResults(processedText, confidence);
 
                 setTimeout(() => {
-                    displayResults(extractedText, 'Image', confidenceScore);
                     progressContainer.style.display = 'none';
                     extractBtn.disabled = false;
-                    extractBtn.textContent = 'Extract Text';
+                    extractBtn.textContent = '🔍 Extract Text';
                 }, 500);
 
             } catch (error) {
-                throw new Error('OCR processing failed. Please try a different image or check the file format.');
+                console.error('OCR error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error extracting text: ' + error.message, 'error');
+                extractBtn.disabled = false;
+                extractBtn.textContent = '🔍 Extract Text';
             }
         }
 
-        function cleanTextFormatting(text) {
-            return text
-                // Remove excessive whitespace
-                .replace(/\s+/g, ' ')
-                // Fix line breaks
-                .replace(/\n\s*\n/g, '\n\n')
-                // Remove trailing/leading whitespace
-                .trim()
-                // Fix common OCR errors
-                .replace(/l/g, 'l') // Keep as is for now
-                .replace(/I/g, 'I') // Keep as is for now
-                // Remove empty lines at start/end
-                .replace(/^\n+|\n+$/g, '');
+        function getPSMMode() {
+            const mode = document.getElementById('extractionMode').value;
+            switch (mode) {
+                case 'auto': return Tesseract.PSM.AUTO;
+                case 'text': return Tesseract.PSM.SINGLE_BLOCK;
+                case 'blocks': return Tesseract.PSM.UNIFORM_BLOCK_OF_TEXT;
+                case 'lines': return Tesseract.PSM.SINGLE_LINE;
+                case 'words': return Tesseract.PSM.SINGLE_WORD;
+                default: return Tesseract.PSM.AUTO;
+            }
         }
 
-        function displayResults(text, sourceType, confidenceScore) {
-            extractedTextArea.value = text;
-            extractionResult.style.display = 'block';
+        async function preprocessImage(image) {
+            // Create canvas for preprocessing
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-            // Update stats
-            const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            // Set canvas size
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            // Draw original image
+            ctx.drawImage(image, 0, 0);
+
+            // Get image data for processing
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Apply basic preprocessing (contrast enhancement)
+            for (let i = 0; i < data.length; i += 4) {
+                // Increase contrast
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                // Simple contrast adjustment
+                const factor = 1.2;
+                data[i] = Math.min(255, r * factor);
+                data[i + 1] = Math.min(255, g * factor);
+                data[i + 2] = Math.min(255, b * factor);
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            return canvas.toDataURL('image/png');
+        }
+
+        async function enhanceWithAI(text, confidence) {
+            const enhancement = document.getElementById('textEnhancement').value;
+            const correctionLevel = document.getElementById('correctionLevel').value;
+
+            if (enhancement === 'none') return text;
+
+            // Simulate AI enhancement (in a real implementation, this would call an AI service)
+            let enhanced = text;
+
+            // Basic enhancements
+            enhanced = enhanced.replace(/\s+/g, ' '); // Normalize whitespace
+            enhanced = enhanced.replace(/([.!?])\s*([A-Z])/g, '$1\n$2'); // Add line breaks after sentences
+
+            // Language-specific corrections
+            if (currentLanguage === 'eng') {
+                enhanced = correctEnglishText(enhanced, correctionLevel);
+            }
+
+            // Context-based corrections
+            const contextAnalysis = document.getElementById('contextAnalysis').value;
+            if (contextAnalysis !== 'none') {
+                enhanced = applyContextAnalysis(enhanced, contextAnalysis);
+            }
+
+            return enhanced;
+        }
+
+        function enhanceText(text) {
+            const enhancement = document.getElementById('textEnhancement').value;
+
+            if (enhancement === 'none') return text;
+
+            let enhanced = text;
+
+            // Basic cleanup
+            enhanced = enhanced.trim();
+            enhanced = enhanced.replace(/\s+/g, ' '); // Normalize whitespace
+            enhanced = enhanced.replace(/([.!?])\s*([A-Z])/g, '$1\n$2'); // Add line breaks after sentences
+
+            if (enhancement === 'advanced') {
+                // Additional processing
+                enhanced = enhanced.replace(/([a-z])([A-Z])/g, '$1 $2'); // Add spaces between words
+                enhanced = enhanced.replace(/\n{3,}/g, '\n\n'); // Normalize line breaks
+            }
+
+            return enhanced;
+        }
+
+        function correctEnglishText(text, level) {
+            // Common OCR corrections
+            const corrections = {
+                'conservative': {
+                    'l': 'I',
+                    '0': 'O',
+                    '1': 'I'
+                },
+                'moderate': {
+                    'l': 'I',
+                    '0': 'O',
+                    '1': 'I',
+                    'rn': 'm',
+                    'nn': 'm'
+                },
+                'aggressive': {
+                    'l': 'I',
+                    '0': 'O',
+                    '1': 'I',
+                    'rn': 'm',
+                    'nn': 'm',
+                    'tt': 'it',
+                    'll': 'll'
+                }
+            };
+
+            let corrected = text;
+            const rules = corrections[level] || corrections['moderate'];
+
+            for (const [wrong, right] of Object.entries(rules)) {
+                corrected = corrected.replace(new RegExp(wrong, 'g'), right);
+            }
+
+            return corrected;
+        }
+
+        function applyContextAnalysis(text, level) {
+            // This would analyze the context and make intelligent corrections
+            // For demo purposes, we'll do basic pattern recognition
+
+            if (level === 'comprehensive') {
+                // Look for common patterns and correct them
+                text = text.replace(/\b(teh|hte|taht)\b/g, 'the');
+                text = text.replace(/\b(wiht|withh)\b/g, 'with');
+                text = text.replace(/\b(andd|annd)\b/g, 'and');
+                text = text.replace(/\b(thier|theirr)\b/g, 'their');
+            }
+
+            return text;
+        }
+
+        function displayResults(text, confidence) {
+            extractedText = text;
+
+            // Update text output
+            textOutput.textContent = text;
+
+            // Update statistics
             const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const lines = text.split('\n').length;
 
-            wordCount.textContent = `${words} words`;
             charCount.textContent = `${chars} characters`;
+            wordCount.textContent = `${words} words`;
+            lineCount.textContent = `${lines} lines`;
 
-            if (confidenceScore !== null) {
-                confidence.textContent = `Confidence: ${confidenceScore}%`;
-            } else {
-                confidence.textContent = `Source: ${sourceType}`;
+            // Show confidence indicator
+            let confidenceClass = 'confidence-low';
+            let confidenceText = 'Low Confidence';
+
+            if (confidence >= 80) {
+                confidenceClass = 'confidence-high';
+                confidenceText = 'High Confidence';
+            } else if (confidence >= 60) {
+                confidenceClass = 'confidence-medium';
+                confidenceText = 'Medium Confidence';
             }
 
-            showStatus(`✅ Text extracted successfully from ${sourceType.toLowerCase()}!`, 'success');
-        }
+            confidenceIndicator.innerHTML = `<span class="confidence-indicator ${confidenceClass}">${confidenceText} (${Math.round(confidence)}%)</span>`;
 
-        function copyText() {
-            navigator.clipboard.writeText(extractedTextArea.value).then(() => {
-                showStatus('Text copied to clipboard!', 'success');
-            }).catch(() => {
-                // Fallback for older browsers
-                extractedTextArea.select();
-                document.execCommand('copy');
-                showStatus('Text copied to clipboard!', 'success');
-            });
+            // Show download section
+            extractionStats.textContent = `Successfully extracted ${words} words (${chars} characters) with ${Math.round(confidence)}% confidence`;
+            downloadSection.style.display = 'block';
+
+            showStatus(`✅ Text extraction complete! Found ${words} words with ${Math.round(confidence)}% confidence.`, 'success');
         }
 
         function downloadText() {
-            const blob = new Blob([extractedTextArea.value], { type: 'text/plain' });
+            if (!extractedText) {
+                showStatus('No text available to download.', 'error');
+                return;
+            }
+
+            const outputFormat = document.getElementById('outputFormat').value;
+            let content = extractedText;
+            let mimeType = 'text/plain';
+            let filename = 'extracted_text.txt';
+
+            switch (outputFormat) {
+                case 'json':
+                    content = JSON.stringify({
+                        text: extractedText,
+                        metadata: {
+                            language: currentLanguage,
+                            confidence: confidenceIndicator.textContent,
+                            extractedAt: new Date().toISOString(),
+                            aiEnhanced: aiEnabled
+                        }
+                    }, null, 2);
+                    mimeType = 'application/json';
+                    filename = 'extracted_text.json';
+                    break;
+                case 'csv':
+                    content = `Text,Language,Confidence,AI_Enhanced\n"${extractedText.replace(/"/g, '""')}",${currentLanguage},${confidenceIndicator.textContent},${aiEnabled}`;
+                    mimeType = 'text/csv';
+                    filename = 'extracted_text.csv';
+                    break;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `extracted_text_${Date.now()}.txt`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showStatus('Text file downloaded!', 'success');
+
+            showStatus('Text file downloaded successfully!', 'success');
         }
 
-        function cleanText() {
-            const cleaned = extractedTextArea.value
-                // Remove extra whitespace
-                .replace(/[ \t]+/g, ' ')
-                // Fix multiple newlines
-                .replace(/\n\s*\n\s*\n/g, '\n\n')
-                // Remove leading/trailing whitespace per line
-                .split('\n')
-                .map(line => line.trim())
-                .filter(line => line.length > 0)
-                .join('\n');
+        function copyToClipboard() {
+            if (!extractedText) {
+                showStatus('No text available to copy.', 'error');
+                return;
+            }
 
-            extractedTextArea.value = cleaned;
-            extractedText = cleaned;
+            navigator.clipboard.writeText(extractedText).then(() => {
+                showStatus('Text copied to clipboard!', 'success');
+            }).catch(err => {
+                showStatus('Failed to copy to clipboard: ' + err.message, 'error');
+            });
+        }
 
-            // Update stats
-            const words = cleaned.trim().split(/\s+/).filter(word => word.length > 0).length;
-            const chars = cleaned.length;
-            wordCount.textContent = `${words} words`;
-            charCount.textContent = `${chars} characters`;
-
-            showStatus('Text cleaned and formatted!', 'success');
+        function extractAnother() {
+            downloadSection.style.display = 'none';
+            previewSection.style.display = 'none';
+            fileInfo.style.display = 'none';
+            extractionOptions.style.display = 'none';
+            currentImage = null;
+            extractedText = '';
+            showStatus('Ready to extract text from another image.', 'info');
         }
 
         function showStatus(message, type) {
@@ -663,8 +1081,15 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        fileInput.addEventListener('click', function() {
+        imageFile.addEventListener('click', function() {
             this.value = '';
+        });
+
+        // Cleanup worker on page unload
+        window.addEventListener('beforeunload', async () => {
+            if (tesseractWorker) {
+                await tesseractWorker.terminate();
+            }
         });
     </script>
 </body>

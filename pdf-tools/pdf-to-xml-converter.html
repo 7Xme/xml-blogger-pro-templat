@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to XML Converter</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .xml-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .xml-content {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .xml-structure {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .structure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .structure-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .structure-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .convert-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #dc143c;
+        }
+        .xml-formats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .format-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .format-btn.active {
+            background: #dc143c;
+        }
+        .format-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .xml-content {
+                max-height: 250px;
+            }
+            .structure-tree {
+                max-height: 200px;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>📄 PDF to XML Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Common XML Data Types:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('config')">⚙️ Configuration<br><small>Settings & parameters</small></button>
+                <button class="example-btn" onclick="showExample('products')">📦 Product Feeds<br><small>E-commerce XML</small></button>
+                <button class="example-btn" onclick="showExample('news')">📰 News Feeds<br><small>RSS/NewsML format</small></button>
+                <button class="example-btn" onclick="showExample('forms')">📋 Form Data<br><small>XFDF/XFA forms</small></button>
+                <button class="example-btn" onclick="showExample('reports')">📊 Business Reports<br><small>XBRL/structured data</small></button>
+                <button class="example-btn" onclick="showExample('metadata')">🏷️ Metadata<br><small>Dublin Core/MARC</small></button>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="pdfFile" accept=".pdf">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop PDF file here or click to browse</div>
+                <div class="upload-subtext">Supports PDF files up to 10MB</div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-stats">
+                    <span id="fileSize"></span>
+                    <span id="pageCount"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>XML Structure Detection</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="dataType">Content Type</label>
+                        <select id="dataType">
+                            <option value="auto" selected>Auto-detect structure</option>
+                            <option value="table">Tabular data (records)</option>
+                            <option value="keyvalue">Key-value pairs (properties)</option>
+                            <option value="list">List items (items)</option>
+                            <option value="text">Raw text content</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="extractionMode">Extraction Quality</label>
+                        <select id="extractionMode">
+                            <option value="accurate" selected>High Accuracy</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="fast">Fast Processing</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxItems">Max Items</label>
+                        <select id="maxItems">
+                            <option value="1000" selected>1,000 items</option>
+                            <option value="5000">5,000 items</option>
+                            <option value="10000">10,000 items</option>
+                            <option value="unlimited">Unlimited</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="includeMetadata">Include Metadata</label>
+                        <select id="includeMetadata">
+                            <option value="minimal" selected>Minimal (page info)</option>
+                            <option value="detailed">Detailed (positioning)</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>XML Output Format</h3>
+                <div class="xml-formats">
+                    <button class="format-btn active" onclick="setFormat('pretty')">Pretty Print</button>
+                    <button class="format-btn" onclick="setFormat('compact')">Compact</button>
+                    <button class="format-btn" onclick="setFormat('records')">Records Only</button>
+                    <button class="format-btn" onclick="setFormat('properties')">Properties Only</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="xml-structure" id="xmlStructure">
+            <div class="structure-header">
+                <div class="structure-title">Detected XML Structure</div>
+                <div id="structureStats">Analyzing...</div>
+            </div>
+            <div class="structure-tree" id="structureTree">
+                <!-- Structure visualization will be shown here -->
+            </div>
+        </div>
+
+        <div class="xml-preview" id="xmlPreview">
+            <div class="preview-header">
+                <div class="preview-title">XML Preview</div>
+                <div id="xmlStats">0 records detected</div>
+            </div>
+            <div class="xml-content" id="xmlContent">
+                <!-- XML content will be displayed here -->
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToXML()">🔄 Convert to XML</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Analyzing PDF structure...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">XML file created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadXML()">💾 Download XML</button>
+                <button class="download-btn" onclick="copyToClipboard()" style="background: #17a2b8;">📋 Copy to Clipboard</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Configure PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pdfJsDoc = null;
+        let xmlData = {};
+        let xmlContent = '';
+        let currentFormat = 'pretty';
+
+        // DOM elements
+        const pdfFile = document.getElementById('pdfFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const pageCount = document.getElementById('pageCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const xmlStructure = document.getElementById('xmlStructure');
+        const structureTree = document.getElementById('structureTree');
+        const structureStats = document.getElementById('structureStats');
+        const xmlPreview = document.getElementById('xmlPreview');
+        const xmlContentElement = document.getElementById('xmlContent');
+        const xmlStats = document.getElementById('xmlStats');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        pdfFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function showExample(type) {
+            const examples = {
+                config: "Configuration: XML settings file with hierarchical properties",
+                products: "E-commerce: Product feed with item elements and attributes",
+                news: "News Feeds: RSS/NewsML format with article elements",
+                forms: "Forms: XFDF/XFA format for form field data",
+                reports: "Reports: Structured business data in XML format",
+                metadata: "Metadata: Dublin Core or MARC records in XML"
+            };
+
+            showStatus(`Example: ${examples[type]} - Upload a real PDF to see XML conversion in action!`, 'info');
+        }
+
+        function setFormat(format) {
+            currentFormat = format;
+            document.querySelectorAll('.format-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (xmlContent) {
+                updateXMLPreview();
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+            } else {
+                showStatus('Please select a valid PDF file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+                pdfFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid PDF file.', 'error');
+            }
+        }
+
+        async function processPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                const pages = pdfDoc.getPages();
+
+                // Update UI
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                pageCount.textContent = `${pages.length} pages`;
+                fileInfo.style.display = 'block';
+                conversionOptions.style.display = 'block';
+
+                // Analyze and preview data
+                await analyzePDFStructure(pages.length);
+
+                showStatus(`PDF "${file.name}" loaded successfully. Data structure analyzed and ready for XML conversion.`, 'success');
+
+            } catch (error) {
+                console.error('PDF processing error:', error);
+                showStatus('Error loading PDF: ' + error.message, 'error');
+            }
+        }
+
+        async function analyzePDFStructure(pageCount) {
+            try {
+                const dataType = document.getElementById('dataType').value;
+
+                // Analyze first few pages to understand structure
+                const maxPagesToAnalyze = Math.min(pageCount, 5);
+                let analysis = {
+                    pages: [],
+                    totalItems: 0,
+                    structureTypes: new Set(),
+                    detectedHeaders: [],
+                    metadata: {}
+                };
+
+                for (let i = 1; i <= maxPagesToAnalyze; i++) {
+                    const page = await pdfJsDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageData = analyzePageContent(textContent.items, i, dataType);
+
+                    analysis.pages.push({
+                        pageNumber: i,
+                        items: pageData.length,
+                        data: pageData.slice(0, 50) // Limit for preview
+                    });
+                    analysis.totalItems += pageData.length;
+
+                    // Detect structure types
+                    if (pageData.length > 0) {
+                        if (Array.isArray(pageData[0])) {
+                            analysis.structureTypes.add('table');
+                        } else if (typeof pageData[0] === 'object') {
+                            analysis.structureTypes.add('object');
+                        } else {
+                            analysis.structureTypes.add('text');
+                        }
+                    }
+                }
+
+                // Create initial XML structure
+                xmlData = createInitialXML(analysis, dataType);
+
+                // Display structure
+                displayStructureAnalysis(analysis);
+
+                // Show preview
+                updateXMLPreview();
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                xmlData = { error: 'Could not analyze PDF structure', message: error.message };
+                showStatus('Could not analyze PDF structure. Will extract as plain text.', 'info');
+                updateXMLPreview();
+            }
+        }
+
+        function analyzePageContent(textItems, pageNumber, dataType) {
+            // Sort items by position
+            const sortedItems = textItems.sort((a, b) => {
+                if (Math.abs(b.transform[5] - a.transform[5]) > 10) {
+                    return b.transform[5] - a.transform[5]; // Y position (top first)
+                }
+                return a.transform[4] - b.transform[4]; // X position (left first)
+            });
+
+            switch (dataType) {
+                case 'table':
+                    return detectTableStructure(sortedItems, pageNumber);
+                case 'keyvalue':
+                    return detectKeyValuePairs(sortedItems, pageNumber);
+                case 'list':
+                    return detectListItems(sortedItems, pageNumber);
+                case 'text':
+                    return extractTextContent(sortedItems, pageNumber);
+                default: // auto
+                    // Try different structures and pick the best
+                    const structures = [
+                        { type: 'table', data: detectTableStructure(sortedItems, pageNumber) },
+                        { type: 'keyvalue', data: detectKeyValuePairs(sortedItems, pageNumber) },
+                        { type: 'list', data: detectListItems(sortedItems, pageNumber) },
+                        { type: 'text', data: extractTextContent(sortedItems, pageNumber) }
+                    ];
+
+                    // Pick structure with most structured data
+                    const best = structures.reduce((best, current) => {
+                        if (current.type === 'text') return best; // Avoid raw text if possible
+                        if (current.data.length > best.data.length) return current;
+                        return best;
+                    });
+
+                    return best.data;
+            }
+        }
+
+        function detectTableStructure(items, pageNumber) {
+            const lines = [];
+            let currentLine = [];
+            let currentY = null;
+            const tolerance = 5;
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                const y = Math.round(item.transform[5]);
+
+                if (currentY === null || Math.abs(y - currentY) > tolerance) {
+                    if (currentLine.length > 0) {
+                        lines.push(currentLine);
+                    }
+                    currentLine = [text];
+                    currentY = y;
+                } else {
+                    currentLine.push(text);
+                }
+            }
+
+            if (currentLine.length > 0) {
+                lines.push(currentLine);
+            }
+
+            // Convert to objects with consistent column structure
+            const maxCols = Math.max(...lines.map(line => line.length));
+            return lines.map((line, index) => {
+                const obj = {};
+                for (let i = 0; i < maxCols; i++) {
+                    obj[`field_${i + 1}`] = line[i] || '';
+                }
+                obj._page = pageNumber;
+                obj._record = index + 1;
+                return obj;
+            });
+        }
+
+        function detectKeyValuePairs(items, pageNumber) {
+            const pairs = {};
+            let lastKey = null;
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                // Heuristics for key-value pairs
+                if (text.includes(':') && text.length < 100) {
+                    const parts = text.split(':');
+                    if (parts.length >= 2) {
+                        lastKey = parts[0].trim().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                        pairs[lastKey] = parts.slice(1).join(':').trim();
+                    }
+                } else if (lastKey && !pairs[lastKey]) {
+                    pairs[lastKey] = text;
+                } else if (!lastKey) {
+                    // Look for patterns like "Name John Doe"
+                    const words = text.split(/\s+/);
+                    if (words.length >= 2) {
+                        lastKey = words[0].toLowerCase().replace(/[^a-zA-Z0-9]/g, '_');
+                        pairs[lastKey] = words.slice(1).join(' ');
+                    }
+                }
+            }
+
+            pairs._page = pageNumber;
+            return pairs;
+        }
+
+        function detectListItems(items, pageNumber) {
+            const listItems = [];
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                // Check for list markers
+                if (text.match(/^[-•*]\s/) || text.match(/^\d+[\.)]\s/) || text.match(/^[a-zA-Z][\.)]\s/)) {
+                    listItems.push(text);
+                }
+            }
+
+            return listItems.map((item, index) => ({
+                id: index + 1,
+                content: item,
+                _page: pageNumber
+            }));
+        }
+
+        function extractTextContent(items, pageNumber) {
+            const allText = items.map(item => item.str).join(' ');
+            return {
+                content: allText,
+                length: allText.length,
+                _page: pageNumber
+            };
+        }
+
+        function createInitialXML(analysis, dataType) {
+            const metadata = {
+                source: 'pdf',
+                totalPages: analysis.pages.length,
+                extractedAt: new Date().toISOString(),
+                structureType: dataType
+            };
+
+            let data;
+
+            switch (dataType) {
+                case 'table':
+                case 'auto':
+                    data = [];
+                    analysis.pages.forEach(page => {
+                        page.data.forEach(item => {
+                            if (Array.isArray(item)) {
+                                data.push(...item);
+                            } else {
+                                data.push(item);
+                            }
+                        });
+                    });
+                    break;
+                case 'keyvalue':
+                    data = {};
+                    analysis.pages.forEach(page => {
+                        page.data.forEach(item => {
+                            if (typeof item === 'object' && !Array.isArray(item)) {
+                                Object.assign(data, item);
+                            }
+                        });
+                    });
+                    break;
+                case 'list':
+                    data = [];
+                    analysis.pages.forEach(page => {
+                        if (Array.isArray(page.data)) {
+                            data.push(...page.data);
+                        }
+                    });
+                    break;
+                default:
+                    data = analysis.pages.map(page => page.data).flat();
+            }
+
+            return {
+                metadata,
+                data
+            };
+        }
+
+        function displayStructureAnalysis(analysis) {
+            let structureText = `📊 XML Structure Analysis:\n`;
+            structureText += `Pages analyzed: ${analysis.pages.length}\n`;
+            structureText += `Total records: ${analysis.totalItems}\n`;
+            structureText += `Structure types: ${Array.from(analysis.structureTypes).join(', ') || 'none detected'}\n\n`;
+
+            analysis.pages.forEach(page => {
+                structureText += `Page ${page.pageNumber}: ${page.items} records\n`;
+            });
+
+            structureTree.textContent = structureText;
+            structureStats.textContent = `${analysis.totalItems} records across ${analysis.pages.length} pages`;
+            xmlStructure.style.display = 'block';
+        }
+
+        function updateXMLPreview() {
+            if (!xmlData) return;
+
+            let displayData;
+            let formatText = '';
+
+            switch (currentFormat) {
+                case 'pretty':
+                    displayData = generateXML(xmlData, true);
+                    formatText = 'Pretty XML';
+                    break;
+                case 'compact':
+                    displayData = generateXML(xmlData, false);
+                    formatText = 'Compact XML';
+                    break;
+                case 'records':
+                    displayData = Array.isArray(xmlData.data) ?
+                        generateXML({ records: xmlData.data }, true) :
+                        generateXML({ record: xmlData.data }, true);
+                    formatText = 'Records Only';
+                    break;
+                case 'properties':
+                    displayData = (typeof xmlData.data === 'object' && !Array.isArray(xmlData.data)) ?
+                        generateXML(xmlData.data, true) :
+                        generateXML({ properties: xmlData.data }, true);
+                    formatText = 'Properties Only';
+                    break;
+            }
+
+            xmlContentElement.textContent = displayData;
+            xmlStats.textContent = `${formatText} | ${Array.isArray(xmlData.data) ? xmlData.data.length : 1} records`;
+            xmlPreview.style.display = 'block';
+        }
+
+        function generateXML(obj, pretty = true, indent = 0) {
+            const indentStr = pretty ? '  '.repeat(indent) : '';
+            const newline = pretty ? '\n' : '';
+
+            if (obj === null || obj === undefined) {
+                return indentStr + '<null/>' + newline;
+            }
+
+            if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
+                const tagName = typeof obj;
+                return `${indentStr}<${tagName}>${escapeXml(String(obj))}</${tagName}>${newline}`;
+            }
+
+            if (Array.isArray(obj)) {
+                let xml = '';
+                const itemTag = 'item';
+
+                obj.forEach((item, index) => {
+                    xml += `${indentStr}<${itemTag}>${newline}`;
+                    xml += generateXML(item, pretty, indent + 1);
+                    xml += `${indentStr}</${itemTag}>${newline}`;
+                });
+
+                return xml;
+            }
+
+            if (typeof obj === 'object') {
+                let xml = '';
+
+                for (const [key, value] of Object.entries(obj)) {
+                    // Skip internal fields starting with underscore
+                    if (key.startsWith('_')) continue;
+
+                    const tagName = key.replace(/[^a-zA-Z0-9]/g, '_');
+
+                    if (Array.isArray(value)) {
+                        xml += `${indentStr}<${tagName}>${newline}`;
+                        value.forEach(item => {
+                            xml += generateXML(item, pretty, indent + 1);
+                        });
+                        xml += `${indentStr}</${tagName}>${newline}`;
+                    } else if (typeof value === 'object' && value !== null) {
+                        xml += `${indentStr}<${tagName}>${newline}`;
+                        xml += generateXML(value, pretty, indent + 1);
+                        xml += `${indentStr}</${tagName}>${newline}`;
+                    } else {
+                        const val = value === null || value === undefined ? '' : escapeXml(String(value));
+                        xml += `${indentStr}<${tagName}>${val}</${tagName}>${newline}`;
+                    }
+                }
+
+                return xml;
+            }
+
+            return '';
+        }
+
+        function escapeXml(text) {
+            return text
+                .replace(/&/g, '&')
+                .replace(/</g, '<')
+                .replace(/>/g, '>')
+                .replace(/"/g, '"')
+                .replace(/'/g, ''');
+        }
+
+        async function convertToXML() {
+            if (!xmlData || Object.keys(xmlData).length === 0) {
+                showStatus('No data to convert. Please load a PDF file first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Converting...';
+            downloadSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const maxItems = document.getElementById('maxItems').value;
+                const includeMetadata = document.getElementById('includeMetadata').value;
+
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Processing XML data...';
+
+                // Apply item limits
+                let finalData = JSON.parse(JSON.stringify(xmlData));
+
+                if (maxItems !== 'unlimited') {
+                    const limit = parseInt(maxItems);
+                    if (Array.isArray(finalData.data) && finalData.data.length > limit) {
+                        finalData.data = finalData.data.slice(0, limit);
+                        finalData.metadata.truncated = true;
+                        finalData.metadata.originalCount = xmlData.data.length;
+                    }
+                }
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Formatting XML output...';
+
+                // Generate XML with metadata handling
+                let xmlRoot;
+
+                if (includeMetadata === 'none') {
+                    xmlRoot = finalData.data;
+                } else {
+                    xmlRoot = finalData;
+                    if (includeMetadata === 'detailed') {
+                        xmlRoot.metadata.processingTime = new Date().toISOString();
+                        xmlRoot.metadata.processingMode = document.getElementById('extractionMode').value;
+                    }
+                }
+
+                // Format based on current format setting
+                switch (currentFormat) {
+                    case 'pretty':
+                        xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n' + generateXML(xmlRoot, true, 1) + '</root>';
+                        break;
+                    case 'compact':
+                        xmlContent = '<?xml version="1.0" encoding="UTF-8"?><root>' + generateXML(xmlRoot, false) + '</root>';
+                        break;
+                    case 'records':
+                        xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<records>\n' +
+                            generateXML(Array.isArray(xmlRoot) ? xmlRoot : [xmlRoot], true, 1) + '</records>';
+                        break;
+                    case 'properties':
+                        xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<properties>\n' +
+                            generateXML((typeof xmlRoot === 'object' && !Array.isArray(xmlRoot)) ? xmlRoot : { data: xmlRoot }, true, 1) +
+                            '</properties>';
+                        break;
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'XML conversion complete!';
+
+                setTimeout(() => {
+                    const itemCount = Array.isArray(finalData.data || finalData) ?
+                        (finalData.data || finalData).length : 1;
+                    displayConversionResults(itemCount);
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to XML';
+                }, 500);
+
+            } catch (error) {
+                console.error('XML conversion error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error converting to XML: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to XML';
+            }
+        }
+
+        function displayConversionResults(itemCount) {
+            let stats = `Successfully converted to XML format`;
+            if (itemCount > 0) {
+                stats += ` with ${itemCount} data records`;
+            }
+            conversionStats.textContent = stats;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ PDF converted to XML successfully!`, 'success');
+        }
+
+        function downloadXML() {
+            if (!xmlContent) {
+                showStatus('No XML content available. Please convert a PDF first.', 'error');
+                return;
+            }
+
+            const blob = new Blob([xmlContent], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_data.xml';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('XML file downloaded successfully!', 'success');
+        }
+
+        function copyToClipboard() {
+            if (!xmlContent) {
+                showStatus('No XML content available to copy.', 'error');
+                return;
+            }
+
+            navigator.clipboard.writeText(xmlContent).then(() => {
+                showStatus('XML copied to clipboard!', 'success');
+            }).catch(err => {
+                showStatus('Failed to copy to clipboard: ' + err.message, 'error');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        pdfFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

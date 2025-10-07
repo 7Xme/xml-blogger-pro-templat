@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Logo Creator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .logo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .brand-section {
+            margin-bottom: 30px;
+        }
+        .brand-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .brand-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .brand-group label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .brand-input, .brand-textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+        .brand-input:focus, .brand-textarea:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .brand-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .logo-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .style-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .style-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .style-btn:hover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .style-btn.active {
+            background: #dc143c;
+            color: white;
+            border-color: #dc143c;
+        }
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .color-picker-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .color-input {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .color-hex {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            width: 80px;
+        }
+        .create-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .create-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .create-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .logo-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .generated-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-preview {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            margin: 0 auto;
+        }
+        .logo-placeholder {
+            width: 300px;
+            height: 300px;
+            background: #f0f0f0;
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 48px;
+            margin: 0 auto;
+        }
+        .logo-variations {
+            margin-top: 20px;
+        }
+        .variations-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .variation-thumb {
+            width: 100%;
+            height: 80px;
+            background: #f0f0f0;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #ccc;
+        }
+        .variation-thumb:hover {
+            border-color: #dc143c;
+        }
+        .variation-thumb.active {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .download-btn, .regenerate-btn, .customize-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .download-btn:hover, .regenerate-btn:hover, .customize-btn:hover {
+            background: #218838;
+        }
+        .regenerate-btn {
+            background: #17a2b8;
+        }
+        .regenerate-btn:hover {
+            background: #138496;
+        }
+        .customize-btn {
+            background: #ffc107;
+            color: #333;
+        }
+        .customize-btn:hover {
+            background: #e0a800;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-logos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #dc143c;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        @media (max-width: 768px) {
+            .logo-container {
+                padding: 20px;
+            }
+            .brand-grid {
+                grid-template-columns: 1fr;
+            }
+            .style-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .logo-stats {
+                justify-content: center;
+            }
+            .variations-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <h1>🎨 AI Logo Creator</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Quick Examples:</div>
+            <div class="example-logos">
+                <button class="example-btn" onclick="loadExample('tech')">🚀 Tech Startup<br><small>SaaS company logo</small></button>
+                <button class="example-btn" onclick="loadExample('food')">🍕 Food Brand<br><small>Restaurant chain logo</small></button>
+                <button class="example-btn" onclick="loadExample('fitness')">💪 Fitness Center<br><small>Gym and wellness logo</small></button>
+                <button class="example-btn" onclick="loadExample('fashion')">👗 Fashion Brand<br><small>Clothing boutique logo</small></button>
+                <button class="example-btn" onclick="loadExample('finance')">💰 Finance Company<br><small>Bank or fintech logo</small></button>
+                <button class="example-btn" onclick="loadExample('education')">📚 Education Platform<br><small>Online learning logo</small></button>
+            </div>
+        </div>
+
+        <div class="brand-section">
+            <div class="brand-grid">
+                <div class="brand-group">
+                    <label for="companyName">Company/Business Name</label>
+                    <input type="text" class="brand-input" id="companyName" placeholder="e.g., TechFlow Solutions">
+                </div>
+                <div class="brand-group">
+                    <label for="tagline">Tagline/Slogan (Optional)</label>
+                    <input type="text" class="brand-input" id="tagline" placeholder="e.g., Innovate with Flow">
+                </div>
+                <div class="brand-group">
+                    <label for="industry">Industry/Sector</label>
+                    <select class="brand-input" id="industry">
+                        <option value="technology">Technology/SaaS</option>
+                        <option value="food">Food/Restaurant</option>
+                        <option value="fitness">Fitness/Health</option>
+                        <option value="fashion">Fashion/Clothing</option>
+                        <option value="finance">Finance/Banking</option>
+                        <option value="education">Education</option>
+                        <option value="real-estate">Real Estate</option>
+                        <option value="automotive">Automotive</option>
+                        <option value="retail">Retail/E-commerce</option>
+                        <option value="consulting">Consulting</option>
+                        <option value="nonprofit">Non-profit</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="brand-group">
+                    <label for="description">Business Description</label>
+                    <textarea class="brand-textarea" id="description" placeholder="Describe your business, target audience, and brand personality..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="logo-options">
+            <div class="option-group">
+                <h3>Logo Style</h3>
+                <div class="style-grid">
+                    <button class="style-btn active" data-style="modern">Modern</button>
+                    <button class="style-btn" data-style="minimalist">Minimalist</button>
+                    <button class="style-btn" data-style="vintage">Vintage</button>
+                    <button class="style-btn" data-style="bold">Bold</button>
+                    <button class="style-btn" data-style="elegant">Elegant</button>
+                    <button class="style-btn" data-style="playful">Playful</button>
+                    <button class="style-btn" data-style="corporate">Corporate</button>
+                    <button class="style-btn" data-style="hand-drawn">Hand Drawn</button>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Logo Elements</h3>
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="logoType">Logo Type</label>
+                        <select id="logoType">
+                            <option value="text-only">Text Only</option>
+                            <option value="icon-only">Icon Only</option>
+                            <option value="icon-text" selected>Icon + Text</option>
+                            <option value="symbol">Symbol/Abstract</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="colorScheme">Color Scheme</label>
+                        <select id="colorScheme">
+                            <option value="auto" selected>Auto (Based on industry)</option>
+                            <option value="monochrome">Black & White</option>
+                            <option value="blue">Blue Theme</option>
+                            <option value="green">Green Theme</option>
+                            <option value="purple">Purple Theme</option>
+                            <option value="red">Red Theme</option>
+                            <option value="orange">Orange Theme</option>
+                            <option value="custom">Custom Colors</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="customColors" style="display: none;">
+                        <label>Primary & Secondary Colors</label>
+                        <div class="color-picker-container">
+                            <input type="color" class="color-input" id="primaryColor" value="#dc143c">
+                            <input type="text" class="color-hex" id="primaryHex" value="#dc143c" readonly>
+                            <input type="color" class="color-input" id="secondaryColor" value="#ffffff">
+                            <input type="text" class="color-hex" id="secondaryHex" value="#ffffff" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Advanced Options</h3>
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="complexity">Design Complexity</label>
+                        <select id="complexity">
+                            <option value="simple" selected>Simple & Clean</option>
+                            <option value="moderate">Moderate Detail</option>
+                            <option value="complex">High Detail</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="targetAudience">Target Audience</label>
+                        <select id="targetAudience">
+                            <option value="general" selected>General Public</option>
+                            <option value="youth">Young Adults (18-35)</option>
+                            <option value="professional">Professionals</option>
+                            <option value="families">Families</option>
+                            <option value="senior">Seniors</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="create-btn" id="createBtn" onclick="createLogo()">🎨 Create Logo</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">AI is designing your logo...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-title">Your Logo Design</div>
+                <div class="logo-stats">
+                    <span id="genTime">Generated just now</span>
+                    <span id="style">Modern Style</span>
+                    <span id="aiModel">DALL-E 3</span>
+                </div>
+            </div>
+
+            <div class="generated-logo">
+                <div class="logo-placeholder" id="logoPlaceholder">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <img class="logo-preview" id="generatedLogo" alt="Generated Logo" />
+            </div>
+
+            <div class="logo-variations">
+                <div class="variations-title">Alternative Designs:</div>
+                <div class="variations-grid" id="variationsGrid">
+                    <!-- Variations will be populated here -->
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadLogo()">💾 Download Logo</button>
+                <button class="regenerate-btn" onclick="regenerateLogo()">🔄 Generate New</button>
+                <button class="customize-btn" onclick="customizeLogo()">⚙️ Customize</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let generatedLogoUrl = '';
+        let logoVariations = [];
+        let currentSettings = {};
+
+        // Color picker sync
+        document.getElementById('primaryColor').addEventListener('input', function() {
+            document.getElementById('primaryHex').value = this.value;
+        });
+        document.getElementById('secondaryColor').addEventListener('input', function() {
+            document.getElementById('secondaryHex').value = this.value;
+        });
+
+        // Color scheme change handler
+        document.getElementById('colorScheme').addEventListener('change', function() {
+            const customColors = document.getElementById('customColors');
+            customColors.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+
+        // Style button handlers
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function loadExample(type) {
+            const examples = {
+                tech: {
+                    name: "TechFlow Solutions",
+                    tagline: "Innovate with Flow",
+                    industry: "technology",
+                    description: "A cutting-edge SaaS platform that helps businesses streamline their workflow and boost productivity with AI-powered automation tools."
+                },
+                food: {
+                    name: "Bella Cucina",
+                    tagline: "Authentic Italian Flavors",
+                    industry: "food",
+                    description: "A family-owned Italian restaurant chain serving traditional recipes passed down through generations, focusing on fresh ingredients and warm hospitality."
+                },
+                fitness: {
+                    name: "Peak Performance Gym",
+                    tagline: "Reach New Heights",
+                    industry: "fitness",
+                    description: "A premium fitness center offering state-of-the-art equipment, personal training, and group classes for all fitness levels."
+                },
+                fashion: {
+                    name: "Luna Boutique",
+                    tagline: "Elegant & Timeless",
+                    industry: "fashion",
+                    description: "A luxury fashion boutique featuring curated collections of designer clothing and accessories for the modern woman."
+                },
+                finance: {
+                    name: "SecureBank",
+                    tagline: "Your Trust, Our Priority",
+                    industry: "finance",
+                    description: "A digital banking solution providing secure, innovative financial services with cutting-edge mobile technology."
+                },
+                education: {
+                    name: "LearnHub Academy",
+                    tagline: "Knowledge Unleashed",
+                    industry: "education",
+                    description: "An online learning platform offering comprehensive courses in technology, business, and creative skills for lifelong learners."
+                }
+            };
+
+            const example = examples[type];
+            document.getElementById('companyName').value = example.name;
+            document.getElementById('tagline').value = example.tagline;
+            document.getElementById('industry').value = example.industry;
+            document.getElementById('description').value = example.description;
+
+            showStatus(`Loaded ${example.name} example. Click "Create Logo" to generate!`, 'info');
+        }
+
+        async function createLogo() {
+            const companyName = document.getElementById('companyName').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            if (!companyName) {
+                showStatus('Please enter a company or business name.', 'error');
+                return;
+            }
+
+            if (!description) {
+                showStatus('Please provide a business description.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            createBtn.disabled = true;
+            createBtn.textContent = '🎨 Creating...';
+            resultSection.style.display = 'none';
+
+            try {
+                // Collect all settings
+                currentSettings = {
+                    companyName: companyName,
+                    tagline: document.getElementById('tagline').value.trim(),
+                    industry: document.getElementById('industry').value,
+                    description: description,
+                    style: document.querySelector('.style-btn.active').dataset.style,
+                    logoType: document.getElementById('logoType').value,
+                    colorScheme: document.getElementById('colorScheme').value,
+                    primaryColor: document.getElementById('primaryColor').value,
+                    secondaryColor: document.getElementById('secondaryColor').value,
+                    complexity: document.getElementById('complexity').value,
+                    targetAudience: document.getElementById('targetAudience').value
+                };
+
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Analyzing brand requirements...';
+
+                const prompt = buildLogoPrompt(currentSettings);
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Generating logo design...';
+
+                // Use the same API approach as image generator
+                const result = await generateLogoWithAPI(prompt);
+
+                progressFill.style.width = '90%';
+                progressText.textContent = 'Creating variations...';
+
+                generatedLogoUrl = result.imageUrl;
+
+                // Generate variations (simplified - in real implementation you'd generate multiple)
+                logoVariations = [
+                    result.imageUrl, // Main logo
+                    // Additional variations would be generated here
+                ];
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Logo creation complete!';
+
+                setTimeout(() => {
+                    displayLogoResult(result);
+                    progressContainer.style.display = 'none';
+                    createBtn.disabled = false;
+                    createBtn.textContent = '🎨 Create Logo';
+                }, 500);
+
+            } catch (error) {
+                console.error('Logo creation error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error creating logo: ' + error.message, 'error');
+                createBtn.disabled = false;
+                createBtn.textContent = '🎨 Create Logo';
+            }
+        }
+
+        function buildLogoPrompt(settings) {
+            const industryContexts = {
+                technology: 'tech, digital, innovation, modern, sleek',
+                food: 'appetizing, fresh, warm, inviting, culinary',
+                fitness: 'energetic, strong, healthy, dynamic, motivational',
+                fashion: 'stylish, elegant, trendy, sophisticated, luxurious',
+                finance: 'trustworthy, professional, secure, stable, reliable',
+                education: 'knowledgeable, inspiring, intelligent, progressive, academic',
+                'real-estate': 'solid, trustworthy, community-focused, modern',
+                automotive: 'powerful, reliable, innovative, dynamic',
+                retail: 'accessible, friendly, diverse, consumer-focused',
+                consulting: 'expert, professional, insightful, strategic',
+                nonprofit: 'compassionate, community-oriented, trustworthy, caring',
+                other: 'versatile, professional, modern'
+            };
+
+            const styleDescriptions = {
+                modern: 'clean lines, contemporary design, minimal elements, current trends',
+                minimalist: 'simple, clean, essential elements only, negative space, uncluttered',
+                vintage: 'retro, classic, nostalgic, traditional elements, timeless appeal',
+                bold: 'strong, impactful, memorable, eye-catching, powerful presence',
+                elegant: 'refined, sophisticated, graceful, premium quality, tasteful',
+                playful: 'fun, energetic, creative, youthful, engaging, lighthearted',
+                corporate: 'professional, trustworthy, established, conservative, reliable',
+                'hand-drawn': 'artistic, handcrafted, unique, organic, personal touch'
+            };
+
+            const colorSchemes = {
+                auto: industryContexts[settings.industry],
+                monochrome: 'black and white, grayscale, classic, timeless',
+                blue: 'blue tones, trust, professionalism, calm, technology',
+                green: 'green tones, growth, nature, health, balance',
+                purple: 'purple tones, creativity, luxury, wisdom, spirituality',
+                red: 'red tones, energy, passion, strength, attention-grabbing',
+                orange: 'orange tones, enthusiasm, creativity, friendliness, vitality',
+                custom: `using primary color ${settings.primaryColor} and secondary color ${settings.secondaryColor}`
+            };
+
+            return `Create a professional logo for:
+
+Company: ${settings.companyName}
+${settings.tagline ? `Tagline: ${settings.tagline}` : ''}
+Industry: ${settings.industry}
+Description: ${settings.description}
+
+Design Requirements:
+- Style: ${styleDescriptions[settings.style]}
+- Type: ${settings.logoType.replace('-', ' ')}
+- Colors: ${colorSchemes[settings.colorScheme]}
+- Complexity: ${settings.complexity}
+- Target Audience: ${settings.targetAudience}
+
+The logo should be suitable for business cards, websites, and marketing materials. Make it scalable, professional, and memorable. Focus on clean design principles and strong visual hierarchy.`;
+        }
+
+        async function generateLogoWithAPI(prompt) {
+            // For demo purposes, we'll simulate API calls
+            // In a real implementation, this would call image generation APIs
+
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Return a placeholder result (in real implementation, this would be actual image generation)
+            return {
+                imageUrl: 'data:image/svg+xml;base64,' + btoa(createPlaceholderLogo(currentSettings)),
+                model: 'AI Logo Generator',
+                style: currentSettings.style
+            };
+        }
+
+        function createPlaceholderLogo(settings) {
+            // Create a simple SVG logo as placeholder
+            const primaryColor = settings.primaryColor || '#dc143c';
+            const secondaryColor = settings.secondaryColor || '#ffffff';
+
+            return `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="300" height="200" fill="${secondaryColor}" stroke="${primaryColor}" stroke-width="3"/>
+                <circle cx="150" cy="100" r="40" fill="${primaryColor}"/>
+                <text x="150" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="${primaryColor}">${settings.companyName.substring(0, 20)}</text>
+                <text x="150" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">${settings.tagline || ''}</text>
+            </svg>`;
+        }
+
+        function displayLogoResult(result) {
+            const logoElement = document.getElementById('generatedLogo');
+            const placeholder = document.getElementById('logoPlaceholder');
+
+            logoElement.src = result.imageUrl;
+            logoElement.style.display = 'block';
+            placeholder.style.display = 'none';
+
+            // Update stats
+            document.getElementById('genTime').textContent = `Generated just now`;
+            document.getElementById('style').textContent = `${result.style.charAt(0).toUpperCase() + result.style.slice(1)} Style`;
+            document.getElementById('aiModel').textContent = result.model;
+
+            // Create variations (placeholder)
+            createVariations();
+
+            resultSection.style.display = 'block';
+
+            showStatus(`✅ Logo created successfully for ${currentSettings.companyName}!`, 'success');
+        }
+
+        function createVariations() {
+            const variationsGrid = document.getElementById('variationsGrid');
+            variationsGrid.innerHTML = '';
+
+            // Create 6 variation thumbnails
+            for (let i = 0; i < 6; i++) {
+                const variation = document.createElement('div');
+                variation.className = `variation-thumb ${i === 0 ? 'active' : ''}`;
+                variation.innerHTML = `<i class="fas fa-palette"></i>`;
+                variation.onclick = () => selectVariation(i);
+
+                variationsGrid.appendChild(variation);
+            }
+        }
+
+        function selectVariation(index) {
+            document.querySelectorAll('.variation-thumb').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+
+            // In a real implementation, this would switch to different logo variations
+            showStatus(`Selected variation ${index + 1}`, 'info');
+        }
+
+        function downloadLogo() {
+            if (!generatedLogoUrl) {
+                showStatus('No logo to download.', 'error');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = generatedLogoUrl;
+            link.download = `${currentSettings.companyName.replace(/\s+/g, '_').toLowerCase()}_logo.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showStatus('Logo downloaded successfully!', 'success');
+        }
+
+        function regenerateLogo() {
+            createLogo();
+        }
+
+        function customizeLogo() {
+            showStatus('Advanced customization options would open here', 'info');
+            // In a real implementation, this would open a customization panel
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

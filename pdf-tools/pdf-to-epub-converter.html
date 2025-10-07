@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to EPUB Converter</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .epub-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .epub-content {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .chapter-preview {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .chapter-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .chapter-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #666;
+        }
+        .convert-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #dc143c;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .epub-content {
+                max-height: 250px;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>📖 PDF to EPUB Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Perfect for Converting:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('books')">📚 E-books<br><small>Novels, manuals</small></button>
+                <button class="example-btn" onclick="showExample('reports')">📊 Reports<br><small>Business docs</small></button>
+                <button class="example-btn" onclick="showExample('articles')">📰 Articles<br><small>Research papers</small></button>
+                <button class="example-btn" onclick="showExample('tutorials')">🎓 Tutorials<br><small>Learning materials</small></button>
+                <button class="example-btn" onclick="showExample('magazines')">📰 Magazines<br><small>Periodicals</small></button>
+                <button class="example-btn" onclick="showExample('textbooks')">📖 Textbooks<br><small>Educational content</small></button>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="pdfFile" accept=".pdf">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop PDF file here or click to browse</div>
+                <div class="upload-subtext">Supports PDF files up to 10MB</div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-stats">
+                    <span id="fileSize"></span>
+                    <span id="pageCount"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>E-book Settings</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="bookTitle">Book Title</label>
+                        <input type="text" id="bookTitle" placeholder="Enter book title" value="">
+                    </div>
+                    <div class="control-group">
+                        <label for="bookAuthor">Author</label>
+                        <input type="text" id="bookAuthor" placeholder="Enter author name" value="">
+                    </div>
+                    <div class="control-group">
+                        <label for="chapterDetection">Chapter Detection</label>
+                        <select id="chapterDetection">
+                            <option value="auto" selected>Auto-detect chapters</option>
+                            <option value="pages">One chapter per page</option>
+                            <option value="headings">Use headings as chapters</option>
+                            <option value="single">Single chapter book</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Font Size</label>
+                        <select id="fontSize">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxPages">Max Pages</label>
+                        <select id="maxPages">
+                            <option value="50" selected>50 pages</option>
+                            <option value="100">100 pages</option>
+                            <option value="200">200 pages</option>
+                            <option value="unlimited">Unlimited</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="includeTOC">Table of Contents</label>
+                        <select id="includeTOC">
+                            <option value="auto" selected>Auto-generate</option>
+                            <option value="yes">Always include</option>
+                            <option value="no">No table of contents</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>EPUB Format Options</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="epubVersion">EPUB Version</label>
+                        <select id="epubVersion">
+                            <option value="3" selected>EPUB 3.0 (Modern)</option>
+                            <option value="2">EPUB 2.0 (Compatible)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="language">Language</label>
+                        <select id="language">
+                            <option value="en" selected>English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="zh">Chinese</option>
+                            <option value="ja">Japanese</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="coverStyle">Cover Style</label>
+                        <select id="coverStyle">
+                            <option value="simple" selected>Simple</option>
+                            <option value="elegant">Elegant</option>
+                            <option value="minimal">Minimal</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="epub-preview" id="epubPreview">
+            <div class="preview-header">
+                <div class="preview-title">EPUB Preview</div>
+                <div id="epubStats">0 chapters detected</div>
+            </div>
+            <div class="epub-content" id="epubContent">
+                <!-- EPUB chapters will be displayed here -->
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToEPUB()">🔄 Convert to EPUB</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Analyzing PDF structure...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">EPUB file created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadEPUB()">💾 Download EPUB</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Configure PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pdfJsDoc = null;
+        let epubData = {};
+        let epubBlob = null;
+
+        // DOM elements
+        const pdfFile = document.getElementById('pdfFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const pageCount = document.getElementById('pageCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const epubPreview = document.getElementById('epubPreview');
+        const epubContent = document.getElementById('epubContent');
+        const epubStats = document.getElementById('epubStats');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        pdfFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function showExample(type) {
+            const examples = {
+                books: "Perfect for novels, fiction, and storybooks with chapter-based structure",
+                reports: "Business reports, financial statements, and analytical documents",
+                articles: "Research papers, academic articles, and technical documentation",
+                tutorials: "Learning materials, guides, and instructional content",
+                magazines: "Periodicals, newsletters, and magazine-style publications",
+                textbooks: "Educational content, course materials, and reference books"
+            };
+
+            showStatus(`Example: ${examples[type]} - Upload a PDF to see EPUB conversion in action!`, 'info');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+            } else {
+                showStatus('Please select a valid PDF file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+                pdfFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid PDF file.', 'error');
+            }
+        }
+
+        async function processPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                const pages = pdfDoc.getPages();
+
+                // Update UI
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                pageCount.textContent = `${pages.length} pages`;
+                fileInfo.style.display = 'block';
+                conversionOptions.style.display = 'block';
+
+                // Set default title from filename
+                const defaultTitle = file.name.replace(/\.pdf$/i, '');
+                document.getElementById('bookTitle').value = defaultTitle;
+
+                // Analyze and preview content
+                await analyzePDFStructure(pages.length);
+
+                showStatus(`PDF "${file.name}" loaded successfully. Content analyzed and ready for EPUB conversion.`, 'success');
+
+            } catch (error) {
+                console.error('PDF processing error:', error);
+                showStatus('Error loading PDF: ' + error.message, 'error');
+            }
+        }
+
+        async function analyzePDFStructure(pageCount) {
+            try {
+                const chapterDetection = document.getElementById('chapterDetection').value;
+                const maxPages = document.getElementById('maxPages').value;
+                const limit = maxPages === 'unlimited' ? pageCount : Math.min(parseInt(maxPages), pageCount);
+
+                epubData = {
+                    metadata: {
+                        title: document.getElementById('bookTitle').value || 'Converted Book',
+                        author: document.getElementById('bookAuthor').value || 'Unknown Author',
+                        language: document.getElementById('language').value,
+                        date: new Date().toISOString().split('T')[0],
+                        epubVersion: document.getElementById('epubVersion').value
+                    },
+                    chapters: []
+                };
+
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Extracting pages...';
+
+                // Extract content based on chapter detection mode
+                for (let i = 1; i <= limit; i++) {
+                    const page = await pdfJsDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = extractPageText(textContent.items);
+
+                    if (pageText.trim()) {
+                        let chapterTitle = `Page ${i}`;
+
+                        switch (chapterDetection) {
+                            case 'headings':
+                                const heading = detectHeading(pageText);
+                                if (heading) chapterTitle = heading;
+                                break;
+                            case 'auto':
+                                // Try to detect chapter-like content
+                                if (pageText.match(/^(Chapter|Section|Part)\s+\d+/i)) {
+                                    chapterTitle = pageText.split('\n')[0].trim();
+                                }
+                                break;
+                        }
+
+                        epubData.chapters.push({
+                            id: `chapter_${i}`,
+                            title: chapterTitle,
+                            content: pageText,
+                            pageNumber: i
+                        });
+                    }
+
+                    progressFill.style.width = `${20 + (i / limit) * 60}%`;
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Analysis complete!';
+
+                // Display preview
+                displayEPUBPreview();
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showStatus('Error analyzing PDF structure: ' + error.message, 'error');
+            }
+        }
+
+        function extractPageText(items) {
+            // Sort items by position
+            const sortedItems = items.sort((a, b) => {
+                if (Math.abs(b.transform[5] - a.transform[5]) > 10) {
+                    return b.transform[5] - a.transform[5]; // Y position (top first)
+                }
+                return a.transform[4] - b.transform[4]; // X position (left first)
+            });
+
+            let text = '';
+            let currentLine = '';
+            let currentY = null;
+            const tolerance = 5;
+
+            for (const item of sortedItems) {
+                const itemText = item.str.trim();
+                if (!itemText) continue;
+
+                const y = Math.round(item.transform[5]);
+
+                if (currentY === null || Math.abs(y - currentY) > tolerance) {
+                    if (currentLine) {
+                        text += currentLine + '\n';
+                    }
+                    currentLine = itemText;
+                    currentY = y;
+                } else {
+                    currentLine += ' ' + itemText;
+                }
+            }
+
+            if (currentLine) {
+                text += currentLine;
+            }
+
+            return text;
+        }
+
+        function detectHeading(text) {
+            const lines = text.split('\n');
+            for (const line of lines.slice(0, 3)) { // Check first few lines
+                const trimmed = line.trim();
+                if (trimmed.length > 0 && trimmed.length < 100) {
+                    // Look for patterns that might indicate headings
+                    if (trimmed.match(/^(Chapter|Section|Part|Unit|Lesson)\s+\d+/i) ||
+                        trimmed.match(/^[A-Z][^.!?]*$/) && trimmed.length < 50) {
+                        return trimmed;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function displayEPUBPreview() {
+            epubContent.innerHTML = '';
+
+            const maxPreviewChapters = Math.min(epubData.chapters.length, 5);
+
+            for (let i = 0; i < maxPreviewChapters; i++) {
+                const chapter = epubData.chapters[i];
+                const chapterDiv = document.createElement('div');
+                chapterDiv.className = 'chapter-preview';
+
+                chapterDiv.innerHTML = `
+                    <div class="chapter-title">${chapter.title}</div>
+                    <div class="chapter-content">${chapter.content.substring(0, 300)}${chapter.content.length > 300 ? '...' : ''}</div>
+                `;
+
+                epubContent.appendChild(chapterDiv);
+            }
+
+            if (epubData.chapters.length > maxPreviewChapters) {
+                const moreDiv = document.createElement('div');
+                moreDiv.className = 'chapter-preview';
+                moreDiv.innerHTML = `
+                    <div class="chapter-title">... and ${epubData.chapters.length - maxPreviewChapters} more chapters</div>
+                    <div class="chapter-content">Preview shows first ${maxPreviewChapters} chapters only.</div>
+                `;
+                epubContent.appendChild(moreDiv);
+            }
+
+            epubStats.textContent = `${epubData.chapters.length} chapters detected`;
+            epubPreview.style.display = 'block';
+        }
+
+        async function convertToEPUB() {
+            if (!epubData.chapters || epubData.chapters.length === 0) {
+                showStatus('No content to convert. Please load a PDF file first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Creating EPUB...';
+            downloadSection.style.display = 'none';
+
+            try {
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Creating EPUB structure...';
+
+                // Update metadata
+                epubData.metadata.title = document.getElementById('bookTitle').value || epubData.metadata.title;
+                epubData.metadata.author = document.getElementById('bookAuthor').value || epubData.metadata.author;
+
+                const epubVersion = document.getElementById('epubVersion').value;
+                const fontSize = document.getElementById('fontSize').value;
+                const coverStyle = document.getElementById('coverStyle').value;
+                const includeTOC = document.getElementById('includeTOC').value;
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Generating EPUB files...';
+
+                // Create EPUB using JSZip
+                epubBlob = await createEPUBArchive(epubData, {
+                    epubVersion,
+                    fontSize,
+                    coverStyle,
+                    includeTOC: includeTOC !== 'no'
+                });
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'EPUB creation complete!';
+
+                setTimeout(() => {
+                    displayConversionResults(epubData.chapters.length);
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to EPUB';
+                }, 500);
+
+            } catch (error) {
+                console.error('EPUB conversion error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error creating EPUB: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to EPUB';
+            }
+        }
+
+        async function createEPUBArchive(data, options) {
+            const zip = new JSZip();
+
+            // Create mimetype file (must be first and uncompressed)
+            zip.file('mimetype', 'application/epub+zip');
+
+            // Create META-INF folder
+            const metaInf = zip.folder('META-INF');
+            metaInf.file('container.xml', createContainerXML());
+
+            // Create OEBPS folder
+            const oebps = zip.folder('OEBPS');
+
+            // Create content files
+            const contentFiles = createContentFiles(data, options);
+            Object.entries(contentFiles).forEach(([filename, content]) => {
+                oebps.file(filename, content);
+            });
+
+            // Create package document
+            oebps.file('content.opf', createPackageDocument(data, options));
+
+            // Create table of contents
+            if (options.includeTOC) {
+                oebps.file('toc.ncx', createTOCNCX(data));
+            }
+
+            return zip.generateAsync({ type: 'blob' });
+        }
+
+        function createContainerXML() {
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+    <rootfiles>
+        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+    </rootfiles>
+</container>`;
+        }
+
+        function createContentFiles(data, options) {
+            const files = {};
+
+            // Create cover page
+            files['cover.xhtml'] = createCoverPage(data, options);
+
+            // Create chapter files
+            data.chapters.forEach((chapter, index) => {
+                files[`chapter_${index + 1}.xhtml`] = createChapterPage(chapter, index + 1, options);
+            });
+
+            // Create CSS
+            files['stylesheet.css'] = createStylesheet(options);
+
+            return files;
+        }
+
+        function createCoverPage(data, options) {
+            const coverStyle = options.coverStyle;
+            let coverHTML = '';
+
+            switch (coverStyle) {
+                case 'elegant':
+                    coverHTML = `
+                        <div class="cover">
+                            <h1 class="title">${escapeXml(data.metadata.title)}</h1>
+                            <h2 class="author">by ${escapeXml(data.metadata.author)}</h2>
+                            <div class="decoration">📖</div>
+                        </div>`;
+                    break;
+                case 'minimal':
+                    coverHTML = `
+                        <div class="cover minimal">
+                            <div class="title">${escapeXml(data.metadata.title)}</div>
+                            <div class="author">${escapeXml(data.metadata.author)}</div>
+                        </div>`;
+                    break;
+                default: // simple
+                    coverHTML = `
+                        <div class="cover simple">
+                            <h1>${escapeXml(data.metadata.title)}</h1>
+                            <p>by ${escapeXml(data.metadata.author)}</p>
+                        </div>`;
+            }
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+    <title>Cover</title>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+</head>
+<body>
+    ${coverHTML}
+</body>
+</html>`;
+        }
+
+        function createChapterPage(chapter, chapterNumber, options) {
+            const paragraphs = chapter.content.split('\n').filter(p => p.trim());
+            const contentHTML = paragraphs.map(p => `<p>${escapeXml(p)}</p>`).join('\n');
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+    <title>${escapeXml(chapter.title)}</title>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+</head>
+<body>
+    <div class="chapter">
+        <h1>${escapeXml(chapter.title)}</h1>
+        ${contentHTML}
+    </div>
+</body>
+</html>`;
+        }
+
+        function createStylesheet(options) {
+            const fontSize = options.fontSize;
+            let fontSizeCSS = '';
+
+            switch (fontSize) {
+                case 'small':
+                    fontSizeCSS = 'font-size: 0.9em;';
+                    break;
+                case 'large':
+                    fontSizeCSS = 'font-size: 1.2em;';
+                    break;
+                default:
+                    fontSizeCSS = 'font-size: 1em;';
+            }
+
+            return `body {
+    margin: 0;
+    padding: 1em;
+    ${fontSizeCSS}
+    line-height: 1.5;
+    font-family: serif;
+}
+
+.cover {
+    text-align: center;
+    padding: 2em;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.cover.simple h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+}
+
+.cover.simple p {
+    font-style: italic;
+    color: #666;
+}
+
+.cover.elegant .title {
+    font-size: 2.5em;
+    margin-bottom: 0.3em;
+    font-weight: bold;
+}
+
+.cover.elegant .author {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.cover.elegant .decoration {
+    font-size: 4em;
+    opacity: 0.5;
+}
+
+.cover.minimal {
+    font-family: sans-serif;
+}
+
+.cover.minimal .title {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+.cover.minimal .author {
+    color: #666;
+}
+
+.chapter {
+    max-width: 100%;
+}
+
+.chapter h1 {
+    page-break-before: always;
+    font-size: 1.5em;
+    margin-bottom: 1em;
+    text-align: center;
+}
+
+p {
+    margin-bottom: 1em;
+    text-align: justify;
+    text-indent: 1em;
+}
+
+p:first-child {
+    text-indent: 0;
+}`;
+        }
+
+        function createPackageDocument(data, options) {
+            const chapters = data.chapters;
+            const epubVersion = options.epubVersion;
+
+            let manifestItems = `
+    <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="stylesheet" href="stylesheet.css" media-type="text/css"/>`;
+
+            chapters.forEach((chapter, index) => {
+                manifestItems += `\n    <item id="chapter_${index + 1}" href="chapter_${index + 1}.xhtml" media-type="application/xhtml+xml"/>`;
+            });
+
+            if (options.includeTOC) {
+                manifestItems += `\n    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>`;
+            }
+
+            let spineItems = `
+    <itemref idref="cover"/>`;
+
+            chapters.forEach((chapter, index) => {
+                spineItems += `\n    <itemref idref="chapter_${index + 1}"/>`;
+            });
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="${epubVersion}.0" unique-identifier="book-id">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title>${escapeXml(data.metadata.title)}</dc:title>
+        <dc:creator>${escapeXml(data.metadata.author)}</dc:creator>
+        <dc:language>${data.metadata.language}</dc:language>
+        <dc:date>${data.metadata.date}</dc:date>
+        <dc:identifier id="book-id">urn:uuid:${generateUUID()}</dc:identifier>
+    </metadata>
+    <manifest>
+${manifestItems}
+    </manifest>
+    <spine${options.includeTOC ? ' toc="ncx"' : ''}>
+${spineItems}
+    </spine>
+</package>`;
+        }
+
+        function createTOCNCX(data) {
+            const chapters = data.chapters;
+
+            let navPoints = '';
+            chapters.forEach((chapter, index) => {
+                navPoints += `
+    <navPoint id="nav_${index + 1}" playOrder="${index + 2}">
+        <navLabel>
+            <text>${escapeXml(chapter.title)}</text>
+        </navLabel>
+        <content src="chapter_${index + 1}.xhtml"/>
+    </navPoint>`;
+            });
+
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+    <head>
+        <meta name="dtb:uid" content="urn:uuid:${generateUUID()}"/>
+        <meta name="dtb:depth" content="1"/>
+        <meta name="dtb:totalPageCount" content="0"/>
+        <meta name="dtb:maxPageNumber" content="0"/>
+    </head>
+    <docTitle>
+        <text>${escapeXml(data.metadata.title)}</text>
+    </docTitle>
+    <navMap>
+        <navPoint id="nav_cover" playOrder="1">
+            <navLabel>
+                <text>Cover</text>
+            </navLabel>
+            <content src="cover.xhtml"/>
+        </navPoint>${navPoints}
+    </navMap>
+</ncx>`;
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function escapeXml(text) {
+            return text
+                .replace(/&/g, '&')
+                .replace(/</g, '<')
+                .replace(/>/g, '>')
+                .replace(/"/g, '"')
+                .replace(/'/g, ''');
+        }
+
+        function displayConversionResults(chapterCount) {
+            conversionStats.textContent = `Successfully converted to EPUB format with ${chapterCount} chapters`;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ PDF converted to EPUB successfully!`, 'success');
+        }
+
+        function downloadEPUB() {
+            if (!epubBlob) {
+                showStatus('No EPUB content available. Please convert a PDF first.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(epubBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_book.epub';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('EPUB file downloaded successfully!', 'success');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        pdfFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to PDF Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #6f42c1;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #5a32a3;
+            background: #f0e6ff;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #6f42c1;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #6f42c1;
+        }
+        .table-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .preview-table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .preview-table th, .preview-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .preview-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+        .preview-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .convert-btn {
+            background: #6f42c1;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #5a32a3;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6f42c1, #9c6ade);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 5px 10px 5px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #6f42c1;
+        }
+        .csv-input {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .csv-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+        }
+        .csv-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .csv-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .csv-btn:hover {
+            background: #f8f9fa;
+            border-color: #6f42c1;
+        }
+        .stats-display {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .csv-actions {
+                justify-content: center;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+            .stats-display {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 CSV to PDF Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Perfect for Converting:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('contacts')">👥 Contact Lists<br><small>Address books, directories</small></button>
+                <button class="example-btn" onclick="showExample('inventory')">📦 Inventory Data<br><small>Product catalogs, stock lists</small></button>
+                <button class="example-btn" onclick="showExample('financial')">💰 Financial Records<br><small>Transactions, budgets</small></button>
+                <button class="example-btn" onclick="showExample('survey')">📋 Survey Results<br><small>Research data, responses</small></button>
+                <button class="example-btn" onclick="showExample('analytics')">📈 Analytics Data<br><small>Reports, metrics</small></button>
+                <button class="example-btn" onclick="showExample('sales')">📊 Sales Reports<br><small>Customer data, orders</small></button>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="csvFile" accept=".csv">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop CSV file here or click to browse</div>
+                <div class="upload-subtext">Supports .csv files up to 5MB</div>
+            </div>
+        </div>
+
+        <div class="csv-input" id="csvInputSection" style="display: none; margin-bottom: 30px;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">Or Paste CSV Data</h3>
+            <textarea class="csv-textarea" id="csvTextarea" placeholder="Paste your CSV data here...
+
+Example:
+Name,Email,Phone,Company
+John Doe,john@example.com,555-0123,ABC Corp
+Jane Smith,jane@example.com,555-0456,XYZ Ltd"></textarea>
+            <div class="csv-actions">
+                <button class="csv-btn" onclick="clearCSV()">Clear</button>
+                <button class="csv-btn" onclick="loadSampleCSV()">Load Sample Data</button>
+                <button class="csv-btn" onclick="validateCSV()">Validate CSV</button>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName">CSV data loaded</div>
+                <div class="file-stats">
+                    <span id="fileSize">0 KB</span>
+                    <span id="rowCount">0 rows</span>
+                    <span id="columnCount">0 columns</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>Table Formatting</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="pageSize">Page Size</label>
+                        <select id="pageSize">
+                            <option value="a4" selected>A4 (210×297mm)</option>
+                            <option value="a3">A3 (297×420mm)</option>
+                            <option value="letter">Letter (8.5×11")</option>
+                            <option value="legal">Legal (8.5×14")</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="orientation">Orientation</label>
+                        <select id="orientation">
+                            <option value="landscape" selected>Landscape (better for tables)</option>
+                            <option value="portrait">Portrait</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="tableStyle">Table Style</label>
+                        <select id="tableStyle">
+                            <option value="grid" selected>Grid Lines</option>
+                            <option value="striped">Striped Rows</option>
+                            <option value="minimal">Minimal</option>
+                            <option value="professional">Professional</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Font Size</label>
+                        <select id="fontSize">
+                            <option value="8">Small (8pt)</option>
+                            <option value="10" selected>Normal (10pt)</option>
+                            <option value="12">Large (12pt)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Data Processing</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="delimiter">Field Delimiter</label>
+                        <select id="delimiter">
+                            <option value="auto" selected>Auto-detect</option>
+                            <option value=",">Comma (,)</option>
+                            <option value=";">Semicolon (;)</option>
+                            <option value="\t">Tab</option>
+                            <option value="|">Pipe (|)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="hasHeaders">First Row is Headers</label>
+                        <select id="hasHeaders">
+                            <option value="true" selected>Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxRows">Max Rows to Display</label>
+                        <select id="maxRows">
+                            <option value="all" selected>All rows</option>
+                            <option value="100">100 rows</option>
+                            <option value="500">500 rows</option>
+                            <option value="1000">1000 rows</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="includeSummary">Include Summary</label>
+                        <select id="includeSummary">
+                            <option value="false" selected>No</option>
+                            <option value="true">Yes (row count, date)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-preview" id="tablePreview">
+            <div class="preview-header">
+                <div class="preview-title">Data Preview</div>
+                <div id="previewStats">Ready for conversion</div>
+            </div>
+            <div class="preview-table-container">
+                <table class="preview-table" id="previewTable">
+                    <!-- Table content will be populated here -->
+                </table>
+            </div>
+            <div class="stats-display">
+                <span id="totalRows">0 rows</span>
+                <span id="totalColumns">0 columns</span>
+                <span id="dataSize">0 KB</span>
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToPDF()">🔄 Convert to PDF</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Processing CSV data...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">PDF created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadPDF()">💾 Download PDF</button>
+                <button class="download-btn" onclick="convertAnother()" style="background: #17a2b8;">🔄 Convert Another</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        let csvData = [];
+        let csvHeaders = [];
+        let pdfBlob = null;
+
+        // DOM elements
+        const csvFile = document.getElementById('csvFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const csvInputSection = document.getElementById('csvInputSection');
+        const csvTextarea = document.getElementById('csvTextarea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const rowCount = document.getElementById('rowCount');
+        const columnCount = document.getElementById('columnCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const tablePreview = document.getElementById('tablePreview');
+        const previewTable = document.getElementById('previewTable');
+        const previewStats = document.getElementById('previewStats');
+        const totalRows = document.getElementById('totalRows');
+        const totalColumns = document.getElementById('totalColumns');
+        const dataSize = document.getElementById('dataSize');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        csvFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+        csvTextarea.addEventListener('input', handleTextInput);
+
+        function showExample(type) {
+            const examples = {
+                contacts: 'Convert contact lists, customer databases, or employee directories into professional PDF tables',
+                inventory: 'Transform inventory spreadsheets, product catalogs, or stock lists into printable PDF reports',
+                financial: 'Change financial records, transaction logs, or budget spreadsheets into PDF statements',
+                survey: 'Convert survey responses, research data, or feedback forms into organized PDF reports',
+                analytics: 'Transform analytics reports, performance metrics, or KPI dashboards into PDF presentations',
+                sales: 'Convert sales data, customer orders, or revenue reports into professional PDF documents'
+            };
+
+            showStatus(`📊 ${examples[type]}`, 'info');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showStatus('CSV file size must be under 5MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processCSVFile(file);
+            } else {
+                showStatus('Please select a valid CSV file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showStatus('CSV file size must be under 5MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processCSVFile(file);
+                csvFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid CSV file.', 'error');
+            }
+        }
+
+        function handleTextInput() {
+            const text = csvTextarea.value.trim();
+            if (text) {
+                processCSVText(text, 'Pasted CSV data');
+            } else {
+                clearData();
+            }
+        }
+
+        function processCSVFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                processCSVText(e.target.result, file.name);
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+            };
+            reader.readAsText(file);
+        }
+
+        function processCSVText(csvText, sourceName) {
+            try {
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Parsing CSV data...';
+
+                // Parse CSV data
+                const parsedData = parseCSV(csvText);
+
+                if (parsedData.length === 0) {
+                    throw new Error('No data found in CSV');
+                }
+
+                csvData = parsedData;
+                csvHeaders = parsedData.length > 0 ? Object.keys(parsedData[0]) : [];
+
+                // Update UI
+                updateFileInfo(sourceName);
+                updateTablePreview();
+                conversionOptions.style.display = 'block';
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'CSV processing complete!';
+
+                showStatus(`Successfully loaded ${parsedData.length} rows of data.`, 'success');
+
+            } catch (error) {
+                console.error('CSV parsing error:', error);
+                showStatus('Error parsing CSV: ' + error.message, 'error');
+            }
+        }
+
+        function parseCSV(csvText) {
+            const delimiter = detectDelimiter(csvText);
+            const lines = csvText.split('\n').filter(line => line.trim());
+
+            if (lines.length === 0) return [];
+
+            // Parse header row
+            const headers = parseCSVRow(lines[0], delimiter);
+            const hasHeaders = document.getElementById('hasHeaders').value === 'true';
+
+            // Parse data rows
+            const data = [];
+            const startRow = hasHeaders ? 1 : 0;
+
+            for (let i = startRow; i < lines.length; i++) {
+                const row = parseCSVRow(lines[i], delimiter);
+                if (row.length > 0) {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header || `Column ${index + 1}`] = row[index] || '';
+                    });
+                    data.push(obj);
+                }
+            }
+
+            return data;
+        }
+
+        function detectDelimiter(csvText) {
+            const delimiters = [',', ';', '\t', '|'];
+            let bestDelimiter = ',';
+            let maxCount = 0;
+
+            // Check first few lines to detect delimiter
+            const sampleLines = csvText.split('\n').slice(0, 3);
+
+            for (const delimiter of delimiters) {
+                let totalCount = 0;
+                for (const line of sampleLines) {
+                    totalCount += (line.split(delimiter).length - 1);
+                }
+                if (totalCount > maxCount) {
+                    maxCount = totalCount;
+                    bestDelimiter = delimiter;
+                }
+            }
+
+            return bestDelimiter;
+        }
+
+        function parseCSVRow(rowText, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < rowText.length; i++) {
+                const char = rowText[i];
+
+                if (char === '"') {
+                    if (inQuotes && rowText[i + 1] === '"') {
+                        // Escaped quote
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // Toggle quote mode
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === delimiter && !inQuotes) {
+                    // Field separator
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            // Add last field
+            result.push(current.trim());
+
+            return result;
+        }
+
+        function updateFileInfo(sourceName) {
+            fileName.textContent = sourceName;
+            rowCount.textContent = `${csvData.length} rows`;
+            columnCount.textContent = `${csvHeaders.length} columns`;
+            fileInfo.style.display = 'block';
+
+            // Show CSV input section as alternative
+            csvInputSection.style.display = 'block';
+        }
+
+        function updateTablePreview() {
+            // Clear existing table
+            previewTable.innerHTML = '';
+
+            if (csvData.length === 0) return;
+
+            // Create table header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            csvHeaders.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            previewTable.appendChild(thead);
+
+            // Create table body
+            const tbody = document.createElement('tbody');
+            const maxRows = document.getElementById('maxRows').value;
+            const displayRows = maxRows === 'all' ? csvData : csvData.slice(0, parseInt(maxRows));
+
+            displayRows.forEach((row, index) => {
+                const tr = document.createElement('tr');
+
+                csvHeaders.forEach(header => {
+                    const td = document.createElement('td');
+                    const value = row[header] || '';
+                    td.textContent = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                    td.title = value; // Show full text on hover
+                    tr.appendChild(td);
+                });
+
+                tbody.appendChild(tr);
+            });
+
+            previewTable.appendChild(tbody);
+
+            // Update stats
+            const displayCount = displayRows.length;
+            const totalCount = csvData.length;
+            previewStats.textContent = `Showing ${displayCount} of ${totalCount} rows`;
+            totalRows.textContent = `${csvData.length} rows`;
+            totalColumns.textContent = `${csvHeaders.length} columns`;
+            dataSize.textContent = formatFileSize(new Blob([JSON.stringify(csvData)]).size);
+
+            tablePreview.style.display = 'block';
+        }
+
+        function clearCSV() {
+            csvTextarea.value = '';
+            clearData();
+            showStatus('CSV input cleared.', 'info');
+        }
+
+        function loadSampleCSV() {
+            const sampleCSV = `Name,Email,Phone,Department,Salary,Hire Date
+John Smith,john.smith@company.com,+1-555-0123,Engineering,75000,2020-03-15
+Sarah Johnson,sarah.j@company.com,+1-555-0456,Marketing,65000,2019-07-22
+Michael Brown,michael.brown@company.com,+1-555-0789,Sales,55000,2021-01-10
+Emily Davis,emily.davis@company.com,+1-555-0321,HR,60000,2018-11-05
+David Wilson,david.wilson@company.com,+1-555-0654,Finance,70000,2017-09-18
+Lisa Anderson,lisa.anderson@company.com,+1-555-0987,Operations,58000,2020-12-03
+Robert Taylor,robert.taylor@company.com,+1-555-0210,IT,72000,2019-04-27
+Jennifer Martinez,jennifer.m@company.com,+1-555-0543,Legal,80000,2016-08-14
+Christopher Lee,chris.lee@company.com,+1-555-0876,Research,68000,2021-06-30
+Amanda White,amanda.white@company.com,+1-555-0109,Design,62000,2020-02-18`;
+
+            csvTextarea.value = sampleCSV;
+            processCSVText(sampleCSV, 'Sample Employee Data');
+            showStatus('Sample employee data loaded.', 'success');
+        }
+
+        function validateCSV() {
+            const text = csvTextarea.value.trim();
+            if (!text) {
+                showStatus('Please enter CSV data first.', 'error');
+                return;
+            }
+
+            try {
+                const parsed = parseCSV(text);
+                const rows = parsed.length;
+                const cols = parsed.length > 0 ? Object.keys(parsed[0]).length : 0;
+
+                showStatus(`✅ CSV validation successful: ${rows} rows, ${cols} columns`, 'success');
+            } catch (error) {
+                showStatus('❌ CSV validation failed: ' + error.message, 'error');
+            }
+        }
+
+        function clearData() {
+            csvData = [];
+            csvHeaders = [];
+            fileInfo.style.display = 'none';
+            conversionOptions.style.display = 'none';
+            tablePreview.style.display = 'none';
+            downloadSection.style.display = 'none';
+            pdfBlob = null;
+        }
+
+        async function convertToPDF() {
+            if (csvData.length === 0) {
+                showStatus('Please load CSV data first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Creating PDF...';
+            downloadSection.style.display = 'none';
+
+            try {
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Initializing PDF...';
+
+                // Create PDF document
+                const pdf = new jsPDF({
+                    orientation: document.getElementById('orientation').value,
+                    unit: 'mm',
+                    format: document.getElementById('pageSize').value
+                });
+
+                progressFill.style.width = '40%';
+                progressText.textContent = 'Preparing table data...';
+
+                // Prepare table data
+                const tableData = csvData.map(row =>
+                    csvHeaders.map(header => row[header] || '')
+                );
+
+                // Table styling options
+                const tableStyle = document.getElementById('tableStyle').value;
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+
+                let styles = {};
+                let alternateRowStyles = {};
+                let columnStyles = {};
+
+                switch (tableStyle) {
+                    case 'striped':
+                        alternateRowStyles = { fillColor: [245, 245, 245] };
+                        break;
+                    case 'professional':
+                        styles = {
+                            fontStyle: 'bold',
+                            fillColor: [240, 240, 240],
+                            textColor: [0, 0, 0]
+                        };
+                        alternateRowStyles = { fillColor: [255, 255, 255] };
+                        break;
+                    case 'minimal':
+                        styles = { lineWidth: 0.1 };
+                        break;
+                }
+
+                progressFill.style.width = '70%';
+                progressText.textContent = 'Generating PDF table...';
+
+                // Add table to PDF
+                pdf.autoTable({
+                    head: [csvHeaders],
+                    body: tableData,
+                    startY: 20,
+                    styles: {
+                        fontSize: fontSize,
+                        cellPadding: 3,
+                        ...styles
+                    },
+                    headStyles: {
+                        fillColor: [102, 102, 102],
+                        textColor: [255, 255, 255],
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: alternateRowStyles,
+                    columnStyles: columnStyles,
+                    margin: { top: 20 },
+                    didDrawPage: function(data) {
+                        // Add header
+                        pdf.setFontSize(16);
+                        pdf.text('CSV Data Report', 14, 15);
+
+                        // Add footer with page number
+                        const pageCount = pdf.internal.getNumberOfPages();
+                        pdf.setFontSize(10);
+                        pdf.text(`Page ${data.pageNumber} of ${pageCount}`, data.settings.margin.left, pdf.internal.pageSize.height - 10);
+                    }
+                });
+
+                progressFill.style.width = '90%';
+                progressText.textContent = 'Finalizing PDF...';
+
+                // Add summary if requested
+                if (document.getElementById('includeSummary').value === 'true') {
+                    const finalY = pdf.lastAutoTable.finalY + 20;
+                    pdf.setFontSize(10);
+                    pdf.text(`Generated on: ${new Date().toLocaleString()}`, 14, finalY);
+                    pdf.text(`Total Records: ${csvData.length}`, 14, finalY + 7);
+                    pdf.text(`Total Columns: ${csvHeaders.length}`, 14, finalY + 14);
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'PDF creation complete!';
+
+                // Generate blob for download
+                pdfBlob = pdf.output('blob');
+
+                setTimeout(() => {
+                    displayConversionResults();
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to PDF';
+                }, 500);
+
+            } catch (error) {
+                console.error('PDF creation error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error creating PDF: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to PDF';
+            }
+        }
+
+        function displayConversionResults() {
+            conversionStats.textContent = `Successfully converted CSV with ${csvData.length} rows and ${csvHeaders.length} columns to PDF`;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ CSV converted to PDF successfully!`, 'success');
+        }
+
+        function downloadPDF() {
+            if (!pdfBlob) {
+                showStatus('No PDF available to download.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'csv_to_pdf.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('PDF downloaded successfully!', 'success');
+        }
+
+        function convertAnother() {
+            // Reset the interface
+            clearData();
+            csvTextarea.value = '';
+            csvFile.value = '';
+
+            showStatus('Ready to convert another CSV file.', 'info');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        csvFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to CSV Converter</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .csv-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .csv-table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .csv-table th, .csv-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .csv-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+        .csv-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .csv-raw-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        .convert-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #dc143c;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .csv-table-container {
+                max-height: 200px;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>📊 PDF to CSV Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Common CSV Data Types:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('contacts')">👥 Contact Lists<br><small>Name, Email, Phone</small></button>
+                <button class="example-btn" onclick="showExample('products')">📦 Product Catalogs<br><small>SKU, Name, Price</small></button>
+                <button class="example-btn" onclick="showExample('financial')">💰 Financial Data<br><small>Date, Amount, Category</small></button>
+                <button class="example-btn" onclick="showExample('inventory')">📋 Inventory Lists<br><small>Item, Quantity, Location</small></button>
+                <button class="example-btn" onclick="showExample('survey')">📊 Survey Results<br><small>Question, Response, Count</small></button>
+                <button class="example-btn" onclick="showExample('attendance')">📅 Attendance Records<br><small>Name, Date, Status</small></button>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="pdfFile" accept=".pdf">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop PDF file here or click to browse</div>
+                <div class="upload-subtext">Supports PDF files up to 10MB</div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-stats">
+                    <span id="fileSize"></span>
+                    <span id="pageCount"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>Data Extraction Settings</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="dataType">Content Type</label>
+                        <select id="dataType">
+                            <option value="auto" selected>Auto-detect (tables/lists)</option>
+                            <option value="table">Structured tables</option>
+                            <option value="list">Numbered/bulleted lists</option>
+                            <option value="columns">Fixed column layout</option>
+                            <option value="text">All text content</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="extractionMode">Extraction Quality</label>
+                        <select id="extractionMode">
+                            <option value="accurate" selected>High Accuracy</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="fast">Fast Processing</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxRows">Max Rows</label>
+                        <select id="maxRows">
+                            <option value="1000" selected>1,000 rows</option>
+                            <option value="5000">5,000 rows</option>
+                            <option value="10000">10,000 rows</option>
+                            <option value="unlimited">Unlimited</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="hasHeaders">First Row Headers</label>
+                        <select id="hasHeaders">
+                            <option value="auto" selected>Auto-detect</option>
+                            <option value="yes">Yes (use as headers)</option>
+                            <option value="no">No (generate headers)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>CSV Output Options</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="delimiter">Field Delimiter</label>
+                        <select id="delimiter">
+                            <option value="comma" selected>Comma (,)</option>
+                            <option value="semicolon">Semicolon (;)</option>
+                            <option value="tab">Tab</option>
+                            <option value="pipe">Pipe (|)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="quoteStyle">Quote Style</label>
+                        <select id="quoteStyle">
+                            <option value="minimal" selected>Minimal quoting</option>
+                            <option value="all">Quote all fields</option>
+                            <option value="nonnumeric">Quote non-numeric</option>
+                            <option value="none">No quotes</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="encoding">Text Encoding</label>
+                        <select id="encoding">
+                            <option value="utf8" selected>UTF-8 (Unicode)</option>
+                            <option value="ascii">ASCII (Basic)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="lineEnding">Line Endings</label>
+                        <select id="lineEnding">
+                            <option value="crlf" selected>Windows (CRLF)</option>
+                            <option value="lf">Unix/Linux (LF)</option>
+                            <option value="cr">Mac (CR)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="csv-preview" id="csvPreview">
+            <div class="preview-header">
+                <div class="preview-title">Data Preview (First 10 rows)</div>
+                <div id="dataStats">0 rows, 0 columns detected</div>
+            </div>
+            <div class="csv-table-container">
+                <table class="csv-table" id="csvTable">
+                    <thead id="tableHead">
+                        <!-- Headers will be inserted here -->
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="csv-raw-preview" id="csvRawPreview">
+                <!-- Raw CSV preview will be shown here -->
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToCSV()">🔄 Convert to CSV</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Analyzing PDF structure...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">CSV file created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadCSV()">💾 Download CSV</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Configure PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pdfJsDoc = null;
+        let csvData = [];
+        let csvContent = '';
+
+        // DOM elements
+        const pdfFile = document.getElementById('pdfFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const pageCount = document.getElementById('pageCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const csvPreview = document.getElementById('csvPreview');
+        const csvTable = document.getElementById('csvTable');
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const csvRawPreview = document.getElementById('csvRawPreview');
+        const dataStats = document.getElementById('dataStats');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        pdfFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function showExample(type) {
+            const examples = {
+                contacts: "Contact Database: Name, Email, Phone, Address columns with customer information",
+                products: "Product Catalog: SKU, Product Name, Price, Category, Stock Level columns",
+                financial: "Financial Records: Date, Description, Amount, Category, Account columns",
+                inventory: "Inventory List: Item Code, Description, Quantity, Location, Supplier columns",
+                survey: "Survey Data: Question ID, Response Option, Count, Percentage columns",
+                attendance: "Attendance Sheet: Employee Name, Date, Check-in Time, Check-out Time, Status columns"
+            };
+
+            showStatus(`Example: ${examples[type]} - Upload a real PDF to see CSV conversion in action!`, 'info');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+            } else {
+                showStatus('Please select a valid PDF file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+                pdfFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid PDF file.', 'error');
+            }
+        }
+
+        async function processPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                const pages = pdfDoc.getPages();
+
+                // Update UI
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                pageCount.textContent = `${pages.length} pages`;
+                fileInfo.style.display = 'block';
+                conversionOptions.style.display = 'block';
+
+                // Analyze and preview data
+                await analyzePDFStructure(pages.length);
+
+                showStatus(`PDF "${file.name}" loaded successfully. Data analyzed and ready for CSV conversion.`, 'success');
+
+            } catch (error) {
+                console.error('PDF processing error:', error);
+                showStatus('Error loading PDF: ' + error.message, 'error');
+            }
+        }
+
+        async function analyzePDFStructure(pageCount) {
+            try {
+                // Analyze first few pages to understand structure
+                const maxPagesToAnalyze = Math.min(pageCount, 5);
+                let allRows = [];
+
+                for (let i = 1; i <= maxPagesToAnalyze; i++) {
+                    const page = await pdfJsDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageData = analyzePageContent(textContent.items, i);
+                    allRows.push(...pageData);
+                }
+
+                // Limit preview to reasonable size
+                const maxRows = Math.min(allRows.length, 100);
+                csvData = allRows.slice(0, maxRows);
+
+                generateCSVPreview();
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                csvData = [];
+                showStatus('Could not analyze PDF structure. Will extract as plain text.', 'info');
+            }
+        }
+
+        function analyzePageContent(textItems, pageNumber) {
+            const dataType = document.getElementById('dataType').value;
+
+            // Sort items by position
+            const sortedItems = textItems.sort((a, b) => {
+                if (Math.abs(b.transform[5] - a.transform[5]) > 10) {
+                    return b.transform[5] - a.transform[5]; // Y position (top first)
+                }
+                return a.transform[4] - b.transform[4]; // X position (left first)
+            });
+
+            switch (dataType) {
+                case 'table':
+                    return detectTableStructure(sortedItems, pageNumber);
+                case 'list':
+                    return detectListStructure(sortedItems, pageNumber);
+                case 'columns':
+                    return detectColumnStructure(sortedItems, pageNumber);
+                case 'text':
+                    return extractAllText(sortedItems, pageNumber);
+                default: // auto
+                    // Try table first, then list, then columns
+                    let result = detectTableStructure(sortedItems, pageNumber);
+                    if (result.length === 0) {
+                        result = detectListStructure(sortedItems, pageNumber);
+                    }
+                    if (result.length === 0) {
+                        result = detectColumnStructure(sortedItems, pageNumber);
+                    }
+                    if (result.length === 0) {
+                        result = extractAllText(sortedItems, pageNumber);
+                    }
+                    return result;
+            }
+        }
+
+        function detectTableStructure(items, pageNumber) {
+            const lines = [];
+            let currentLine = [];
+            let currentY = null;
+            const tolerance = 5;
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                const y = Math.round(item.transform[5]);
+
+                if (currentY === null || Math.abs(y - currentY) > tolerance) {
+                    if (currentLine.length > 0) {
+                        lines.push(currentLine);
+                    }
+                    currentLine = [text];
+                    currentY = y;
+                } else {
+                    currentLine.push(text);
+                }
+            }
+
+            if (currentLine.length > 0) {
+                lines.push(currentLine);
+            }
+
+            // Convert to objects with consistent column structure
+            const maxCols = Math.max(...lines.map(line => line.length));
+            return lines.map((line, index) => {
+                const obj = {};
+                for (let i = 0; i < maxCols; i++) {
+                    obj[`Column ${i + 1}`] = line[i] || '';
+                }
+                obj.page = pageNumber;
+                obj.row = index + 1;
+                return obj;
+            });
+        }
+
+        function detectListStructure(items, pageNumber) {
+            const listItems = [];
+            let currentItem = '';
+            let isInItem = false;
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                // Check for list markers
+                if (text.match(/^[-•*]\s/) || text.match(/^\d+[\.)]\s/) || text.match(/^[a-zA-Z][\.)]\s/)) {
+                    if (isInItem && currentItem.trim()) {
+                        listItems.push(currentItem.trim());
+                    }
+                    currentItem = text;
+                    isInItem = true;
+                } else if (isInItem) {
+                    currentItem += ' ' + text;
+                }
+            }
+
+            if (isInItem && currentItem.trim()) {
+                listItems.push(currentItem.trim());
+            }
+
+            return listItems.map((item, index) => ({
+                'List Item': item,
+                page: pageNumber,
+                index: index + 1
+            }));
+        }
+
+        function detectColumnStructure(items, pageNumber) {
+            // Simple column detection based on x-position clustering
+            const columns = {};
+            const tolerance = 50; // pixels
+
+            for (const item of items) {
+                const text = item.str.trim();
+                if (!text) continue;
+
+                const x = Math.round(item.transform[4]);
+                let foundColumn = false;
+
+                for (const [colX, colItems] of Object.entries(columns)) {
+                    if (Math.abs(x - parseInt(colX)) < tolerance) {
+                        colItems.push(text);
+                        foundColumn = true;
+                        break;
+                    }
+                }
+
+                if (!foundColumn) {
+                    columns[x] = [text];
+                }
+            }
+
+            // Convert to tabular format
+            const maxRows = Math.max(...Object.values(columns).map(arr => arr.length));
+            const result = [];
+
+            for (let row = 0; row < maxRows; row++) {
+                const obj = { page: pageNumber, row: row + 1 };
+                let colNum = 1;
+                for (const colItems of Object.values(columns)) {
+                    obj[`Column ${colNum}`] = colItems[row] || '';
+                    colNum++;
+                }
+                result.push(obj);
+            }
+
+            return result;
+        }
+
+        function extractAllText(items, pageNumber) {
+            const allText = items.map(item => item.str).join(' ');
+            return [{
+                'Extracted Text': allText,
+                page: pageNumber,
+                length: allText.length
+            }];
+        }
+
+        function generateCSVPreview() {
+            if (csvData.length === 0) {
+                csvPreview.style.display = 'none';
+                return;
+            }
+
+            // Get column headers
+            const headers = new Set();
+            csvData.forEach(row => {
+                Object.keys(row).forEach(key => headers.add(key));
+            });
+
+            const headerArray = Array.from(headers);
+
+            // Clear existing content
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Add headers
+            const headerRow = document.createElement('tr');
+            headerArray.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+
+            // Add data rows (first 10)
+            const maxRows = Math.min(csvData.length, 10);
+            for (let i = 0; i < maxRows; i++) {
+                const row = csvData[i];
+                const tr = document.createElement('tr');
+
+                headerArray.forEach(header => {
+                    const td = document.createElement('td');
+                    const value = row[header] || '';
+                    td.textContent = value.length > 50 ? value.substring(0, 50) + '...' : value;
+                    tr.appendChild(td);
+                });
+
+                tableBody.appendChild(tr);
+            }
+
+            // Generate raw CSV preview
+            const csvRows = [headerArray, ...csvData.slice(0, 5).map(row =>
+                headerArray.map(header => row[header] || '')
+            )];
+            const rawCSV = csvRows.map(row =>
+                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+
+            csvRawPreview.textContent = rawCSV;
+
+            dataStats.textContent = `${csvData.length} rows, ${headerArray.length} columns detected`;
+            csvPreview.style.display = 'block';
+        }
+
+        async function convertToCSV() {
+            if (!csvData || csvData.length === 0) {
+                showStatus('No data to convert. Please load a PDF file first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Converting...';
+            downloadSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const delimiter = getDelimiter();
+                const quoteStyle = document.getElementById('quoteStyle').value;
+                const encoding = document.getElementById('encoding').value;
+                const lineEnding = getLineEnding();
+
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Preparing CSV data...';
+
+                // Get all unique headers
+                const headers = new Set();
+                csvData.forEach(row => {
+                    Object.keys(row).forEach(key => headers.add(key));
+                });
+                const headerArray = Array.from(headers);
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Formatting CSV output...';
+
+                // Create CSV rows
+                const csvRows = [headerArray];
+
+                // Add data rows
+                const maxRows = document.getElementById('maxRows').value;
+                const rowLimit = maxRows === 'unlimited' ? csvData.length : parseInt(maxRows);
+
+                for (let i = 0; i < Math.min(csvData.length, rowLimit); i++) {
+                    const row = csvData[i];
+                    const csvRow = headerArray.map(header => {
+                        const value = row[header] || '';
+
+                        // Apply quoting based on style
+                        switch (quoteStyle) {
+                            case 'all':
+                                return `"${String(value).replace(/"/g, '""')}"`;
+                            case 'nonnumeric':
+                                return isNaN(value) ? `"${String(value).replace(/"/g, '""')}"` : value;
+                            case 'none':
+                                return String(value).replace(/"/g, '""');
+                            default: // minimal
+                                return String(value).includes(delimiter) || String(value).includes('"') || String(value).includes('\n') ?
+                                    `"${String(value).replace(/"/g, '""')}"` : value;
+                        }
+                    });
+                    csvRows.push(csvRow);
+                }
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Applying formatting...';
+
+                // Join with appropriate delimiter and line endings
+                csvContent = csvRows.map(row => row.join(delimiter)).join(lineEnding);
+
+                // Apply encoding
+                if (encoding === 'ascii') {
+                    csvContent = csvContent.replace(/[^\x00-\x7F]/g, '?');
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'CSV conversion complete!';
+
+                setTimeout(() => {
+                    displayConversionResults(csvRows.length - 1, headerArray.length);
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to CSV';
+                }, 500);
+
+            } catch (error) {
+                console.error('CSV conversion error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error converting to CSV: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to CSV';
+            }
+        }
+
+        function getDelimiter() {
+            const delimiter = document.getElementById('delimiter').value;
+            switch (delimiter) {
+                case 'comma': return ',';
+                case 'semicolon': return ';';
+                case 'tab': return '\t';
+                case 'pipe': return '|';
+                default: return ',';
+            }
+        }
+
+        function getLineEnding() {
+            const lineEnding = document.getElementById('lineEnding').value;
+            switch (lineEnding) {
+                case 'crlf': return '\r\n';
+                case 'lf': return '\n';
+                case 'cr': return '\r';
+                default: return '\r\n';
+            }
+        }
+
+        function displayConversionResults(rowCount, colCount) {
+            conversionStats.textContent = `Successfully converted ${rowCount} rows and ${colCount} columns to CSV format`;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ PDF converted to CSV successfully!`, 'success');
+        }
+
+        function downloadCSV() {
+            if (!csvContent) {
+                showStatus('No CSV content available. Please convert a PDF first.', 'error');
+                return;
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_data.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('CSV file downloaded successfully!', 'success');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        pdfFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

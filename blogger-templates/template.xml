@@ -651,6 +651,18 @@ a.innerHTML='';
                   <p>Convert PDF files to editable Word documents</p>
                   <a href='pdf-tools/pdf-to-word-converter.html' class='tool-link'>Try Now</a>
                 </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📊</div>
+                  <h4>PDF to PowerPoint</h4>
+                  <p>Convert PDF files to PowerPoint presentations</p>
+                  <a href='pdf-tools/pdf-to-powerpoint-converter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📊</div>
+                  <h4>PDF to Excel</h4>
+                  <p>Convert PDF files to Excel spreadsheets</p>
+                  <a href='pdf-tools/pdf-to-excel-converter.html' class='tool-link'>Try Now</a>
+                </div>
           </div>
  
           <!-- AI Tools -->
@@ -680,10 +692,34 @@ a.innerHTML='';
                   <a href='ai-tools/ai-grammar-checker.html' class='tool-link'>Try Now</a>
                 </div>
                 <div class='tool-card'>
+                  <div class='tool-icon'>🌍</div>
+                  <h4>AI Translator</h4>
+                  <p>Translate text between multiple languages</p>
+                  <a href='ai-tools/ai-translator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
                   <div class='tool-icon'>👁️</div>
                   <h4>AI Image Analyzer</h4>
                   <p>Describe images and extract text using AI</p>
                   <a href='ai-tools/ai-image-analyzer.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🎨</div>
+                  <h4>AI Image Generator</h4>
+                  <p>Generate images from text descriptions</p>
+                  <a href='ai-tools/ai-image-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🏷️</div>
+                  <h4>AI Logo Creator</h4>
+                  <p>Create professional logos for your brand</p>
+                  <a href='ai-tools/ai-logo-creator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🎬</div>
+                  <h4>AI Video Summarizer</h4>
+                  <p>Summarize videos and transcripts with AI</p>
+                  <a href='ai-tools/ai-video-summarizer.html' class='tool-link'>Try Now</a>
                 </div>
                 <div class='tool-card'>
                   <div class='tool-icon'>💻</div>

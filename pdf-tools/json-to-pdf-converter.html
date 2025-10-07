@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to PDF Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #fd7e14;
+            border-bottom-color: #fd7e14;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .upload-area {
+            border: 3px dashed #fd7e14;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #e8680f;
+            background: #fff4e6;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #fd7e14;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .json-editor {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .editor-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .editor-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .editor-btn:hover {
+            background: #f8f9fa;
+            border-color: #fd7e14;
+        }
+        .json-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #fd7e14;
+        }
+        .data-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .json-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 15px;
+        }
+        .structure-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #495057;
+        }
+        .convert-btn {
+            background: #fd7e14;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #e8680f;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fd7e14, #ff9f43);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 0 5px 10px 5px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #fd7e14;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .input-tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                border-bottom: none;
+                border-right: 3px solid transparent;
+            }
+            .tab-btn.active {
+                border-bottom-color: transparent;
+                border-right-color: #fd7e14;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔶 JSON to PDF Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Perfect for Converting:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('api')">🌐 API Responses<br><small>REST API data</small></button>
+                <button class="example-btn" onclick="showExample('config')">⚙️ Configuration<br><small>Settings, parameters</small></button>
+                <button class="example-btn" onclick="showExample('user')">👤 User Profiles<br><small>Account data</small></button>
+                <button class="example-btn" onclick="showExample('products')">📦 Product Data<br><small>E-commerce catalogs</small></button>
+                <button class="example-btn" onclick="showExample('analytics')">📊 Analytics<br><small>Usage statistics</small></button>
+                <button class="example-btn" onclick="showExample('forms')">📋 Form Submissions<br><small>Survey responses</small></button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-tabs">
+                <button class="tab-btn active" onclick="switchTab('json')">JSON Input</button>
+                <button class="tab-btn" onclick="switchTab('file')">File Upload</button>
+            </div>
+
+            <div class="tab-content active" id="jsonTab">
+                <div class="json-editor">
+                    <div class="editor-header">
+                        <div class="editor-title">JSON Data</div>
+                        <div class="editor-actions">
+                            <button class="editor-btn" onclick="clearEditor()">Clear</button>
+                            <button class="editor-btn" onclick="loadSampleJSON()">Load Sample</button>
+                            <button class="editor-btn" onclick="formatJSON()">Format</button>
+                            <button class="editor-btn" onclick="validateJSON()">Validate</button>
+                        </div>
+                    </div>
+                    <textarea class="json-textarea" id="jsonTextarea" placeholder="Paste your JSON data here...
+
+Example:
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "age": 30,
+  "active": true
+}"></textarea>
+                </div>
+            </div>
+
+            <div class="tab-content" id="fileTab">
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="jsonFile" accept=".json">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Drop JSON file here or click to browse</div>
+                    <div class="upload-subtext">Supports .json files up to 2MB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName">JSON data loaded</div>
+                <div class="file-stats">
+                    <span id="fileSize">0 KB</span>
+                    <span id="dataType">Object</span>
+                    <span id="itemCount">0 items</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>PDF Layout Settings</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="pageSize">Page Size</label>
+                        <select id="pageSize">
+                            <option value="a4" selected>A4 (210×297mm)</option>
+                            <option value="a3">A3 (297×420mm)</option>
+                            <option value="letter">Letter (8.5×11")</option>
+                            <option value="legal">Legal (8.5×14")</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="orientation">Orientation</label>
+                        <select id="orientation">
+                            <option value="portrait" selected>Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Font Size</label>
+                        <select id="fontSize">
+                            <option value="10">Small (10pt)</option>
+                            <option value="12" selected>Normal (12pt)</option>
+                            <option value="14">Large (14pt)</option>
+                            <option value="16">Extra Large (16pt)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="theme">Theme</label>
+                        <select id="theme">
+                            <option value="default" selected>Default</option>
+                            <option value="dark">Dark</option>
+                            <option value="minimal">Minimal</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Data Processing</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="outputFormat">Output Format</label>
+                        <select id="outputFormat">
+                            <option value="formatted" selected>Formatted Display</option>
+                            <option value="compact">Compact Display</option>
+                            <option value="table">Table Format (Arrays)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxDepth">Max Depth</label>
+                        <select id="maxDepth">
+                            <option value="3" selected>3 levels</option>
+                            <option value="5">5 levels</option>
+                            <option value="10">10 levels</option>
+                            <option value="unlimited">Unlimited</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="includeKeys">Show Keys</label>
+                        <select id="includeKeys">
+                            <option value="true" selected>Yes</option>
+                            <option value="false">No (values only)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="addMetadata">Include Metadata</label>
+                        <select id="addMetadata">
+                            <option value="false" selected>No</option>
+                            <option value="true">Yes (type, size, date)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-preview" id="dataPreview">
+            <div class="preview-header">
+                <div class="preview-title">JSON Preview</div>
+                <div id="previewStats">Ready for conversion</div>
+            </div>
+            <div class="json-preview" id="jsonPreview"></div>
+            <div class="structure-info" id="structureInfo"></div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToPDF()">🔄 Convert to PDF</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Processing JSON data...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">PDF created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadPDF()">💾 Download PDF</button>
+                <button class="download-btn" onclick="convertAnother()" style="background: #17a2b8;">🔄 Convert Another</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        let jsonData = null;
+        let pdfBlob = null;
+
+        // DOM elements
+        const jsonTextarea = document.getElementById('jsonTextarea');
+        const jsonFile = document.getElementById('jsonFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const dataType = document.getElementById('dataType');
+        const itemCount = document.getElementById('itemCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const dataPreview = document.getElementById('dataPreview');
+        const jsonPreview = document.getElementById('jsonPreview');
+        const structureInfo = document.getElementById('structureInfo');
+        const previewStats = document.getElementById('previewStats');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        jsonTextarea.addEventListener('input', handleJSONInput);
+        jsonFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function showExample(type) {
+            const examples = {
+                api: 'Convert REST API responses and web service data into printable PDF reports',
+                config: 'Transform configuration files and application settings into documented PDF format',
+                user: 'Convert user profile data and account information into PDF summaries',
+                products: 'Change e-commerce product data and catalogs into PDF product sheets',
+                analytics: 'Transform usage statistics and analytics data into PDF reports',
+                forms: 'Convert form submissions and survey responses into PDF documentation'
+            };
+
+            showStatus(`🔶 ${examples[type]}`, 'info');
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Update preview
+            if (tabName === 'json') {
+                handleJSONInput();
+            } else {
+                dataPreview.style.display = 'none';
+            }
+        }
+
+        function clearEditor() {
+            jsonTextarea.value = '';
+            jsonData = null;
+            updateUI();
+            showStatus('JSON input cleared.', 'info');
+        }
+
+        function loadSampleJSON() {
+            const sampleJSON = {
+                "company": "Tech Solutions Inc.",
+                "employees": [
+                    {
+                        "id": 1,
+                        "name": "Alice Johnson",
+                        "position": "Software Engineer",
+                        "department": "Engineering",
+                        "salary": 85000,
+                        "hire_date": "2020-03-15",
+                        "skills": ["JavaScript", "Python", "React"],
+                        "active": true
+                    },
+                    {
+                        "id": 2,
+                        "name": "Bob Smith",
+                        "position": "Product Manager",
+                        "department": "Product",
+                        "salary": 95000,
+                        "hire_date": "2019-07-22",
+                        "skills": ["Agile", "Scrum", "Analytics"],
+                        "active": true
+                    },
+                    {
+                        "id": 3,
+                        "name": "Carol Davis",
+                        "position": "UX Designer",
+                        "department": "Design",
+                        "salary": 78000,
+                        "hire_date": "2021-01-10",
+                        "skills": ["Figma", "Sketch", "User Research"],
+                        "active": true
+                    }
+                ],
+                "departments": {
+                    "Engineering": {
+                        "headcount": 25,
+                        "budget": 2500000,
+                        "location": "Building A"
+                    },
+                    "Product": {
+                        "headcount": 8,
+                        "budget": 800000,
+                        "location": "Building B"
+                    },
+                    "Design": {
+                        "headcount": 12,
+                        "budget": 1200000,
+                        "location": "Building C"
+                    }
+                },
+                "metadata": {
+                    "generated": new Date().toISOString(),
+                    "version": "1.0",
+                    "total_employees": 3,
+                    "active_departments": 3
+                }
+            };
+
+            jsonTextarea.value = JSON.stringify(sampleJSON, null, 2);
+            handleJSONInput();
+            showStatus('Sample company data loaded.', 'success');
+        }
+
+        function formatJSON() {
+            try {
+                const parsed = JSON.parse(jsonTextarea.value);
+                jsonTextarea.value = JSON.stringify(parsed, null, 2);
+                handleJSONInput();
+                showStatus('JSON formatted successfully.', 'success');
+            } catch (error) {
+                showStatus('Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function validateJSON() {
+            try {
+                const parsed = JSON.parse(jsonTextarea.value);
+                const size = JSON.stringify(parsed).length;
+                showStatus(`✅ Valid JSON: ${size} characters, ${Array.isArray(parsed) ? 'Array' : 'Object'} type`, 'success');
+            } catch (error) {
+                showStatus('❌ Invalid JSON: ' + error.message, 'error');
+            }
+        }
+
+        function handleJSONInput() {
+            const jsonText = jsonTextarea.value.trim();
+            if (jsonText) {
+                try {
+                    jsonData = JSON.parse(jsonText);
+                    updatePreview();
+                    conversionOptions.style.display = 'block';
+                } catch (error) {
+                    jsonData = null;
+                    dataPreview.style.display = 'none';
+                    conversionOptions.style.display = 'none';
+                    showStatus('Invalid JSON format.', 'error');
+                }
+            } else {
+                jsonData = null;
+                dataPreview.style.display = 'none';
+                conversionOptions.style.display = 'none';
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.name.endsWith('.json')) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showStatus('JSON file size must be under 2MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processJSONFile(file);
+            } else {
+                showStatus('Please select a valid JSON file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.name.endsWith('.json')) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showStatus('JSON file size must be under 2MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processJSONFile(file);
+                jsonFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid JSON file.', 'error');
+            }
+        }
+
+        function processJSONFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                jsonTextarea.value = e.target.result;
+                handleJSONInput();
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+            };
+            reader.readAsText(file);
+        }
+
+        function updatePreview() {
+            if (!jsonData) return;
+
+            // Format JSON for display
+            const formattedJSON = JSON.stringify(jsonData, null, 2);
+            jsonPreview.textContent = formattedJSON;
+
+            // Analyze structure
+            const structure = analyzeJSONStructure(jsonData);
+            structureInfo.textContent = `Type: ${structure.type} | Keys: ${structure.keys} | Depth: ${structure.depth} | Size: ${structure.size}`;
+
+            // Update stats
+            previewStats.textContent = `${structure.size} characters, ${structure.type} structure`;
+            dataPreview.style.display = 'block';
+        }
+
+        function analyzeJSONStructure(data, depth = 0) {
+            const structure = {
+                type: Array.isArray(data) ? 'Array' : typeof data,
+                keys: 0,
+                depth: depth,
+                size: JSON.stringify(data).length
+            };
+
+            if (typeof data === 'object' && data !== null) {
+                structure.keys = Object.keys(data).length;
+
+                // Find max depth
+                let maxDepth = depth;
+                for (const value of Object.values(data)) {
+                    if (typeof value === 'object' && value !== null) {
+                        const subStructure = analyzeJSONStructure(value, depth + 1);
+                        maxDepth = Math.max(maxDepth, subStructure.depth);
+                    }
+                }
+                structure.depth = maxDepth;
+            }
+
+            return structure;
+        }
+
+        function updateUI() {
+            if (jsonData) {
+                const structure = analyzeJSONStructure(jsonData);
+                fileName.textContent = 'JSON data loaded';
+                fileSize.textContent = formatFileSize(structure.size);
+                dataType.textContent = structure.type;
+                itemCount.textContent = structure.type === 'Array' ? `${structure.keys} items` : `${structure.keys} properties`;
+                fileInfo.style.display = 'block';
+            } else {
+                fileInfo.style.display = 'none';
+                dataPreview.style.display = 'none';
+                conversionOptions.style.display = 'none';
+                downloadSection.style.display = 'none';
+            }
+        }
+
+        async function convertToPDF() {
+            if (!jsonData) {
+                showStatus('Please provide valid JSON data first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Creating PDF...';
+            downloadSection.style.display = 'none';
+
+            try {
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Initializing PDF...';
+
+                // Create PDF document
+                const pdf = new jsPDF({
+                    orientation: document.getElementById('orientation').value,
+                    unit: 'mm',
+                    format: document.getElementById('pageSize').value
+                });
+
+                progressFill.style.width = '40%';
+                progressText.textContent = 'Configuring layout...';
+
+                // Get settings
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+                const theme = document.getElementById('theme').value;
+                const outputFormat = document.getElementById('outputFormat').value;
+                const maxDepth = document.getElementById('maxDepth').value;
+                const includeKeys = document.getElementById('includeKeys').value === 'true';
+                const addMetadata = document.getElementById('addMetadata').value === 'true';
+
+                // Set theme colors
+                let textColor = [0, 0, 0];
+                let headerColor = [102, 102, 102];
+
+                if (theme === 'dark') {
+                    textColor = [255, 255, 255];
+                    headerColor = [200, 200, 200];
+                    pdf.setFillColor(51, 51, 51);
+                    pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
+                }
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Processing JSON data...';
+
+                // Add title
+                pdf.setFontSize(16);
+                pdf.setTextColor(headerColor[0], headerColor[1], headerColor[2]);
+                pdf.text('JSON Data Report', 20, 20);
+
+                // Add timestamp
+                pdf.setFontSize(10);
+                pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
+                pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
+
+                let yPosition = 45;
+
+                // Add metadata if requested
+                if (addMetadata) {
+                    const structure = analyzeJSONStructure(jsonData);
+                    pdf.setFontSize(12);
+                    pdf.setTextColor(headerColor[0], headerColor[1], headerColor[2]);
+                    pdf.text('Metadata:', 20, yPosition);
+                    yPosition += 10;
+
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
+                    pdf.text(`Type: ${structure.type}`, 30, yPosition);
+                    yPosition += 7;
+                    pdf.text(`Size: ${structure.size} characters`, 30, yPosition);
+                    yPosition += 7;
+                    pdf.text(`Keys/Properties: ${structure.keys}`, 30, yPosition);
+                    yPosition += 7;
+                    pdf.text(`Depth: ${structure.depth} levels`, 30, yPosition);
+                    yPosition += 15;
+                }
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Rendering content...';
+
+                // Render JSON content based on format
+                if (outputFormat === 'table' && Array.isArray(jsonData)) {
+                    // Render as table
+                    await renderJSONArrayAsTable(pdf, jsonData, yPosition, fontSize, textColor, headerColor);
+                } else {
+                    // Render as formatted text
+                    renderJSONObjectAsText(pdf, jsonData, yPosition, fontSize, textColor, headerColor, {
+                        maxDepth: maxDepth === 'unlimited' ? Infinity : parseInt(maxDepth),
+                        includeKeys,
+                        compact: outputFormat === 'compact'
+                    });
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'PDF creation complete!';
+
+                // Generate blob for download
+                pdfBlob = pdf.output('blob');
+
+                setTimeout(() => {
+                    displayConversionResults();
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to PDF';
+                }, 500);
+
+            } catch (error) {
+                console.error('PDF creation error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error creating PDF: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to PDF';
+            }
+        }
+
+        async function renderJSONArrayAsTable(pdf, data, startY, fontSize, textColor, headerColor) {
+            if (data.length === 0) {
+                pdf.setFontSize(fontSize);
+                pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
+                pdf.text('Empty array', 20, startY);
+                return;
+            }
+
+            // Get all unique keys from array objects
+            const allKeys = new Set();
+            data.forEach(item => {
+                if (typeof item === 'object' && item !== null) {
+                    Object.keys(item).forEach(key => allKeys.add(key));
+                }
+            });
+
+            const headers = Array.from(allKeys);
+            const tableData = data.map(item => {
+                if (typeof item === 'object' && item !== null) {
+                    return headers.map(header => {
+                        const value = item[header];
+                        return value !== undefined ? String(value) : '';
+                    });
+                }
+                return [String(item)];
+            });
+
+            // Add table using autoTable
+            pdf.autoTable({
+                startY: startY,
+                head: [headers],
+                body: tableData,
+                styles: {
+                    fontSize: fontSize,
+                    textColor: textColor,
+                    cellPadding: 3
+                },
+                headStyles: {
+                    fillColor: headerColor,
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: theme === 'dark' ? [70, 70, 70] : [245, 245, 245]
+                },
+                margin: { left: 20, right: 20 }
+            });
+        }
+
+        function renderJSONObjectAsText(pdf, data, startY, fontSize, textColor, headerColor, options) {
+            pdf.setFontSize(fontSize);
+            pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
+
+            const lines = formatJSONObject(data, 0, options);
+            let y = startY;
+            const pageHeight = pdf.internal.pageSize.height;
+            const margin = 20;
+
+            for (const line of lines) {
+                if (y > pageHeight - margin) {
+                    pdf.addPage();
+                    y = margin;
+                }
+
+                // Handle different indentation levels with colors
+                const indentLevel = line.indent;
+                const text = line.text;
+
+                if (indentLevel > 0) {
+                    pdf.setTextColor(100, 100, 100); // Gray for indented content
+                } else {
+                    pdf.setTextColor(headerColor[0], headerColor[1], headerColor[2]); // Header color for main keys
+                }
+
+                pdf.text(text, 20 + (indentLevel * 10), y);
+                y += fontSize * 0.4; // Line height
+            }
+        }
+
+        function formatJSONObject(data, depth, options) {
+            const lines = [];
+            const indentStr = '  '.repeat(depth);
+
+            if (depth >= options.maxDepth) {
+                lines.push({ text: `${indentStr}... (max depth reached)`, indent: depth });
+                return lines;
+            }
+
+            if (data === null) {
+                lines.push({ text: `${indentStr}null`, indent: depth });
+            } else if (typeof data === 'boolean') {
+                lines.push({ text: `${indentStr}${data}`, indent: depth });
+            } else if (typeof data === 'number') {
+                lines.push({ text: `${indentStr}${data}`, indent: depth });
+            } else if (typeof data === 'string') {
+                // Handle long strings
+                const maxLineLength = 80;
+                if (data.length <= maxLineLength) {
+                    lines.push({ text: `${indentStr}"${data}"`, indent: depth });
+                } else {
+                    lines.push({ text: `${indentStr}"${data.substring(0, maxLineLength)}...`, indent: depth });
+                }
+            } else if (Array.isArray(data)) {
+                lines.push({ text: `${indentStr}[`, indent: depth });
+                data.forEach((item, index) => {
+                    const subLines = formatJSONObject(item, depth + 1, options);
+                    lines.push(...subLines);
+                    if (index < data.length - 1) {
+                        lines.push({ text: `${'  '.repeat(depth + 1)},`, indent: depth + 1 });
+                    }
+                });
+                lines.push({ text: `${indentStr}]`, indent: depth });
+            } else if (typeof data === 'object') {
+                lines.push({ text: `${indentStr}{`, indent: depth });
+                const keys = Object.keys(data);
+                keys.forEach((key, index) => {
+                    const value = data[key];
+                    if (options.includeKeys) {
+                        lines.push({ text: `${'  '.repeat(depth + 1)}"${key}":`, indent: depth + 1 });
+                    }
+                    const subLines = formatJSONObject(value, depth + (options.includeKeys ? 2 : 1), options);
+                    lines.push(...subLines);
+                    if (index < keys.length - 1) {
+                        lines.push({ text: `${'  '.repeat(depth + 1)},`, indent: depth + 1 });
+                    }
+                });
+                lines.push({ text: `${indentStr}}`, indent: depth });
+            }
+
+            return lines;
+        }
+
+        function displayConversionResults() {
+            conversionStats.textContent = 'Successfully converted JSON data to PDF format';
+            downloadSection.style.display = 'block';
+            showStatus('✅ JSON converted to PDF successfully!', 'success');
+        }
+
+        function downloadPDF() {
+            if (!pdfBlob) {
+                showStatus('No PDF available to download.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'json_to_pdf.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('PDF downloaded successfully!', 'success');
+        }
+
+        function convertAnother() {
+            // Reset the interface
+            jsonTextarea.value = '';
+            jsonData = null;
+            pdfBlob = null;
+
+            updateUI();
+            downloadSection.style.display = 'none';
+            switchTab('json');
+
+            showStatus('Ready to convert another JSON document.', 'info');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        jsonFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

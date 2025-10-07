@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Summarizer</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .summarizer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .url-input, .transcript-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+        .url-input:focus, .transcript-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .transcript-input {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .input-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: #dc143c;
+            color: white;
+            border-color: #dc143c;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .url-examples {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .example-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .example-link {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .example-link:hover {
+            background: #f0f0f0;
+            border-color: #dc143c;
+        }
+        .options-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .summarize-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .summarize-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .summarize-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .summary-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .summary-content {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .summary-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .summary-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .section-content {
+            color: #555;
+            line-height: 1.6;
+        }
+        .key-points {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .key-points-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .key-point {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            border-left: 3px solid #dc143c;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .copy-btn, .download-btn, .share-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover, .download-btn:hover, .share-btn:hover {
+            background: #218838;
+        }
+        .video-preview {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .video-placeholder {
+            width: 100%;
+            max-width: 400px;
+            height: 225px;
+            background: #f0f0f0;
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 48px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .video-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .video-info-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .video-info-text {
+            color: #856404;
+            margin: 0;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .summarizer-container {
+                padding: 20px;
+            }
+            .control-row {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .summary-stats {
+                justify-content: center;
+            }
+            .input-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="summarizer-container">
+        <h1>🎬 AI Video Summarizer</h1>
+
+        <div class="input-section">
+            <div class="input-tabs">
+                <button class="tab-btn active" onclick="switchTab('url')">Video URL</button>
+                <button class="tab-btn" onclick="switchTab('transcript')">Text Transcript</button>
+            </div>
+
+            <div id="urlTab" class="tab-content active">
+                <div class="input-group">
+                    <label for="videoUrl">Video URL</label>
+                    <input type="url" class="url-input" id="videoUrl" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/...">
+                </div>
+
+                <div class="url-examples">
+                    <strong>Example URLs:</strong>
+                    <div class="example-links">
+                        <button class="example-link" onclick="loadExampleUrl('youtube')">YouTube Tutorial</button>
+                        <button class="example-link" onclick="loadExampleUrl('ted')">TED Talk</button>
+                        <button class="example-link" onclick="loadExampleUrl('news')">News Report</button>
+                        <button class="example-link" onclick="loadExampleUrl('lecture')">Lecture Video</button>
+                        <button class="example-link" onclick="loadExampleUrl('review')">Product Review</button>
+                    </div>
+                </div>
+
+                <div class="video-info">
+                    <div class="video-info-title">📹 Supported Platforms:</div>
+                    <div class="video-info-text">
+                        YouTube, Vimeo, Dailymotion, and other video platforms. For best results, provide videos with clear audio and English language content.
+                    </div>
+                </div>
+            </div>
+
+            <div id="transcriptTab" class="tab-content">
+                <div class="input-group">
+                    <label for="videoTranscript">Video Transcript/Text</label>
+                    <textarea class="transcript-input" id="videoTranscript" placeholder="Paste the video transcript, subtitles, or any text content from the video here..."></textarea>
+                </div>
+
+                <div class="video-info">
+                    <div class="video-info-title">📝 Transcript Options:</div>
+                    <div class="video-info-text">
+                        Paste video transcripts, subtitles, or manually transcribed content. The AI will analyze the text to create comprehensive summaries.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <div class="option-group">
+                <h3>Summary Settings</h3>
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="summaryType">Summary Type</label>
+                        <select id="summaryType">
+                            <option value="comprehensive" selected>Comprehensive</option>
+                            <option value="concise">Concise (Brief)</option>
+                            <option value="key-points">Key Points Only</option>
+                            <option value="detailed">Detailed Analysis</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="summaryLength">Summary Length</label>
+                        <select id="summaryLength">
+                            <option value="auto" selected>Auto (Based on content)</option>
+                            <option value="short">Short (100-200 words)</option>
+                            <option value="medium">Medium (300-500 words)</option>
+                            <option value="long">Long (600+ words)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="focusArea">Focus Area</label>
+                        <select id="focusArea">
+                            <option value="general" selected>General Summary</option>
+                            <option value="educational">Educational Content</option>
+                            <option value="technical">Technical/Scientific</option>
+                            <option value="business">Business/Finance</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="news">News/Current Events</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Output Format</h3>
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="outputFormat">Format</label>
+                        <select id="outputFormat">
+                            <option value="paragraphs" selected>Paragraphs</option>
+                            <option value="bullet-points">Bullet Points</option>
+                            <option value="numbered-list">Numbered List</option>
+                            <option value="structured">Structured Sections</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="language">Output Language</label>
+                        <select id="language">
+                            <option value="english" selected>English</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                            <option value="portuguese">Portuguese</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="summarize-btn" id="summarizeBtn" onclick="summarizeVideo()">🎬 Summarize Video</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">AI is analyzing the video content...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-title">Video Summary</div>
+                <div class="summary-stats">
+                    <span id="wordCount">0 words</span>
+                    <span id="readTime">0 min read</span>
+                    <span id="summaryType">Comprehensive</span>
+                </div>
+            </div>
+
+            <div class="video-preview">
+                <div class="video-placeholder" id="videoPlaceholder">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+            </div>
+
+            <div class="summary-content" id="summaryContent">
+                <!-- Summary content will be inserted here -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="copy-btn" onclick="copySummary()">📋 Copy Summary</button>
+                <button class="download-btn" onclick="downloadSummary()">💾 Download</button>
+                <button class="share-btn" onclick="shareSummary()">📤 Share</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let currentSummary = '';
+        let videoData = {};
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (tabName === 'url') {
+                document.getElementById('urlTab').classList.add('active');
+            } else if (tabName === 'transcript') {
+                document.getElementById('transcriptTab').classList.add('active');
+            }
+        }
+
+        function loadExampleUrl(type) {
+            const examples = {
+                youtube: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                ted: "https://www.ted.com/talks/some_talk",
+                news: "https://www.youtube.com/watch?v=example_news",
+                lecture: "https://www.youtube.com/watch?v=example_lecture",
+                review: "https://www.youtube.com/watch?v=example_review"
+            };
+
+            document.getElementById('videoUrl').value = examples[type];
+            showStatus(`Loaded ${type} example URL`, 'info');
+        }
+
+        async function summarizeVideo() {
+            const activeTab = document.querySelector('.tab-btn.active').textContent.toLowerCase();
+            let inputText = '';
+
+            if (activeTab.includes('url')) {
+                inputText = document.getElementById('videoUrl').value.trim();
+                if (!inputText) {
+                    showStatus('Please enter a video URL.', 'error');
+                    return;
+                }
+                if (!isValidUrl(inputText)) {
+                    showStatus('Please enter a valid video URL.', 'error');
+                    return;
+                }
+            } else {
+                inputText = document.getElementById('videoTranscript').value.trim();
+                if (!inputText) {
+                    showStatus('Please enter video transcript or text content.', 'error');
+                    return;
+                }
+            }
+
+            if (inputText.length > 50000) {
+                showStatus('Content is too long. Please limit to 50,000 characters.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            summarizeBtn.disabled = true;
+            summarizeBtn.textContent = '🎬 Summarizing...';
+            resultSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const summaryType = document.getElementById('summaryType').value;
+                const summaryLength = document.getElementById('summaryLength').value;
+                const focusArea = document.getElementById('focusArea').value;
+                const outputFormat = document.getElementById('outputFormat').value;
+                const language = document.getElementById('language').value;
+
+                progressFill.style.width = '25%';
+                progressText.textContent = 'Processing input content...';
+
+                // Prepare the AI prompt
+                const prompt = buildSummaryPrompt(inputText, activeTab, summaryType, summaryLength, focusArea, outputFormat, language);
+
+                progressFill.style.width = '50%';
+                progressText.textContent = 'Analyzing content with AI...';
+
+                // Call Gemini API
+                const response = await fetch('/v1beta/models/gemini-2.0-flash:generateContent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.3,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 4096,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`AI service error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Generating summary...';
+
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Invalid response from AI service');
+                }
+
+                const aiResponse = data.candidates[0].content.parts[0].text.trim();
+
+                // Parse and format the summary
+                const summaryResult = parseSummaryResponse(aiResponse);
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Summary complete!';
+
+                setTimeout(() => {
+                    displaySummary(summaryResult, inputText, activeTab);
+                    progressContainer.style.display = 'none';
+                    summarizeBtn.disabled = false;
+                    summarizeBtn.textContent = '🎬 Summarize Video';
+                }, 500);
+
+            } catch (error) {
+                console.error('Summary error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error summarizing video: ' + error.message, 'error');
+                summarizeBtn.disabled = false;
+                summarizeBtn.textContent = '🎬 Summarize Video';
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function buildSummaryPrompt(content, inputType, summaryType, length, focus, format, language) {
+            const languageMap = {
+                english: 'English',
+                spanish: 'Spanish',
+                french: 'French',
+                german: 'German',
+                italian: 'Italian',
+                portuguese: 'Portuguese'
+            };
+
+            const summaryDescriptions = {
+                comprehensive: 'comprehensive overview covering all main points, context, and conclusions',
+                concise: 'brief but complete summary focusing on essential information',
+                'key-points': 'bullet-point list of the most important takeaways and key points',
+                detailed: 'in-depth analysis with detailed explanations and supporting information'
+            };
+
+            const lengthDescriptions = {
+                auto: 'appropriate length based on the content',
+                short: '100-200 words',
+                medium: '300-500 words',
+                long: '600+ words with comprehensive coverage'
+            };
+
+            const focusDescriptions = {
+                general: 'general audience with balanced information',
+                educational: 'educational content with learning objectives and key concepts',
+                technical: 'technical or scientific content with methodologies and findings',
+                business: 'business-related content with market insights and strategies',
+                entertainment: 'entertainment content with reviews and recommendations',
+                news: 'news content with facts, context, and implications'
+            };
+
+            const formatInstructions = {
+                paragraphs: 'Write in well-structured paragraphs with smooth transitions',
+                'bullet-points': 'Use a clear bullet-point list format',
+                'numbered-list': 'Use a numbered list format',
+                structured: 'Organize into clear sections with headings (Summary, Key Points, Details, Conclusion)'
+            };
+
+            const inputContext = inputType.includes('url') ?
+                'This is content from a video URL. Create a summary that captures the main ideas, key points, and conclusions presented in the video.' :
+                'This is transcript text from a video. Analyze and summarize the main content, themes, and key messages.';
+
+            return `Please create a ${summaryDescriptions[summaryType]} of the following video content. The summary should be approximately ${lengthDescriptions[length]} and written in ${languageMap[language]}.
+
+${inputContext}
+
+Focus: ${focusDescriptions[focus]}
+
+Format: ${formatInstructions[format]}
+
+IMPORTANT: Structure your response clearly and provide a comprehensive yet concise summary that captures the essence of the video content.
+
+Content to summarize:
+"${content}"
+
+Please provide:
+1. A clear summary of the main topic and purpose
+2. Key points and important information
+3. Any conclusions or recommendations
+4. Overall insights or takeaways
+
+Ensure the summary is well-organized and easy to understand.`;
+        }
+
+        function parseSummaryResponse(aiResponse) {
+            // Clean and structure the response
+            let summary = aiResponse.trim();
+
+            // Remove any unwanted formatting
+            summary = summary.replace(/^["'`]/, '').replace(/["'`]$/, '');
+
+            return {
+                summary: summary,
+                wordCount: summary.split(/\s+/).filter(word => word.length > 0).length,
+                format: document.getElementById('outputFormat').value
+            };
+        }
+
+        function displaySummary(result, originalContent, inputType) {
+            // Set summary content
+            document.getElementById('summaryContent').innerHTML = formatSummaryContent(result.summary, result.format);
+
+            // Update stats
+            const words = result.wordCount;
+            const readTime = Math.ceil(words / 200); // Average reading speed
+            const summaryType = document.getElementById('summaryType').options[document.getElementById('summaryType').selectedIndex].text;
+
+            document.getElementById('wordCount').textContent = `${words} words`;
+            document.getElementById('readTime').textContent = `${readTime} min read`;
+            document.getElementById('summaryType').textContent = summaryType;
+
+            // Store current summary
+            currentSummary = result.summary;
+
+            resultSection.style.display = 'block';
+
+            showStatus(`✅ Video summary created successfully!`, 'success');
+        }
+
+        function formatSummaryContent(summary, format) {
+            // Apply formatting based on the selected output format
+            switch(format) {
+                case 'bullet-points':
+                    // Convert to bullet points if not already
+                    if (!summary.includes('•') && !summary.includes('- ')) {
+                        const lines = summary.split('\n');
+                        return lines.map(line => line.trim() ? `• ${line}` : '').join('\n');
+                    }
+                    return summary;
+
+                case 'numbered-list':
+                    // Convert to numbered list if not already
+                    if (!summary.match(/^\d+\./m)) {
+                        const lines = summary.split('\n').filter(line => line.trim());
+                        return lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
+                    }
+                    return summary;
+
+                case 'structured':
+                    // Try to structure the content if not already structured
+                    if (!summary.includes('**') && !summary.match(/^[A-Z][^.!?]*:/m)) {
+                        // Simple auto-structuring
+                        const sections = summary.split('\n\n');
+                        let structured = '';
+
+                        sections.forEach((section, index) => {
+                            if (index === 0) {
+                                structured += `<div class="summary-section"><div class="section-title">📋 Summary</div><div class="section-content">${section}</div></div>`;
+                            } else if (section.length < 100) {
+                                structured += `<div class="summary-section"><div class="section-title">🔑 Key Points</div><div class="section-content">${section}</div></div>`;
+                            } else {
+                                structured += `<div class="summary-section"><div class="section-title">📝 Details</div><div class="section-content">${section}</div></div>`;
+                            }
+                        });
+
+                        return structured;
+                    }
+                    return summary;
+
+                default: // paragraphs
+                    return `<div class="summary-section"><div class="section-content">${summary.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</div></div>`;
+            }
+        }
+
+        function copySummary() {
+            navigator.clipboard.writeText(currentSummary).then(() => {
+                showStatus('Summary copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = currentSummary;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('Summary copied to clipboard!', 'success');
+            });
+        }
+
+        function downloadSummary() {
+            const content = `VIDEO SUMMARY\n\n${currentSummary}\n\n---\nGenerated by AI Video Summarizer\nDate: ${new Date().toLocaleDateString()}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `video_summary_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus('Summary downloaded!', 'success');
+        }
+
+        function shareSummary() {
+            const shareText = `Video Summary:\n\n${currentSummary.substring(0, 200)}...`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Video Summary',
+                    text: shareText
+                });
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showStatus('Summary copied to clipboard for sharing!', 'success');
+                });
+            }
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

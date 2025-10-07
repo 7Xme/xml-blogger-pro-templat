@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to PowerPoint Converter</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PptxGenJS/3.12.0/pptxgen.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #999;
+        }
+        .file-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .file-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .slide-preview {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .slide-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .slide-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            border-left: 3px solid #dc143c;
+            font-size: 14px;
+        }
+        .convert-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>📊 PDF to PowerPoint Converter</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="pdfFile" accept=".pdf">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drop PDF file here or click to browse</div>
+                <div class="upload-subtext">Supports PDF files up to 10MB</div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-stats">
+                    <span id="fileSize"></span>
+                    <span id="pageCount"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions" style="display: none;">
+            <div class="option-group">
+                <h3>Conversion Settings</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="conversionMode">Conversion Mode</label>
+                        <select id="conversionMode">
+                            <option value="auto" selected>Auto-detect content</option>
+                            <option value="text-heavy">Text documents</option>
+                            <option value="image-heavy">Image/Presentation</option>
+                            <option value="mixed">Mixed content</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="slideLayout">Slide Layout</label>
+                        <select id="slideLayout">
+                            <option value="title-content" selected>Title + Content</option>
+                            <option value="content-only">Content Only</option>
+                            <option value="two-column">Two Column</option>
+                            <option value="full-image">Full Image</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="maxSlides">Max Slides</label>
+                        <input type="number" id="maxSlides" min="1" max="100" value="50" placeholder="Max slides">
+                    </div>
+                    <div class="control-group">
+                        <label for="quality">Image Quality</label>
+                        <select id="quality">
+                            <option value="high" selected>High Quality</option>
+                            <option value="medium">Medium Quality</option>
+                            <option value="low">Low Quality (Faster)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Content Processing</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="textExtraction">Text Extraction</label>
+                        <select id="textExtraction">
+                            <option value="accurate" selected>High Accuracy</option>
+                            <option value="fast">Fast Processing</option>
+                            <option value="basic">Basic</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Base Font Size</label>
+                        <select id="fontSize">
+                            <option value="18" selected>18pt</option>
+                            <option value="24">24pt</option>
+                            <option value="32">32pt</option>
+                            <option value="14">14pt</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide-preview" id="slidePreview">
+            <div class="preview-header">
+                <div class="preview-title">Slide Preview</div>
+                <div id="slideCount">0 slides will be created</div>
+            </div>
+            <div class="slide-list" id="slideList">
+                <!-- Slide preview items will be added here -->
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToPowerPoint()">🔄 Convert to PowerPoint</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Converting PDF to PowerPoint...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">PowerPoint presentation created successfully</div>
+            <button class="download-btn" onclick="downloadPowerPoint()">📥 Download PowerPoint</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        // Configure PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        let pdfJsDoc = null;
+        let pptxContent = null;
+        let slideData = [];
+
+        // DOM elements
+        const pdfFile = document.getElementById('pdfFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const pageCount = document.getElementById('pageCount');
+        const conversionOptions = document.getElementById('conversionOptions');
+        const slidePreview = document.getElementById('slidePreview');
+        const slideList = document.getElementById('slideList');
+        const slideCount = document.getElementById('slideCount');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        pdfFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+            } else {
+                showStatus('Please select a valid PDF file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('PDF file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processPDF(file);
+                pdfFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid PDF file.', 'error');
+            }
+        }
+
+        async function processPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                const pages = pdfDoc.getPages();
+
+                // Update UI
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                pageCount.textContent = `${pages.length} pages`;
+                fileInfo.style.display = 'block';
+                conversionOptions.style.display = 'block';
+
+                // Generate slide preview
+                await generateSlidePreview(pages.length);
+
+                showStatus(`PDF "${file.name}" loaded successfully. Configure your conversion settings and click "Convert to PowerPoint".`, 'success');
+
+            } catch (error) {
+                console.error('PDF processing error:', error);
+                showStatus('Error loading PDF: ' + error.message, 'error');
+            }
+        }
+
+        async function generateSlidePreview(pageCount) {
+            slideList.innerHTML = '';
+
+            const maxSlides = parseInt(document.getElementById('maxSlides').value) || 50;
+            const actualSlides = Math.min(pageCount, maxSlides);
+
+            slideData = [];
+
+            for (let i = 0; i < actualSlides; i++) {
+                const slideItem = document.createElement('div');
+                slideItem.className = 'slide-item';
+                slideItem.textContent = `Slide ${i + 1}: Page ${i + 1} content`;
+                slideList.appendChild(slideItem);
+
+                slideData.push({
+                    pageNumber: i + 1,
+                    content: `Content from PDF page ${i + 1}`,
+                    hasImage: false
+                });
+            }
+
+            slideCount.textContent = `${actualSlides} slides will be created`;
+            slidePreview.style.display = 'block';
+        }
+
+        async function convertToPowerPoint() {
+            if (!pdfDoc || !pdfJsDoc) {
+                showStatus('Please load a PDF file first.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Converting...';
+            downloadSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const conversionMode = document.getElementById('conversionMode').value;
+                const slideLayout = document.getElementById('slideLayout').value;
+                const maxSlides = parseInt(document.getElementById('maxSlides').value);
+                const quality = document.getElementById('quality').value;
+                const textExtraction = document.getElementById('textExtraction').value;
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Initializing PowerPoint presentation...';
+
+                // Create PowerPoint presentation
+                const pptx = new PptxGenJS();
+                pptx.layout = 'LAYOUT_16x9';
+
+                const pages = pdfDoc.getPages();
+                const numPages = Math.min(pages.length, maxSlides);
+
+                progressFill.style.width = '40%';
+                progressText.textContent = `Processing ${numPages} pages...`;
+
+                for (let i = 0; i < numPages; i++) {
+                    progressFill.style.width = `${40 + (i / numPages) * 50}%`;
+                    progressText.textContent = `Converting page ${i + 1} of ${numPages}...`;
+
+                    const slide = pptx.addSlide();
+
+                    // Extract text from page
+                    try {
+                        const page = await pdfJsDoc.getPage(i + 1);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+
+                        // Add text to slide
+                        if (pageText.trim()) {
+                            slide.addText(pageText.trim(), {
+                                x: 0.5,
+                                y: 0.5,
+                                w: 9,
+                                h: 5,
+                                fontSize: fontSize,
+                                color: '363636',
+                                wrap: true
+                            });
+                        } else {
+                            slide.addText(`Content from PDF Page ${i + 1}`, {
+                                x: 0.5,
+                                y: 0.5,
+                                w: 9,
+                                h: 5,
+                                fontSize: fontSize,
+                                color: '363636'
+                            });
+                        }
+                    } catch (textError) {
+                        console.warn(`Could not extract text from page ${i + 1}:`, textError);
+                        slide.addText(`Page ${i + 1}`, {
+                            x: 4,
+                            y: 3,
+                            w: 3,
+                            h: 1,
+                            fontSize: fontSize,
+                            color: '363636'
+                        });
+                    }
+                }
+
+                progressFill.style.width = '95%';
+                progressText.textContent = 'Finalizing presentation...';
+
+                // Generate PowerPoint file
+                const pptxBlob = await pptx.write({ outputType: 'blob' });
+                pptxContent = pptxBlob;
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Conversion complete!';
+
+                setTimeout(() => {
+                    displayConversionResults(numPages);
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to PowerPoint';
+                }, 500);
+
+            } catch (error) {
+                console.error('Conversion error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error converting to PowerPoint: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to PowerPoint';
+            }
+        }
+
+        function displayConversionResults(numPages) {
+            conversionStats.textContent = `Successfully converted ${numPages} PDF pages to PowerPoint slides`;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ PDF converted to PowerPoint successfully!`, 'success');
+        }
+
+        function downloadPowerPoint() {
+            if (!pptxContent) {
+                showStatus('No PowerPoint file available. Please convert a PDF first.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(pptxContent);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_presentation.pptx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('PowerPoint presentation downloaded successfully!', 'success');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        pdfFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>

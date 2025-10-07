@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to PDF Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #28a745;
+            border-bottom-color: #28a745;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #218838;
+            background: #e8f5e8;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .text-editor {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .editor-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .editor-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .editor-btn:hover {
+            background: #f8f9fa;
+            border-color: #28a745;
+        }
+        .text-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+        .conversion-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .option-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .preview-section {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .preview-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .text-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        .convert-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .convert-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .convert-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .download-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .download-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples-section {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .examples-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+        .example-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #f8f9fa;
+            border-color: #28a745;
+        }
+        .stats-display {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .option-controls {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .input-tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                border-bottom: none;
+                border-right: 3px solid transparent;
+            }
+            .tab-btn.active {
+                border-bottom-color: transparent;
+                border-right-color: #28a745;
+            }
+            .example-types {
+                grid-template-columns: 1fr;
+            }
+            .stats-display {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Text to PDF Converter</h1>
+
+        <div class="examples-section">
+            <div class="examples-title">Perfect for Converting:</div>
+            <div class="example-types">
+                <button class="example-btn" onclick="showExample('notes')">📝 Notes & Drafts<br><small>Meeting notes, ideas</small></button>
+                <button class="example-btn" onclick="showExample('lyrics')">🎵 Lyrics & Poems<br><small>Song lyrics, poetry</small></button>
+                <button class="example-btn" onclick="showExample('scripts')">🎬 Scripts<br><small>Dialogues, screenplays</small></button>
+                <button class="example-btn" onclick="showExample('code')">💻 Code Snippets<br><small>Programming code</small></button>
+                <button class="example-btn" onclick="showExample('letters')">✉️ Letters<br><small>Personal letters</small></button>
+                <button class="example-btn" onclick="showExample('lists')">📋 Lists<br><small>Shopping lists, tasks</small></button>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-tabs">
+                <button class="tab-btn active" onclick="switchTab('text')">Text Input</button>
+                <button class="tab-btn" onclick="switchTab('file')">File Upload</button>
+            </div>
+
+            <div class="tab-content active" id="textTab">
+                <div class="text-editor">
+                    <div class="editor-header">
+                        <div class="editor-title">Text Content</div>
+                        <div class="editor-actions">
+                            <button class="editor-btn" onclick="clearEditor()">Clear</button>
+                            <button class="editor-btn" onclick="loadSampleText()">Load Sample</button>
+                            <button class="editor-btn" onclick="countWords()">Word Count</button>
+                        </div>
+                    </div>
+                    <textarea class="text-textarea" id="textInput" placeholder="Paste or type your text here...">Welcome to the Text to PDF Converter!
+
+This is a sample text document that demonstrates how plain text can be converted into a professional PDF format.
+
+Features:
+• Multiple font options
+• Customizable page layouts
+• Professional formatting
+• Easy sharing and printing
+
+You can paste any text content here and convert it to PDF with various styling options. The converter supports different fonts, sizes, and page layouts to make your documents look professional.
+
+Try the sample text or paste your own content to get started!</textarea>
+                </div>
+            </div>
+
+            <div class="tab-content" id="fileTab">
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="textFile" accept=".txt,.md,.rtf">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Drop text file here or click to browse</div>
+                    <div class="upload-subtext">Supports .txt, .md, and .rtf files up to 2MB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversion-options" id="conversionOptions">
+            <div class="option-group">
+                <h3>Typography Settings</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="fontFamily">Font Family</label>
+                        <select id="fontFamily">
+                            <option value="helvetica" selected>Helvetica (Sans-serif)</option>
+                            <option value="times">Times New Roman (Serif)</option>
+                            <option value="courier">Courier New (Monospace)</option>
+                            <option value="georgia">Georgia (Serif)</option>
+                            <option value="arial">Arial (Sans-serif)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="fontSize">Font Size</label>
+                        <select id="fontSize">
+                            <option value="10">Small (10pt)</option>
+                            <option value="12" selected>Normal (12pt)</option>
+                            <option value="14">Large (14pt)</option>
+                            <option value="16">Extra Large (16pt)</option>
+                            <option value="18">Heading (18pt)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="lineHeight">Line Spacing</label>
+                        <select id="lineHeight">
+                            <option value="1.2" selected>Normal (1.2)</option>
+                            <option value="1.5">Relaxed (1.5)</option>
+                            <option value="1.8">Double (1.8)</option>
+                            <option value="1.0">Compact (1.0)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="textAlign">Text Alignment</label>
+                        <select id="textAlign">
+                            <option value="left" selected>Left</option>
+                            <option value="center">Center</option>
+                            <option value="right">Right</option>
+                            <option value="justify">Justify</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Page Layout</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="pageSize">Page Size</label>
+                        <select id="pageSize">
+                            <option value="a4" selected>A4 (210×297mm)</option>
+                            <option value="a3">A3 (297×420mm)</option>
+                            <option value="letter">Letter (8.5×11")</option>
+                            <option value="legal">Legal (8.5×14")</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="orientation">Orientation</label>
+                        <select id="orientation">
+                            <option value="portrait" selected>Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="margins">Margins</label>
+                        <select id="margins">
+                            <option value="normal" selected>Normal (1 inch)</option>
+                            <option value="narrow">Narrow (0.5 inch)</option>
+                            <option value="wide">Wide (1.5 inch)</option>
+                            <option value="none">No margins</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="pageNumbers">Page Numbers</label>
+                        <select id="pageNumbers">
+                            <option value="none" selected>No page numbers</option>
+                            <option value="bottom-center">Bottom center</option>
+                            <option value="bottom-right">Bottom right</option>
+                            <option value="top-right">Top right</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Content Processing</h3>
+                <div class="option-controls">
+                    <div class="control-group">
+                        <label for="autoFormat">Auto-formatting</label>
+                        <select id="autoFormat">
+                            <option value="none" selected>No formatting</option>
+                            <option value="basic">Basic (paragraphs)</option>
+                            <option value="advanced">Advanced (headers, lists)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="encoding">Text Encoding</label>
+                        <select id="encoding">
+                            <option value="utf-8" selected>UTF-8 (Unicode)</option>
+                            <option value="iso-8859-1">ISO-8859-1 (Latin-1)</option>
+                            <option value="windows-1252">Windows-1252</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-header">
+                <div class="preview-title">Text Preview</div>
+                <div id="previewStats">Ready for conversion</div>
+            </div>
+            <div class="text-preview" id="textPreview"></div>
+            <div class="stats-display">
+                <span id="charCount">0 characters</span>
+                <span id="wordCount">0 words</span>
+                <span id="lineCount">0 lines</span>
+                <span id="pageEstimate">~1 page</span>
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" onclick="convertToPDF()">🔄 Convert to PDF</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">Processing text...</div>
+        </div>
+
+        <div class="download-section" id="downloadSection">
+            <div class="download-title">Conversion Complete!</div>
+            <div style="margin-bottom: 20px; color: #666;" id="conversionStats">PDF created successfully</div>
+            <div class="action-buttons">
+                <button class="download-btn" onclick="downloadPDF()">💾 Download PDF</button>
+                <button class="download-btn" onclick="convertAnother()" style="background: #17a2b8;">🔄 Convert Another</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        let textContent = '';
+        let pdfBlob = null;
+
+        // DOM elements
+        const textInput = document.getElementById('textInput');
+        const textFile = document.getElementById('textFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewSection = document.getElementById('previewSection');
+        const textPreview = document.getElementById('textPreview');
+        const previewStats = document.getElementById('previewStats');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const lineCount = document.getElementById('lineCount');
+        const pageEstimate = document.getElementById('pageEstimate');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const conversionStats = document.getElementById('conversionStats');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        textInput.addEventListener('input', updatePreview);
+        textFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function showExample(type) {
+            const examples = {
+                notes: 'Convert handwritten notes, meeting minutes, or brainstorming ideas into professional PDF documents',
+                lyrics: 'Transform song lyrics or poetry into beautifully formatted PDF files for sharing',
+                scripts: 'Convert screenplays, dialogues, or presentation scripts into properly formatted PDF documents',
+                code: 'Turn code snippets, configuration files, or technical documentation into PDF format',
+                letters: 'Change personal or business letters into professional PDF correspondence',
+                lists: 'Convert shopping lists, task lists, or checklists into organized PDF documents'
+            };
+
+            showStatus(`📝 ${examples[type]}`, 'info');
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // Update preview
+            if (tabName === 'text') {
+                updatePreview();
+            } else {
+                previewSection.style.display = 'none';
+            }
+        }
+
+        function clearEditor() {
+            textInput.value = '';
+            textContent = '';
+            updatePreview();
+            showStatus('Editor cleared.', 'info');
+        }
+
+        function loadSampleText() {
+            const sampleText = `PROJECT PROPOSAL: Digital Marketing Campaign
+
+Executive Summary
+=================
+
+This comprehensive project proposal outlines a strategic digital marketing campaign designed to increase brand awareness, drive website traffic, and boost conversion rates for our client. The campaign will leverage multiple digital channels including social media, search engine optimization (SEO), content marketing, and paid advertising.
+
+Project Objectives
+==================
+
+1. Increase brand visibility by 40% across all digital platforms
+2. Drive a minimum of 500% increase in website traffic within 6 months
+3. Achieve a 25% improvement in conversion rates
+4. Establish thought leadership in the industry through content marketing
+5. Build a loyal customer community through social media engagement
+
+Target Audience Analysis
+=======================
+
+Primary Audience:
+- Age: 25-45 years
+- Demographics: Urban professionals, tech-savvy individuals
+- Interests: Technology, innovation, lifestyle, professional development
+- Pain Points: Time management, work-life balance, career advancement
+
+Secondary Audience:
+- Age: 18-24 years
+- Demographics: College students, young professionals
+- Interests: Education, entertainment, social networking
+
+Marketing Strategy
+==================
+
+Phase 1: Foundation Building (Months 1-2)
+- Website optimization and SEO implementation
+- Social media account setup and content calendar creation
+- Brand identity development and visual assets creation
+- Email marketing list building
+
+Phase 2: Content Creation & Distribution (Months 3-4)
+- Blog content development (2 posts per week)
+- Social media content creation (5 posts per week per platform)
+- Video content production (1 video per week)
+- Infographic and visual content development
+
+Phase 3: Campaign Execution & Optimization (Months 5-6)
+- Paid advertising campaign launch
+- Influencer partnership program
+- Community building and engagement activities
+- Performance monitoring and optimization
+
+Budget Breakdown
+================
+
+Total Budget: $50,000
+
+- Content Creation: $15,000 (30%)
+- Paid Advertising: $12,000 (24%)
+- Social Media Management: $8,000 (16%)
+- SEO & Analytics: $6,000 (12%)
+- Design & Branding: $5,000 (10%)
+- Tools & Software: $4,000 (8%)
+
+Key Performance Indicators (KPIs)
+=================================
+
+1. Website Traffic Growth
+   - Target: 500% increase
+   - Measurement: Google Analytics
+
+2. Social Media Engagement
+   - Target: 1000+ interactions per post average
+   - Measurement: Platform analytics
+
+3. Lead Generation
+   - Target: 200 qualified leads per month
+   - Measurement: CRM system
+
+4. Conversion Rate
+   - Target: 25% improvement
+   - Measurement: E-commerce platform
+
+Timeline & Milestones
+=====================
+
+Month 1: Strategy Development & Setup
+- Complete market research and competitor analysis
+- Define campaign objectives and KPIs
+- Set up analytics and tracking systems
+
+Month 2: Content Creation Begins
+- Launch website and initial content
+- Establish social media presence
+- Begin email marketing campaigns
+
+Month 3-4: Campaign Rollout
+- Execute content marketing strategy
+- Launch paid advertising campaigns
+- Implement SEO recommendations
+
+Month 5-6: Optimization & Scaling
+- Analyze performance data
+- Optimize campaigns based on results
+- Scale successful strategies
+- Prepare final report and recommendations
+
+Risk Assessment & Mitigation
+===========================
+
+Potential Risks:
+1. Budget overruns due to unexpected market changes
+2. Low engagement on social media platforms
+3. Technical issues with website or tracking systems
+4. Competition from established brands
+
+Mitigation Strategies:
+1. Regular budget monitoring and quarterly reviews
+2. Diverse content strategy and platform testing
+3. Technical support team and backup systems
+4. Unique value proposition and competitive differentiation
+
+Conclusion
+==========
+
+This digital marketing campaign represents a comprehensive approach to achieving our client's business objectives. By combining strategic planning, creative content, and data-driven optimization, we aim to deliver measurable results that drive long-term growth and establish our client as a leader in their industry.
+
+The success of this campaign will depend on close collaboration between our team and the client, regular performance monitoring, and the flexibility to adapt to changing market conditions. We are confident that this strategic approach will deliver the desired results and exceed expectations.`;
+
+            textInput.value = sampleText;
+            updatePreview();
+            showStatus('Sample business proposal loaded.', 'success');
+        }
+
+        function countWords() {
+            const text = textInput.value;
+            const chars = text.length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const lines = text.split('\n').length;
+
+            showStatus(`Text statistics: ${chars} characters, ${words} words, ${lines} lines`, 'info');
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.rtf'))) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showStatus('Text file size must be under 2MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processTextFile(file);
+            } else {
+                showStatus('Please select a valid text file (.txt, .md, or .rtf).', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && (file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.rtf'))) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showStatus('Text file size must be under 2MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processTextFile(file);
+                textFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid text file (.txt, .md, or .rtf).', 'error');
+            }
+        }
+
+        function processTextFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                textInput.value = e.target.result;
+                updatePreview();
+                showStatus(`Text file "${file.name}" loaded successfully.`, 'success');
+            };
+            reader.readAsText(file);
+        }
+
+        function updatePreview() {
+            const content = textInput.value;
+            if (content.trim()) {
+                // Update preview with formatting
+                textPreview.textContent = content;
+                textContent = content;
+
+                // Update statistics
+                const chars = content.length;
+                const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+                const lines = content.split('\n').length;
+                const estimatedPages = Math.max(1, Math.ceil(chars / 3000)); // Rough estimate
+
+                charCount.textContent = `${chars} characters`;
+                wordCount.textContent = `${words} words`;
+                lineCount.textContent = `${lines} lines`;
+                pageEstimate.textContent = `~${estimatedPages} page${estimatedPages > 1 ? 's' : ''}`;
+
+                previewStats.textContent = `${words} words, ${lines} lines`;
+                previewSection.style.display = 'block';
+            } else {
+                previewSection.style.display = 'none';
+                textContent = '';
+            }
+        }
+
+        function convertToPDF() {
+            if (!textContent.trim()) {
+                showStatus('Please enter some text to convert.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            convertBtn.disabled = true;
+            convertBtn.textContent = '🔄 Creating PDF...';
+            downloadSection.style.display = 'none';
+
+            try {
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Initializing PDF...';
+
+                // Create PDF document
+                const pdf = new jsPDF({
+                    orientation: document.getElementById('orientation').value,
+                    unit: 'mm',
+                    format: document.getElementById('pageSize').value
+                });
+
+                progressFill.style.width = '40%';
+                progressText.textContent = 'Configuring layout...';
+
+                // Get settings
+                const fontFamily = document.getElementById('fontFamily').value;
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+                const lineHeight = parseFloat(document.getElementById('lineHeight').value);
+                const textAlign = document.getElementById('textAlign').value;
+                const margins = document.getElementById('margins').value;
+                const pageNumbers = document.getElementById('pageNumbers').value;
+                const autoFormat = document.getElementById('autoFormat').value;
+
+                // Set font
+                pdf.setFont(fontFamily);
+
+                // Set margins
+                let marginLeft, marginRight, marginTop, marginBottom;
+                switch (margins) {
+                    case 'narrow':
+                        marginLeft = marginRight = marginTop = marginBottom = 12.7; // 0.5 inch
+                        break;
+                    case 'wide':
+                        marginLeft = marginRight = marginTop = marginBottom = 38.1; // 1.5 inch
+                        break;
+                    case 'none':
+                        marginLeft = marginRight = marginTop = marginBottom = 0;
+                        break;
+                    default: // normal
+                        marginLeft = marginRight = marginTop = marginBottom = 25.4; // 1 inch
+                }
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const contentWidth = pageWidth - marginLeft - marginRight;
+                const contentHeight = pageHeight - marginTop - marginBottom;
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Processing text content...';
+
+                // Process text based on auto-formatting option
+                let processedText = textContent;
+                if (autoFormat !== 'none') {
+                    processedText = applyAutoFormatting(textContent, autoFormat);
+                }
+
+                // Split text into lines that fit the page
+                const lines = splitTextIntoLines(pdf, processedText, contentWidth, fontSize);
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Adding content to PDF...';
+
+                // Add content to PDF
+                let y = marginTop;
+                let pageNum = 1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+
+                    // Check if we need a new page
+                    if (y + fontSize > marginTop + contentHeight) {
+                        // Add page number if requested
+                        if (pageNumbers !== 'none') {
+                            addPageNumber(pdf, pageNum, pageNumbers, marginBottom);
+                        }
+
+                        pdf.addPage();
+                        y = marginTop;
+                        pageNum++;
+                    }
+
+                    // Set text alignment
+                    let x = marginLeft;
+                    if (textAlign === 'center') {
+                        x = pageWidth / 2;
+                    } else if (textAlign === 'right') {
+                        x = pageWidth - marginRight;
+                    }
+
+                    // Add line to PDF
+                    pdf.setFontSize(fontSize);
+                    pdf.text(line, x, y, {
+                        align: textAlign,
+                        lineHeightFactor: lineHeight
+                    });
+
+                    y += fontSize * lineHeight;
+                }
+
+                // Add page number to last page
+                if (pageNumbers !== 'none') {
+                    addPageNumber(pdf, pageNum, pageNumbers, marginBottom);
+                }
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'PDF creation complete!';
+
+                // Generate blob for download
+                pdfBlob = pdf.output('blob');
+
+                setTimeout(() => {
+                    displayConversionResults(pageNum);
+                    progressContainer.style.display = 'none';
+                    convertBtn.disabled = false;
+                    convertBtn.textContent = '🔄 Convert to PDF';
+                }, 500);
+
+            } catch (error) {
+                console.error('PDF creation error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error creating PDF: ' + error.message, 'error');
+                convertBtn.disabled = false;
+                convertBtn.textContent = '🔄 Convert to PDF';
+            }
+        }
+
+        function applyAutoFormatting(text, level) {
+            let formatted = text;
+
+            if (level === 'basic' || level === 'advanced') {
+                // Basic paragraph formatting
+                formatted = formatted.replace(/\n\s*\n/g, '\n\n'); // Normalize paragraph breaks
+                formatted = formatted.replace(/^\s+/gm, ''); // Remove leading spaces
+            }
+
+            if (level === 'advanced') {
+                // Advanced formatting
+                formatted = formatted.replace(/^#+\s+(.+)$/gm, '$1'); // Remove markdown headers
+                formatted = formatted.replace(/\*\*(.+?)\*\*/g, '$1'); // Remove bold markdown
+                formatted = formatted.replace(/\*(.+?)\*/g, '$1'); // Remove italic markdown
+                formatted = formatted.replace(/^[-*+]\s+/gm, '• '); // Convert list markers to bullets
+                formatted = formatted.replace(/^\d+\.\s+/gm, '• '); // Convert numbered lists to bullets
+            }
+
+            return formatted;
+        }
+
+        function splitTextIntoLines(pdf, text, maxWidth, fontSize) {
+            const words = text.split(/\s+/);
+            const lines = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine + (currentLine ? ' ' : '') + word;
+                const textWidth = pdf.getTextWidth(testLine);
+
+                if (textWidth > maxWidth && currentLine) {
+                    lines.push(currentLine);
+                    currentLine = word;
+                } else {
+                    currentLine = testLine;
+                }
+            }
+
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+
+            return lines;
+        }
+
+        function addPageNumber(pdf, pageNum, position, marginBottom) {
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            pdf.setFontSize(10);
+            pdf.setFont('helvetica', 'normal');
+
+            let x, y, align;
+            switch (position) {
+                case 'bottom-center':
+                    x = pageWidth / 2;
+                    y = pageHeight - marginBottom / 2;
+                    align = 'center';
+                    break;
+                case 'bottom-right':
+                    x = pageWidth - 20;
+                    y = pageHeight - marginBottom / 2;
+                    align = 'right';
+                    break;
+                case 'top-right':
+                    x = pageWidth - 20;
+                    y = 20;
+                    align = 'right';
+                    break;
+            }
+
+            pdf.text(`Page ${pageNum}`, x, y, { align: align });
+        }
+
+        function displayConversionResults(pageCount) {
+            conversionStats.textContent = `Successfully converted text to PDF with ${pageCount} page${pageCount > 1 ? 's' : ''}`;
+            downloadSection.style.display = 'block';
+            showStatus(`✅ Text converted to PDF successfully! Created ${pageCount} page${pageCount > 1 ? 's' : ''}.`, 'success');
+        }
+
+        function downloadPDF() {
+            if (!pdfBlob) {
+                showStatus('No PDF available to download.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'text_to_pdf.pdf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('PDF downloaded successfully!', 'success');
+        }
+
+        function convertAnother() {
+            // Reset the interface
+            textInput.value = '';
+            textContent = '';
+            pdfBlob = null;
+
+            previewSection.style.display = 'none';
+            downloadSection.style.display = 'none';
+            switchTab('text');
+
+            showStatus('Ready to convert another text document.', 'info');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize with sample content
+        updatePreview();
+    </script>
+</body>
+</html>
