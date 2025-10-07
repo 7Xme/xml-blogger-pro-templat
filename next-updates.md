@@ -3,13 +3,12 @@
 ## Planned Tool Additions
 
 ### PDF Tools
-- [ ] PDF Edit - Edit PDF documents
+-
 - [ ] PDF Merge - Merge multiple PDFs
 - [ ] PDF Split - Split PDF into parts
 - [ ] PDF Compress - Reduce PDF file size
 - [ ] PDF Rotate - Rotate PDF pages
-- [ ] PDF Create - Create PDF from scratch
-- [ ] PDF Scanner - Scan documents to PDF
+
 
 ### AI Features
 - [ ] AI PDF Summarize - Summarize PDF content using AI
@@ -17,11 +16,7 @@
 ### Template Features
 - [ ] Templates - Use pre-made templates
 
-### Metadata Tools
-- [ ] Remove File Metadata - Strip metadata from files
 
-### Document Editing
-- [ ] Edit Document - Edit various document types
 
 ### PDF Manipulation
 - [ ] PDF Crop - Crop PDF pages
@@ -57,16 +52,8 @@
 
 
 
-## Template Improvements
 
-### Planned Enhancements
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] Add Google Analytics integration
-- [ ] Implement search functionality
-- [ ] Add comment system integration
+
 - [ ] Create mobile app version
 
 ## How to Implement
