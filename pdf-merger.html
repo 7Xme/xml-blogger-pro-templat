@@ -329,9 +329,9 @@
 
         function addFiles(newFiles) {
             // Check for duplicates
-            const uniqueFiles = newFiles.filter(newFile => 
-                !files.some(existingFile => 
-                    existingFile.name === newFile.name && 
+            const uniqueFiles = newFiles.filter(newFile =>
+                !files.some(existingFile =>
+                    existingFile.name === newFile.name &&
                     existingFile.size === newFile.size
                 )
             );

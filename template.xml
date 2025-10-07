@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html b:version='2' class='v2' expr:class='data:blog.pageType' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gadget' xmlns:expr='http://www.google.com/2005/gadget/expr'>
+<html b:version='2' class='v2' expr:class='data:blog.pageType' expr:dir='data:blog.languageDirection' lang='en' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gadget' xmlns:expr='http://www.google.com/2005/gadget/expr'>
 <head>
   <!-- Basic HTML Meta -->
   <meta charset='utf-8'/>
-  <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+  <meta content='width=device-width, initial-scale=1.0, user-scalable=yes' name='viewport'/>
   <title><data:blog.pageTitle/></title>
 
   <!-- SEO Meta Tags -->
@@ -69,6 +69,8 @@
 /* Reset and Base Styles */
 * { box-sizing: border-box; }
 body { margin: 0; font-family: 'Poppins', sans-serif; line-height: 1.6; color: var(--text-color); background: var(--bg-color); min-height: 100vh; transition: background 0.3s ease, color 0.3s ease; }
+.skip-link { position: absolute; top: -40px; left: 6px; background: #000; color: #fff; padding: 8px; text-decoration: none; z-index: 100; border-radius: 4px; }
+.skip-link:focus { top: 6px; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
 /* Header Styles */
@@ -226,11 +228,12 @@ footer p { margin: 0; font-weight: 300; }
 </head>
 
 <body>
+  <a href='#main' class='skip-link'>Skip to main content</a>
   <header class='container'>
-    <button class='theme-toggle' id='themeToggle' title='Toggle Dark/Light Mode'>🌙</button>
+    <button class='theme-toggle' id='themeToggle' aria-label='Toggle Dark/Light Mode' title='Toggle Dark/Light Mode'>🌙</button>
     <h1><data:blog.title/></h1>
     <input type='checkbox' id='nav-toggle'/>
-    <label for='nav-toggle' class='hamburger'>&#9776;</label>
+    <label for='nav-toggle' class='hamburger' title='Toggle navigation menu' aria-label='Toggle navigation menu'>&#9776;</label>
     <nav>
       <ul>
         <li><a href='/'>Home</a></li>
