@@ -1185,3 +1185,46 @@
 
         function displayDownloadSection() {
             progress
+Section.style.display = 'none';
+            downloadSection.style.display = 'block';
+
+            // Set up comparison images
+            originalComparison.src = originalImageData;
+            cartoonComparison.width = cartoonCanvas.width;
+            cartoonComparison.height = cartoonCanvas.height;
+            const ctx2 = cartoonComparison.getContext('2d');
+            ctx2.drawImage(cartoonCanvas, 0, 0);
+        }
+
+        function downloadCartoon() {
+            const link = document.createElement('a');
+            link.download = 'cartoon.png';
+            link.href = cartoonCanvas.toDataURL();
+            link.click();
+        }
+
+        function resetConverter() {
+            image = null;
+            originalImageData = null;
+            previewSection.style.display = 'none';
+            cartoonResult.style.display = 'none';
+            conversionControls.style.display = 'none';
+            downloadSection.style.display = 'none';
+            statusDiv.style.display = 'none';
+            document.getElementById('imageInfo').style.display = 'none';
+            imageFile.value = '';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

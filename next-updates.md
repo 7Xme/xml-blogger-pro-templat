@@ -20,16 +20,7 @@
 ### 🖼️ Image Tools (Current: 5 | Target: 20)
 
 
-#### Image Conversion
-- [x] Image to PDF
-- [x] Image to Icon
-- [x] Image to Base64
-- [x] Image to ASCII Art
-- [x] Image to Sketch
-- [ ] Image to Cartoon
-- [ ] Image to Painting
-- [ ] Image to Mosaic
-- [ ] Image to Emboss
+
 
 #### Image Analysis
 - [ ] Image Metadata Viewer
