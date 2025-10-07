@@ -24,10 +24,10 @@
 - [x] Image Format Converter
 - [x] Image Merger
 - [x] Image Splitter
-- [ ] Image Cropper
-- [ ] Image Rotator
-- [ ] Image Flipper
-- [ ] Image Filters (Blur, Sharpen, etc.)
+- [x] Image Cropper
+- [x] Image Rotator
+- [x] Image Flipper
+- [x] Image Filters (Blur, Sharpen, etc.)
 - [ ] Image Color Adjustments
 - [ ] Image Watermark Adder
 - [ ] Image Background Remover

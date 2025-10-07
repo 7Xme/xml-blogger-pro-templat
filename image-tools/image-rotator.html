@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Rotator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 3px dashed #28a745;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #218838;
+            background: #e8f5e8;
+        }
+        .upload-area input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .upload-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .upload-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+        .rotation-workspace {
+            display: none;
+            margin-bottom: 30px;
+        }
+        .rotation-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+        .rotation-canvas {
+            max-width: 100%;
+            max-height: 600px;
+            display: block;
+        }
+        .rotation-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: none;
+        }
+        .control-section {
+            margin-bottom: 20px;
+        }
+        .control-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .rotation-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .rotation-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .rotation-btn:hover, .rotation-btn.active {
+            border-color: #28a745;
+            background: #e8f5e8;
+            color: #28a745;
+        }
+        .rotation-btn i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .angle-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .angle-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .angle-input input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .angle-input input:focus {
+            outline: none;
+            border-color: #28a745;
+        }
+        .angle-btn {
+            padding: 8px 16px;
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .angle-btn:hover {
+            background: #218838;
+            border-color: #218838;
+        }
+        .flip-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .flip-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .flip-btn:hover {
+            border-color: #28a745;
+            background: #e8f5e8;
+        }
+        .flip-btn i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .apply-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .apply-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .apply-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .reset-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .rotated-preview {
+            max-width: 100%;
+            max-height: 400px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        .download-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .image-info {
+            display: none;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .info-value {
+            color: #333;
+        }
+        .rotation-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .upload-area {
+                padding: 30px 20px;
+            }
+            .rotation-buttons {
+                grid-template-columns: 1fr;
+            }
+            .angle-controls {
+                justify-content: center;
+            }
+            .flip-controls {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Image Rotator</h1>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="imageFile" accept="image/*">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">Drop image here or click to browse</div>
+                <div class="upload-subtext">Supports JPG, PNG, GIF, WebP (max 10MB)</div>
+            </div>
+        </div>
+
+        <div class="image-info" id="imageInfo">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Original Size:</span>
+                    <span class="info-value" id="originalSize"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Dimensions:</span>
+                    <span class="info-value" id="imageDimensions"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format:</span>
+                    <span class="info-value" id="imageFormat"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Rotation:</span>
+                    <span class="info-value" id="rotationAngle">0°</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rotation-workspace" id="rotationWorkspace">
+            <div class="rotation-container" id="rotationContainer">
+                <canvas id="rotationCanvas" class="rotation-canvas"></canvas>
+                <div class="rotation-indicator" id="rotationIndicator">0°</div>
+            </div>
+        </div>
+
+        <div class="rotation-controls" id="rotationControls">
+            <div class="control-section">
+                <h3>Quick Rotation</h3>
+                <div class="rotation-buttons">
+                    <button class="rotation-btn" onclick="rotateImage(90)">
+                        <i class="fas fa-redo"></i>
+                        90° Right
+                    </button>
+                    <button class="rotation-btn" onclick="rotateImage(-90)">
+                        <i class="fas fa-undo"></i>
+                        90° Left
+                    </button>
+                    <button class="rotation-btn" onclick="rotateImage(180)">
+                        <i class="fas fa-retweet"></i>
+                        180°
+                    </button>
+                    <button class="rotation-btn" onclick="rotateImage(0)">
+                        <i class="fas fa-undo-alt"></i>
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Custom Angle</h3>
+                <div class="angle-controls">
+                    <div class="angle-input">
+                        <label for="customAngle">Angle:</label>
+                        <input type="number" id="customAngle" min="-360" max="360" step="1" value="0" placeholder="degrees">
+                        <span>°</span>
+                    </div>
+                    <button class="angle-btn" onclick="applyCustomRotation()">Apply</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>Flip Image</h3>
+                <div class="flip-controls">
+                    <button class="flip-btn" onclick="flipImage('horizontal')">
+                        <i class="fas fa-arrows-alt-h"></i>
+                        Flip Horizontal
+                    </button>
+                    <button class="flip-btn" onclick="flipImage('vertical')">
+                        <i class="fas fa-arrows-alt-v"></i>
+                        Flip Vertical
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="apply-btn" id="applyBtn" onclick="finalizeRotation()">🔄 Apply Rotation</button>
+                <button class="reset-btn" onclick="resetImage()">🔄 Reset All</button>
+            </div>
+        </div>
+
+        <div class="preview-section" id="previewSection">
+            <div class="preview-title">Rotated Image Preview</div>
+            <img id="rotatedPreview" class="rotated-preview" alt="Rotated image">
+            <br>
+            <button class="download-btn" onclick="downloadImage()">💾 Download Rotated Image</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let canvas = null;
+        let ctx = null;
+        let image = null;
+        let currentRotation = 0;
+        let flipHorizontal = false;
+        let flipVertical = false;
+        let originalImageData = null;
+        let rotatedBlob = null;
+
+        // DOM elements
+        const imageFile = document.getElementById('imageFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const rotationWorkspace = document.getElementById('rotationWorkspace');
+        const rotationContainer = document.getElementById('rotationContainer');
+        const rotationCanvas = document.getElementById('rotationCanvas');
+        const rotationControls = document.getElementById('rotationControls');
+        const previewSection = document.getElementById('previewSection');
+        const rotatedPreview = document.getElementById('rotatedPreview');
+        const imageInfo = document.getElementById('imageInfo');
+        const rotationIndicator = document.getElementById('rotationIndicator');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        imageFile.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleFileDrop);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+            } else {
+                showStatus('Please select a valid image file.', 'error');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                if (file.size > 10 * 1024 * 1024) {
+                    showStatus('Image file size must be under 10MB. Please choose a smaller file.', 'error');
+                    return;
+                }
+                processImage(file);
+                imageFile.files = event.dataTransfer.files;
+            } else {
+                showStatus('Please drop a valid image file.', 'error');
+            }
+        }
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                image = new Image();
+                image.onload = function() {
+                    setupCanvas();
+                    displayImageInfo(file);
+                    showStatus(`Image "${file.name}" loaded successfully. Use the controls to rotate or flip the image.`, 'success');
+                };
+                image.src = e.target.result;
+                originalImageData = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setupCanvas() {
+            const containerRect = rotationContainer.getBoundingClientRect();
+            const maxWidth = containerRect.width - 40;
+            const maxHeight = 600;
+
+            // Calculate canvas size to fit image
+            let canvasWidth = image.width;
+            let canvasHeight = image.height;
+
+            // Consider rotation - may need larger canvas
+            const maxDimension = Math.max(canvasWidth, canvasHeight);
+            const scale = Math.min(maxWidth / maxDimension, maxHeight / maxDimension);
+            canvasWidth = maxDimension * scale;
+            canvasHeight = maxDimension * scale;
+
+            rotationCanvas.width = canvasWidth;
+            rotationCanvas.height = canvasHeight;
+            ctx = rotationCanvas.getContext('2d');
+
+            // Show workspace and controls
+            rotationWorkspace.style.display = 'block';
+            rotationControls.style.display = 'block';
+            previewSection.style.display = 'none';
+
+            // Initial draw
+            drawImage();
+        }
+
+        function drawImage() {
+            if (!ctx || !image) return;
+
+            ctx.clearRect(0, 0, rotationCanvas.width, rotationCanvas.height);
+
+            const canvasWidth = rotationCanvas.width;
+            const canvasHeight = rotationCanvas.height;
+
+            // Save context
+            ctx.save();
+
+            // Move to center
+            ctx.translate(canvasWidth / 2, canvasHeight / 2);
+
+            // Apply rotation
+            ctx.rotate((currentRotation * Math.PI) / 180);
+
+            // Apply flips
+            ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+
+            // Calculate image size to fit
+            const scale = Math.min(canvasWidth / image.width, canvasHeight / image.height) * 0.9;
+            const drawWidth = image.width * scale;
+            const drawHeight = image.height * scale;
+
+            // Draw image centered
+            ctx.drawImage(image, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+
+            // Restore context
+            ctx.restore();
+
+            // Update rotation indicator
+            rotationIndicator.textContent = `${currentRotation}°`;
+            document.getElementById('rotationAngle').textContent = `${currentRotation}°`;
+        }
+
+        function rotateImage(angle) {
+            if (angle === 0) {
+                currentRotation = 0;
+            } else {
+                currentRotation = (currentRotation + angle) % 360;
+            }
+            drawImage();
+            previewSection.style.display = 'none';
+        }
+
+        function applyCustomRotation() {
+            const customAngle = parseFloat(document.getElementById('customAngle').value) || 0;
+            currentRotation = customAngle % 360;
+            drawImage();
+            previewSection.style.display = 'none';
+        }
+
+        function flipImage(direction) {
+            if (direction === 'horizontal') {
+                flipHorizontal = !flipHorizontal;
+            } else if (direction === 'vertical') {
+                flipVertical = !flipVertical;
+            }
+            drawImage();
+            previewSection.style.display = 'none';
+        }
+
+        function finalizeRotation() {
+            // Create final image with applied transformations
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // For rotation, we need to consider the bounding box
+            const angle = (currentRotation * Math.PI) / 180;
+            const cos = Math.abs(Math.cos(angle));
+            const sin = Math.abs(Math.sin(angle));
+
+            const newWidth = image.width * cos + image.height * sin;
+            const newHeight = image.width * sin + image.height * cos;
+
+            tempCanvas.width = newWidth;
+            tempCanvas.height = newHeight;
+
+            // Center the rotated image
+            tempCtx.save();
+            tempCtx.translate(newWidth / 2, newHeight / 2);
+            tempCtx.rotate(angle);
+            tempCtx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+            tempCtx.drawImage(image, -image.width / 2, -image.height / 2);
+            tempCtx.restore();
+
+            // Convert to blob
+            tempCanvas.toBlob(function(blob) {
+                rotatedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                rotatedPreview.src = url;
+                previewSection.style.display = 'block';
+                showStatus('Rotation applied successfully! Preview shown below.', 'success');
+            }, 'image/png');
+        }
+
+        function resetImage() {
+            currentRotation = 0;
+            flipHorizontal = false;
+            flipVertical = false;
+            if (originalImageData) {
+                image.src = originalImageData;
+                drawImage();
+                previewSection.style.display = 'none';
+                showStatus('Image reset to original state.', 'info');
+            }
+        }
+
+        function downloadImage() {
+            if (!rotatedBlob) {
+                showStatus('No rotated image available to download.', 'error');
+                return;
+            }
+
+            const url = URL.createObjectURL(rotatedBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'rotated-image.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showStatus('Rotated image downloaded successfully!', 'success');
+        }
+
+        function displayImageInfo(file) {
+            document.getElementById('originalSize').textContent = formatFileSize(file.size);
+            document.getElementById('imageDimensions').textContent = `${image.width} × ${image.height}px`;
+            document.getElementById('imageFormat').textContent = file.type.split('/')[1].toUpperCase();
+            document.getElementById('rotationAngle').textContent = '0°';
+            imageInfo.style.display = 'block';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        imageFile.addEventListener('click', function() {
+            this.value = '';
+        });
+    </script>
+</body>
+</html>
