@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Grammar Checker</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .grammar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .text-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .options-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 150px;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .check-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .check-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .stats-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .corrected-text {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .issues-list {
+            margin-top: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .issues-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .issue-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            border-left: 3px solid #ffc107;
+        }
+        .issue-type {
+            font-weight: 600;
+            color: #856404;
+            font-size: 14px;
+        }
+        .issue-description {
+            color: #666;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+        .comparison-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .comparison-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .comparison-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        .close-modal {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-modal:hover {
+            background: #c82333;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .comparison-column {
+            display: flex;
+            flex-direction: column;
+        }
+        .comparison-column h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .comparison-text {
+            flex: 1;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .original-text {
+            border-left: 4px solid #dc143c;
+        }
+        .corrected-text-comparison {
+            border-left: 4px solid #28a745;
+        }
+        .highlighted-diff {
+            background: #fff3cd;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .copy-btn, .download-btn, .compare-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover, .download-btn:hover, .compare-btn:hover {
+            background: #218838;
+        }
+        .compare-btn {
+            background: #17a2b8;
+        }
+        .compare-btn:hover {
+            background: #138496;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .quick-actions {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .quick-action-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+        .quick-action-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .grammar-container {
+                padding: 20px;
+            }
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .action-buttons {
+                justify-content: center;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-info {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grammar-container">
+        <h1>🔍 AI Grammar Checker</h1>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="originalText">Text to Check</label>
+                <textarea class="text-input" id="originalText" placeholder="Paste or type the text you want to check for grammar issues..."></textarea>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <div class="option-group">
+                <h3>Grammar Check Settings</h3>
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="language">Language</label>
+                        <select id="language">
+                            <option value="english" selected>English</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                            <option value="portuguese">Portuguese</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="checkType">Check Type</label>
+                        <select id="checkType">
+                            <option value="comprehensive" selected>Comprehensive</option>
+                            <option value="basic">Basic (Faster)</option>
+                            <option value="spelling">Spelling Only</option>
+                            <option value="punctuation">Punctuation Only</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="style">Writing Style</label>
+                        <select id="style">
+                            <option value="auto" selected>Auto-detect</option>
+                            <option value="formal">Formal</option>
+                            <option value="casual">Casual</option>
+                            <option value="academic">Academic</option>
+                            <option value="business">Business</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <strong>Quick Examples:</strong><br>
+                <button class="quick-action-btn" onclick="loadExample('spelling')">Common Spelling Errors</button>
+                <button class="quick-action-btn" onclick="loadExample('grammar')">Grammar Mistakes</button>
+                <button class="quick-action-btn" onclick="loadExample('punctuation')">Punctuation Issues</button>
+                <button class="quick-action-btn" onclick="loadExample('academic')">Academic Writing</button>
+            </div>
+        </div>
+
+        <button class="check-btn" id="checkBtn" onclick="checkGrammar()">🔍 Check Grammar</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">AI is analyzing your text...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-title">Corrected Text</div>
+                <div class="stats-info">
+                    <span id="wordCount">0 words</span>
+                    <span id="errorCount">0 issues found</span>
+                    <span id="score">Grammar Score: --</span>
+                </div>
+            </div>
+            <div class="corrected-text" id="correctedText"></div>
+
+            <div class="issues-list" id="issuesList" style="display: none;">
+                <div class="issues-title">📋 Issues Found & Corrections:</div>
+                <div id="issuesContainer"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="copy-btn" onclick="copyText()">📋 Copy Corrected Text</button>
+                <button class="download-btn" onclick="downloadText()">💾 Download</button>
+                <button class="compare-btn" onclick="showComparison()">⚖️ Compare Changes</button>
+            </div>
+        </div>
+
+        <div class="comparison-modal" id="comparisonModal">
+            <div class="comparison-content">
+                <div class="comparison-header">
+                    <div class="comparison-title">Before vs After Comparison</div>
+                    <button class="close-modal" onclick="closeComparison()">×</button>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h3>📝 Original Text</h3>
+                        <div class="comparison-text original-text" id="originalComparison"></div>
+                    </div>
+                    <div class="comparison-column">
+                        <h3>✅ Corrected Text</h3>
+                        <div class="comparison-text corrected-text-comparison" id="correctedComparison"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let originalText = '';
+        let correctedText = '';
+        let issues = [];
+
+        // DOM elements
+        const originalTextArea = document.getElementById('originalText');
+        const checkBtn = document.getElementById('checkBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const resultSection = document.getElementById('resultSection');
+        const correctedTextDiv = document.getElementById('correctedText');
+        const issuesList = document.getElementById('issuesList');
+        const issuesContainer = document.getElementById('issuesContainer');
+        const wordCount = document.getElementById('wordCount');
+        const errorCount = document.getElementById('errorCount');
+        const score = document.getElementById('score');
+        const statusDiv = document.getElementById('status');
+
+        function loadExample(type) {
+            const examples = {
+                spelling: "I recieve many emails everyday. My freind lives in the neihborhood and works at teh local store.",
+                grammar: "She don't like apples. We was going to the store. The book which I read it was interesting.",
+                punctuation: "I went to the store and bought milk eggs bread and cheese. The meeting is at 3pm dont be late.",
+                academic: "The research shows that climate change is affecting biodiversity. Scientist have found that species are migrating to cooler areas. This phenomena is well documented in the literature."
+            };
+
+            originalTextArea.value = examples[type];
+            showStatus(`Loaded ${type} example for testing`, 'info');
+        }
+
+        async function checkGrammar() {
+            originalText = originalTextArea.value.trim();
+
+            if (!originalText) {
+                showStatus('Please enter some text to check.', 'error');
+                return;
+            }
+
+            if (originalText.length > 10000) {
+                showStatus('Text is too long. Please limit to 10,000 characters.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            checkBtn.disabled = true;
+            checkBtn.textContent = '🔍 Checking...';
+            resultSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const language = document.getElementById('language').value;
+                const checkType = document.getElementById('checkType').value;
+                const style = document.getElementById('style').value;
+
+                progressFill.style.width = '20%';
+                progressText.textContent = 'Preparing grammar check...';
+
+                // Prepare the AI prompt
+                const prompt = buildGrammarPrompt(originalText, language, checkType, style);
+
+                progressFill.style.width = '50%';
+                progressText.textContent = 'Analyzing with AI...';
+
+                // Call Gemini API
+                const response = await fetch('/v1beta/models/gemini-2.0-flash:generateContent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.1, // Low temperature for more consistent corrections
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 4096,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`AI service error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                progressFill.style.width = '80%';
+                progressText.textContent = 'Processing results...';
+
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Invalid response from AI service');
+                }
+
+                const aiResponse = data.candidates[0].content.parts[0].text.trim();
+
+                // Parse the AI response
+                const result = parseGrammarResponse(aiResponse);
+
+                correctedText = result.corrected;
+                issues = result.issues;
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Grammar check complete!';
+
+                setTimeout(() => {
+                    displayResults();
+                    progressContainer.style.display = 'none';
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = '🔍 Check Grammar';
+                }, 500);
+
+            } catch (error) {
+                console.error('Grammar check error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error checking grammar: ' + error.message, 'error');
+                checkBtn.disabled = false;
+                checkBtn.textContent = '🔍 Check Grammar';
+            }
+        }
+
+        function buildGrammarPrompt(text, language, checkType, style) {
+            const languageMap = {
+                english: 'English',
+                spanish: 'Spanish',
+                french: 'French',
+                german: 'German',
+                italian: 'Italian',
+                portuguese: 'Portuguese'
+            };
+
+            const checkTypeDescriptions = {
+                comprehensive: 'grammar, spelling, punctuation, style, clarity, and conciseness',
+                basic: 'basic grammar and spelling errors only',
+                spelling: 'spelling mistakes only',
+                punctuation: 'punctuation errors only'
+            };
+
+            const styleContext = style === 'auto' ? 'automatically detect the writing style' :
+                               `maintain a ${style} writing style`;
+
+            return `Please check and correct the following text for ${checkTypeDescriptions[checkType]} in ${languageMap[language]}. ${styleContext}.
+
+IMPORTANT: Return your response in this exact JSON format:
+{
+  "corrected": "the fully corrected text here",
+  "issues": [
+    {
+      "type": "error type (e.g., grammar, spelling, punctuation)",
+      "original": "the incorrect part",
+      "correction": "the corrected version",
+      "explanation": "brief explanation of the error"
+    }
+  ],
+  "score": "overall grammar score out of 100 (e.g., 85)"
+}
+
+Text to check:
+"${text}"
+
+Remember to return ONLY valid JSON with no additional text or formatting.`;
+        }
+
+        function parseGrammarResponse(aiResponse) {
+            try {
+                // Clean the response to ensure it's valid JSON
+                let cleanedResponse = aiResponse.trim();
+
+                // Remove any markdown code blocks if present
+                if (cleanedResponse.startsWith('```json')) {
+                    cleanedResponse = cleanedResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+                } else if (cleanedResponse.startsWith('```')) {
+                    cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+                }
+
+                const result = JSON.parse(cleanedResponse);
+
+                // Validate required fields
+                if (!result.corrected || !Array.isArray(result.issues)) {
+                    throw new Error('Invalid response format');
+                }
+
+                return result;
+            } catch (error) {
+                console.error('Failed to parse AI response:', error);
+                console.error('Raw response:', aiResponse);
+
+                // Fallback: try to extract corrected text if JSON parsing fails
+                const correctedMatch = aiResponse.match(/"corrected"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
+                if (correctedMatch) {
+                    return {
+                        corrected: correctedMatch[1].replace(/\\"/g, '"').replace(/\\n/g, '\n'),
+                        issues: [],
+                        score: 'N/A'
+                    };
+                }
+
+                throw new Error('Failed to parse grammar check results');
+            }
+        }
+
+        function displayResults() {
+            correctedTextDiv.textContent = correctedText;
+            resultSection.style.display = 'block';
+
+            // Update stats
+            const words = correctedText.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const issueCount = issues.length;
+
+            wordCount.textContent = `${words} words`;
+            errorCount.textContent = `${issueCount} issues found`;
+
+            if (issues.length > 0) {
+                score.textContent = `Grammar Score: ${issues[0].score || 'N/A'}`;
+                displayIssues();
+            } else {
+                score.textContent = 'Grammar Score: 100 (Perfect!)';
+                issuesList.style.display = 'none';
+            }
+
+            showStatus(`✅ Grammar check complete! Found ${issueCount} issues.`, 'success');
+        }
+
+        function displayIssues() {
+            if (issues.length === 0) {
+                issuesList.style.display = 'none';
+                return;
+            }
+
+            issuesContainer.innerHTML = '';
+
+            issues.forEach((issue, index) => {
+                const issueDiv = document.createElement('div');
+                issueDiv.className = 'issue-item';
+
+                issueDiv.innerHTML = `
+                    <div class="issue-type">${issue.type || 'Grammar Issue'}</div>
+                    <div class="issue-description">
+                        <strong>Original:</strong> "${issue.original || 'N/A'}"<br>
+                        <strong>Correction:</strong> "${issue.correction || 'N/A'}"<br>
+                        <strong>Explanation:</strong> ${issue.explanation || 'No explanation provided'}
+                    </div>
+                `;
+
+                issuesContainer.appendChild(issueDiv);
+            });
+
+            issuesList.style.display = 'block';
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText(correctedText).then(() => {
+                showStatus('Corrected text copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = correctedText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('Corrected text copied to clipboard!', 'success');
+            });
+        }
+
+        function downloadText() {
+            const content = `ORIGINAL TEXT:\n${originalText}\n\n---\n\nCORRECTED TEXT:\n${correctedText}\n\n---\n\nISSUES FOUND: ${issues.length}\n${issues.map((issue, i) => `${i + 1}. ${issue.type}: "${issue.original}" → "${issue.correction}" (${issue.explanation})`).join('\n')}`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `grammar_check_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus('Grammar check results downloaded!', 'success');
+        }
+
+        function showComparison() {
+            document.getElementById('originalComparison').textContent = originalText;
+            document.getElementById('correctedComparison').textContent = correctedText;
+            document.getElementById('comparisonModal').style.display = 'block';
+        }
+
+        function closeComparison() {
+            document.getElementById('comparisonModal').style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('comparisonModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeComparison();
+            }
+        });
+
+        // Keyboard shortcut for grammar check
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if (!checkBtn.disabled) {
+                    checkGrammar();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

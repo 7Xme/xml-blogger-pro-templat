@@ -12,24 +12,15 @@
 - [x] AI Text Extractor - Extract and clean text from PDFs/images
 - [x] AI Image Analyzer - Describe images and extract text
 - [x] AI Code Formatter - Format and optimize code
-- [ ] AI Content Rewriter - Rewrite text for different tones
-- [ ] AI Grammar Checker - Check and correct grammar
+- [x] AI Content Rewriter - Rewrite text for different tones
+- [x] AI Grammar Checker - Check and correct grammar
 - [ ] AI Translator - Translate text between languages
 - [ ] AI Image Generator - Generate images from text prompts
 - [ ] AI Logo Creator - Create logos from descriptions
 - [ ] AI Video Summarizer - Summarize video content
 
 ### 📄 PDF Tools (Current: 9 | Target: 25)
-#### PDF Manipulation
-- [x] PDF Splitter
-- [x] PDF Merger
-- [x] PDF Compressor
-- [x] PDF Rotator
-- [x] PDF Cropper
-- [x] PDF Page Remover
-- [x] PDF Page Numbering
-- [ ] PDF Watermark Adder
-- [ ] PDF Page Reorder
+
 
 
 #### PDF Conversion - From PDF

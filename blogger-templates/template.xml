@@ -582,82 +582,338 @@ a.innerHTML='';
 </b:if>
 
   <!-- Static Cards Section -->
-  <!-- Static Cards Section -->
-<b:section class='main' id='main' showaddelement='yes'>
-  <b:widget id='Blog1' locked='false' title='Blog Posts' type='Blog'>
-    <b:includable id='main'>
-      <b:if cond='data:blog.pageType == "index"'>
-      <div class='container'>
-        <div class='posts-grid'>
-          <div class='project-card'>
-            <img src='icons/1759792769.png' alt='Card 1' loading='lazy'/>
-            <h3>Card 1</h3>
-            <a href='https://example.com/1'>View</a>
+    <!-- Static Cards Section -->
+  <b:section class='main' id='main' showaddelement='yes'>
+    <b:widget id='HTML5' locked='false' title='Tool Cards' type='HTML'>
+      <b:includable id='main'>
+        <b:if cond='data:blog.pageType == "index"'>
+        <div class='container'>
+          <h2 style='text-align: center; margin-bottom: 40px; color: var(--text-color);'>Web Development Tools Collection</h2>
+ 
+          <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Compressor</h4>
+                  <p>Reduce PDF file size while maintaining quality</p>
+                  <a href='pdf-tools/pdf-compressor.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Merger</h4>
+                  <p>Combine multiple PDF files into one document</p>
+                  <a href='pdf-tools/pdf-merger.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Splitter</h4>
+                  <p>Split PDF files into separate pages or sections</p>
+                  <a href='pdf-tools/pdf-splitter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Rotator</h4>
+                  <p>Rotate PDF pages to correct orientation</p>
+                  <a href='pdf-tools/pdf-rotate.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Cropper</h4>
+                  <p>Crop PDF pages to remove unwanted margins</p>
+                  <a href='pdf-tools/pdf-crop.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Page Remover</h4>
+                  <p>Remove specific pages from PDF documents</p>
+                  <a href='pdf-tools/pdf-page-remover.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Page Numbering</h4>
+                  <p>Add page numbers to PDF documents</p>
+                  <a href='pdf-tools/pdf-page-numbering.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF to Images</h4>
+                  <p>Convert PDF pages to image formats</p>
+                  <a href='pdf-tools/pdf-to-images-converter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF Page Reorder</h4>
+                  <p>Reorder pages in PDF documents</p>
+                  <a href='pdf-tools/pdf-page-reorder.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📄</div>
+                  <h4>PDF to Word</h4>
+                  <p>Convert PDF files to editable Word documents</p>
+                  <a href='pdf-tools/pdf-to-word-converter.html' class='tool-link'>Try Now</a>
+                </div>
           </div>
-          <div class='project-card'>
-            <img src='icons/1759792890.png' alt='Card 2' loading='lazy'/>
-            <h3>Card 2</h3>
-            <a href='https://example.com/2'>View</a>
+ 
+          <!-- AI Tools -->
+          <div class='tools-category'>
+            <button class='category-header' onclick='toggleCategory(this)'>
+              <span><span class='category-icon'>🤖</span> AI Tools</span>
+              <span class='toggle-icon'>▼</span>
+            </button>
+            <div class='category-content expanded'>
+              <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🤖</div>
+                  <h4>AI PDF Summarizer</h4>
+                  <p>Summarize PDF documents using AI</p>
+                  <a href='ai-tools/ai-pdf-summarizer.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📝</div>
+                  <h4>AI Text Extractor</h4>
+                  <p>Extract and clean text from PDFs/images</p>
+                  <a href='ai-tools/ai-text-extractor.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🔍</div>
+                  <h4>AI Grammar Checker</h4>
+                  <p>Check and correct grammar, spelling, and style</p>
+                  <a href='ai-tools/ai-grammar-checker.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>👁️</div>
+                  <h4>AI Image Analyzer</h4>
+                  <p>Describe images and extract text using AI</p>
+                  <a href='ai-tools/ai-image-analyzer.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>AI Code Formatter</h4>
+                  <p>Format and optimize code with AI assistance</p>
+                  <a href='ai-tools/ai-code-formatter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>✍️</div>
+                  <h4>AI Content Rewriter</h4>
+                  <p>Rewrite text for different tones and styles</p>
+                  <a href='ai-tools/ai-content-rewriter.html' class='tool-link'>Try Now</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class='project-card'>
-            <img src='icons/1759793020.png' alt='Card 3' loading='lazy'/>
-            <h3>Card 3</h3>
-            <a href='https://example.com/3'>View</a>
+ 
+          <!-- Image Tools -->
+          <div class='tools-category'>
+            <button class='category-header collapsed' onclick='toggleCategory(this)'>
+              <span><span class='category-icon'>🖼️</span> Image Tools</span>
+              <span class='toggle-icon'>▶</span>
+            </button>
+            <div class='category-content'>
+              <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🖼️</div>
+                  <h4>Batch Image Resizer</h4>
+                  <p>Resize multiple images at once</p>
+                  <a href='image-tools/batch-image-resizer.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🖼️</div>
+                  <h4>Image Compressor</h4>
+                  <p>Reduce image file size without quality loss</p>
+                  <a href='image-tools/image-compressor.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🖼️</div>
+                  <h4>Image Format Converter</h4>
+                  <p>Convert between different image formats</p>
+                  <a href='image-tools/image-format-converter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🖼️</div>
+                  <h4>Image Merger</h4>
+                  <p>Combine multiple images into one</p>
+                  <a href='image-tools/image-merger.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🖼️</div>
+                  <h4>Image Splitter</h4>
+                  <p>Split images into multiple parts</p>
+                  <a href='image-tools/image-splitter.html' class='tool-link'>Try Now</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class='project-card'>
-            <img src='icons/1759793116.png' alt='Card 4' loading='lazy'/>
-            <h3>Card 4</h3>
-            <a href='https://example.com/4'>View</a>
+ 
+          <!-- Social Media Tools -->
+          <div class='tools-category'>
+            <button class='category-header collapsed' onclick='toggleCategory(this)'>
+              <span><span class='category-icon'>📱</span> Social Media Tools</span>
+              <span class='toggle-icon'>▶</span>
+            </button>
+            <div class='category-content'>
+              <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📱</div>
+                  <h4>Hashtag Generator</h4>
+                  <p>Generate relevant hashtags for your posts</p>
+                  <a href='social-media-tools/hashtag-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📱</div>
+                  <h4>Instagram Downloader</h4>
+                  <p>Download Instagram photos and videos</p>
+                  <a href='social-media-tools/instagram-media-downloader.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📱</div>
+                  <h4>Social Media Preview</h4>
+                  <p>Preview how your links look on social platforms</p>
+                  <a href='social-media-tools/social-media-preview.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📱</div>
+                  <h4>TikTok Info Tool</h4>
+                  <p>Get information about TikTok videos</p>
+                  <a href='social-media-tools/tiktok-video-info-tool.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>📱</div>
+                  <h4>YouTube Info Extractor</h4>
+                  <p>Extract information from YouTube videos</p>
+                  <a href='social-media-tools/youtube-info-extractor.html' class='tool-link'>Try Now</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class='project-card'>
-            <img src='icons/1759793293.png' alt='Card 5' loading='lazy'/>
-            <h3>Card 5</h3>
-            <a href='https://example.com/5'>View</a>
+ 
+          <!-- SEO Tools -->
+          <div class='tools-category'>
+            <button class='category-header collapsed' onclick='toggleCategory(this)'>
+              <span><span class='category-icon'>🔍</span> SEO Tools</span>
+              <span class='toggle-icon'>▶</span>
+            </button>
+            <div class='category-content'>
+              <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🔍</div>
+                  <h4>Meta Tag Generator</h4>
+                  <p>Generate meta tags for better SEO</p>
+                  <a href='seo-tools/meta-tag-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>🔍</div>
+                  <h4>SEO Analyzer</h4>
+                  <p>Analyze your website's SEO performance</p>
+                  <a href='seo-tools/seo-analyzer.html' class='tool-link'>Try Now</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class='project-card'>
-            <img src='icons/1759793578.png' alt='Card 6' loading='lazy'/>
-            <h3>Card 6</h3>
-            <a href='https://example.com/6'>View</a>
-          </div>
-          <div class='project-card'>
-            <img src='icons/1759792769.png' alt='Card 7' loading='lazy'/>
-            <h3>Card 7</h3>
-            <a href='https://example.com/7'>View</a>
-          </div>
-          <div class='project-card'>
-            <img src='icons/1759792890.png' alt='Card 8' loading='lazy'/>
-            <h3>Card 8</h3>
-            <a href='https://example.com/8'>View</a>
-          </div>
-          <div class='project-card'>
-            <img src='icons/1759793020.png' alt='Card 9' loading='lazy'/>
-            <h3>Card 9</h3>
-            <a href='https://example.com/9'>View</a>
+ 
+          <!-- Developer Tools -->
+          <div class='tools-category'>
+            <button class='category-header collapsed' onclick='toggleCategory(this)'>
+              <span><span class='category-icon'>💻</span> Developer Tools</span>
+              <span class='toggle-icon'>▶</span>
+            </button>
+            <div class='category-content'>
+              <div class='tools-grid'>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>JSON Formatter</h4>
+                  <p>Format and validate JSON data</p>
+                  <a href='developer-tools/json-formatter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>Base64 Tool</h4>
+                  <p>Encode and decode Base64 strings</p>
+                  <a href='developer-tools/base64-tool.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>Color Picker</h4>
+                  <p>Pick and convert colors</p>
+                  <a href='developer-tools/color-picker.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>CSS Gradient Generator</h4>
+                  <p>Create beautiful CSS gradients</p>
+                  <a href='developer-tools/css-gradient-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>E-commerce Simulator</h4>
+                  <p>Simulate e-commerce functionality</p>
+                  <a href='developer-tools/ecommerce-simulator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>File Type Converter</h4>
+                  <p>Convert between different file formats</p>
+                  <a href='developer-tools/file-type-converter.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>Font Pairing Tool</h4>
+                  <p>Find perfect font combinations</p>
+                  <a href='developer-tools/font-pairing-tool.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>Icon Generator</h4>
+                  <p>Generate custom icons</p>
+                  <a href='developer-tools/icon-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>JS Obfuscator</h4>
+                  <p>Obfuscate JavaScript code</p>
+                  <a href='developer-tools/js-obfuscator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>QR Generator</h4>
+                  <p>Generate QR codes</p>
+                  <a href='developer-tools/qr-generator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>URL Shortener</h4>
+                  <p>Shorten long URLs</p>
+                  <a href='developer-tools/url-shortener.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'>💻</div>
+                  <h4>Admin Dashboard</h4>
+                  <p>Administrative tools and settings</p>
+                  <a href='developer-tools/admin-dashboard.html' class='tool-link'>Try Now</a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </b:if>
-    <b:if cond='data:blog.pageType == "item"'>
-      <b:loop values='data:posts' var='post'>
-        <b:include name='post' data='post'/>
-      </b:loop>
-    </b:if>
-    </b:includable>
-    <b:includable id='post' var='post'>
-      <div class='container'>
-        <article class='post'>
-          <h1><data:post.title/></h1>
-          <div class='post-meta'>
-            <span class='date'>Published on <data:post.dateHeader/></span>
-          </div>
-          <div class='post-body' expr:id='"post-body-" + data:post.id'>
-            <data:post.body/>
-          </div>
-        </article>
-      </div>
-    </b:includable>
-  </b:widget>
-</b:section>
+ 
+        <script>
+          function toggleCategory(button) {
+            const category = button.parentElement;
+            const content = category.querySelector('.category-content');
+ 
+            if (content.classList.contains('expanded')) {
+              content.classList.remove('expanded');
+              button.classList.remove('expanded');
+              button.classList.add('collapsed');
+            } else {
+              content.classList.add('expanded');
+              button.classList.remove('collapsed');
+              button.classList.add('expanded');
+            }
+          }
+        </script>
+      </b:if>
+      </b:includable>
+    </b:widget>
+  </b:section>
 
 
   <b:section class='contact' id='contact' showaddelement='yes'>

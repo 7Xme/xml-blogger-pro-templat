@@ -767,16 +767,6 @@
                     }
 
                     // Draw text with rotation and opacity
-                    page.pushOperators(
-                        PDFLib.pushGraphicsState(),
-                        PDFLib.setGraphicsState(
-                            PDFLib.PDFName.of('GS1'),
-                            PDFLib.createPDFAcroForm(
-                                pdfCopy.context.createExtGState().setOpacity(watermarkData.opacity)
-                            )
-                        )
-                    );
-
                     page.drawText(watermarkData.text, {
                         x: x,
                         y: y,
@@ -787,10 +777,9 @@
                             parseInt(watermarkData.color.slice(3, 5), 16) / 255,
                             parseInt(watermarkData.color.slice(5, 7), 16) / 255
                         ),
-                        rotate: PDFLib.degrees(watermarkData.rotation)
+                        rotate: PDFLib.degrees(watermarkData.rotation),
+                        opacity: watermarkData.opacity
                     });
-
-                    page.pushOperators(PDFLib.popGraphicsState());
                 }
             } else if (watermarkData.type === 'image') {
                 // Add image watermark
@@ -850,25 +839,14 @@
                     }
 
                     // Draw image with rotation and opacity
-                    page.pushOperators(
-                        PDFLib.pushGraphicsState(),
-                        PDFLib.setGraphicsState(
-                            PDFLib.PDFName.of('GS1'),
-                            PDFLib.createPDFAcroForm(
-                                pdfCopy.context.createExtGState().setOpacity(watermarkData.opacity)
-                            )
-                        )
-                    );
-
                     page.drawImage(image, {
                         x: x,
                         y: y,
                         width: imageDims.width,
                         height: imageDims.height,
-                        rotate: PDFLib.degrees(watermarkData.rotation)
+                        rotate: PDFLib.degrees(watermarkData.rotation),
+                        opacity: watermarkData.opacity
                     });
-
-                    page.pushOperators(PDFLib.popGraphicsState());
                 }
             }
 

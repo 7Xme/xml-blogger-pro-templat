@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Rewriter</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .rewriter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .text-input {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        .text-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .options-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .option-group {
+            margin-bottom: 20px;
+        }
+        .option-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .tone-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .tone-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .tone-btn:hover {
+            border-color: #dc143c;
+            background: #fff5f5;
+        }
+        .tone-btn.active {
+            background: #dc143c;
+            color: white;
+            border-color: #dc143c;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select, .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .rewrite-btn {
+            background: #dc143c;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .rewrite-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .rewrite-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .result-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .stats-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .rewritten-text {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .copy-btn, .download-btn, .compare-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover, .download-btn:hover, .compare-btn:hover {
+            background: #218838;
+        }
+        .compare-btn {
+            background: #17a2b8;
+        }
+        .compare-btn:hover {
+            background: #138496;
+        }
+        .comparison-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .comparison-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .comparison-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        .close-modal {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-modal:hover {
+            background: #c82333;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .comparison-column {
+            display: flex;
+            flex-direction: column;
+        }
+        .comparison-column h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .comparison-text {
+            flex: 1;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .original-text {
+            border-left: 4px solid #dc143c;
+        }
+        .rewritten-text-comparison {
+            border-left: 4px solid #28a745;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .presets {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .preset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+            transition: all 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .rewriter-container {
+                padding: 20px;
+            }
+            .tone-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            .control-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .action-buttons {
+                justify-content: center;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rewriter-container">
+        <h1>✍️ AI Content Rewriter</h1>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="originalText">Original Text</label>
+                <textarea class="text-input" id="originalText" placeholder="Enter the text you want to rewrite..."></textarea>
+            </div>
+        </div>
+
+        <div class="options-section">
+            <div class="option-group">
+                <h3>Rewrite Style</h3>
+                <div class="tone-grid">
+                    <button class="tone-btn active" data-tone="professional">Professional</button>
+                    <button class="tone-btn" data-tone="casual">Casual</button>
+                    <button class="tone-btn" data-tone="formal">Formal</button>
+                    <button class="tone-btn" data-tone="friendly">Friendly</button>
+                    <button class="tone-btn" data-tone="persuasive">Persuasive</button>
+                    <button class="tone-btn" data-tone="academic">Academic</button>
+                    <button class="tone-btn" data-tone="creative">Creative</button>
+                    <button class="tone-btn" data-tone="concise">Concise</button>
+                    <button class="tone-btn" data-tone="detailed">Detailed</button>
+                    <button class="tone-btn" data-tone="enthusiastic">Enthusiastic</button>
+                    <button class="tone-btn" data-tone="humorous">Humorous</button>
+                    <button class="tone-btn" data-tone="inspirational">Inspirational</button>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <div class="control-row">
+                    <div class="control-group">
+                        <label for="creativity">Creativity Level</label>
+                        <select id="creativity">
+                            <option value="low">Low (Keep original meaning)</option>
+                            <option value="medium" selected>Medium (Balanced)</option>
+                            <option value="high">High (More creative)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="length">Length Preference</label>
+                        <select id="length">
+                            <option value="auto" selected>Auto (Similar length)</option>
+                            <option value="shorter">Shorter</option>
+                            <option value="longer">Longer</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="language">Language</label>
+                        <select id="language">
+                            <option value="english" selected>English</option>
+                            <option value="spanish">Spanish</option>
+                            <option value="french">French</option>
+                            <option value="german">German</option>
+                            <option value="italian">Italian</option>
+                            <option value="portuguese">Portuguese</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="presets">
+                <strong>Quick Presets:</strong><br>
+                <button class="preset-btn" onclick="applyPreset('professional')">Business Email</button>
+                <button class="preset-btn" onclick="applyPreset('casual')">Social Media</button>
+                <button class="preset-btn" onclick="applyPreset('academic')">Research Paper</button>
+                <button class="preset-btn" onclick="applyPreset('creative')">Marketing Copy</button>
+                <button class="preset-btn" onclick="applyPreset('concise')">Summary</button>
+            </div>
+        </div>
+
+        <button class="rewrite-btn" id="rewriteBtn" onclick="rewriteContent()">✨ Rewrite Content</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div style="text-align: center; margin-top: 10px; color: #666;" id="progressText">AI is rewriting your content...</div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <div class="result-title">Rewritten Content</div>
+                <div class="stats-info">
+                    <span id="wordCount">0 words</span>
+                    <span id="charCount">0 characters</span>
+                </div>
+            </div>
+            <div class="rewritten-text" id="rewrittenText"></div>
+            <div class="action-buttons">
+                <button class="copy-btn" onclick="copyText()">📋 Copy Text</button>
+                <button class="download-btn" onclick="downloadText()">💾 Download TXT</button>
+                <button class="compare-btn" onclick="showComparison()">⚖️ Compare</button>
+            </div>
+        </div>
+
+        <div class="comparison-modal" id="comparisonModal">
+            <div class="comparison-content">
+                <div class="comparison-header">
+                    <div class="comparison-title">Before vs After Comparison</div>
+                    <button class="close-modal" onclick="closeComparison()">×</button>
+                </div>
+                <div class="comparison-grid">
+                    <div class="comparison-column">
+                        <h3>📝 Original Text</h3>
+                        <div class="comparison-text original-text" id="originalComparison"></div>
+                    </div>
+                    <div class="comparison-column">
+                        <h3>✨ Rewritten Text</h3>
+                        <div class="comparison-text rewritten-text-comparison" id="rewrittenComparison"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        let originalText = '';
+        let rewrittenText = '';
+        let selectedTone = 'professional';
+
+        // DOM elements
+        const originalTextArea = document.getElementById('originalText');
+        const rewriteBtn = document.getElementById('rewriteBtn');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const resultSection = document.getElementById('resultSection');
+        const rewrittenTextDiv = document.getElementById('rewrittenText');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const statusDiv = document.getElementById('status');
+
+        // Event listeners
+        document.querySelectorAll('.tone-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedTone = this.dataset.tone;
+            });
+        });
+
+        function applyPreset(preset) {
+            // Reset all tone buttons
+            document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+
+            // Set appropriate settings based on preset
+            switch(preset) {
+                case 'professional':
+                    document.querySelector('[data-tone="professional"]').classList.add('active');
+                    document.getElementById('creativity').value = 'low';
+                    document.getElementById('length').value = 'auto';
+                    selectedTone = 'professional';
+                    break;
+                case 'casual':
+                    document.querySelector('[data-tone="casual"]').classList.add('active');
+                    document.getElementById('creativity').value = 'medium';
+                    document.getElementById('length').value = 'auto';
+                    selectedTone = 'casual';
+                    break;
+                case 'academic':
+                    document.querySelector('[data-tone="academic"]').classList.add('active');
+                    document.getElementById('creativity').value = 'low';
+                    document.getElementById('length').value = 'longer';
+                    selectedTone = 'academic';
+                    break;
+                case 'creative':
+                    document.querySelector('[data-tone="creative"]').classList.add('active');
+                    document.getElementById('creativity').value = 'high';
+                    document.getElementById('length').value = 'auto';
+                    selectedTone = 'creative';
+                    break;
+                case 'concise':
+                    document.querySelector('[data-tone="concise"]').classList.add('active');
+                    document.getElementById('creativity').value = 'low';
+                    document.getElementById('length').value = 'shorter';
+                    selectedTone = 'concise';
+                    break;
+            }
+
+            showStatus(`Applied ${preset} preset settings`, 'info');
+        }
+
+        async function rewriteContent() {
+            originalText = originalTextArea.value.trim();
+
+            if (!originalText) {
+                showStatus('Please enter some text to rewrite.', 'error');
+                return;
+            }
+
+            if (originalText.length > 10000) {
+                showStatus('Text is too long. Please limit to 10,000 characters.', 'error');
+                return;
+            }
+
+            // Show processing
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            rewriteBtn.disabled = true;
+            rewriteBtn.textContent = '🔄 Rewriting...';
+            resultSection.style.display = 'none';
+
+            try {
+                // Get settings
+                const creativity = document.getElementById('creativity').value;
+                const length = document.getElementById('length').value;
+                const language = document.getElementById('language').value;
+
+                progressFill.style.width = '30%';
+                progressText.textContent = 'Preparing rewrite request...';
+
+                // Prepare the AI prompt
+                const prompt = buildRewritePrompt(originalText, selectedTone, creativity, length, language);
+
+                progressFill.style.width = '60%';
+                progressText.textContent = 'Sending to AI...';
+
+                // Call Gemini API
+                const response = await fetch('/v1beta/models/gemini-2.0-flash:generateContent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: creativity === 'high' ? 0.8 : creativity === 'medium' ? 0.5 : 0.2,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 2048,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`AI service error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                progressFill.style.width = '90%';
+                progressText.textContent = 'Processing AI response...';
+
+                if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                    throw new Error('Invalid response from AI service');
+                }
+
+                rewrittenText = data.candidates[0].content.parts[0].text.trim();
+
+                // Clean up the response
+                rewrittenText = cleanResponse(rewrittenText);
+
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Rewrite complete!';
+
+                setTimeout(() => {
+                    displayResults();
+                    progressContainer.style.display = 'none';
+                    rewriteBtn.disabled = false;
+                    rewriteBtn.textContent = '✨ Rewrite Content';
+                }, 500);
+
+            } catch (error) {
+                console.error('Rewrite error:', error);
+                progressContainer.style.display = 'none';
+                showStatus('Error rewriting content: ' + error.message, 'error');
+                rewriteBtn.disabled = false;
+                rewriteBtn.textContent = '✨ Rewrite Content';
+            }
+        }
+
+        function buildRewritePrompt(text, tone, creativity, length, language) {
+            const toneDescriptions = {
+                professional: 'formal, business-appropriate language suitable for corporate communications',
+                casual: 'relaxed, conversational tone like talking to a friend',
+                formal: 'highly formal, sophisticated language with proper etiquette',
+                friendly: 'warm, approachable, and personable tone',
+                persuasive: 'convincing and compelling, designed to influence or sell',
+                academic: 'scholarly, research-oriented with formal academic language',
+                creative: 'imaginative, artistic expression with vivid and engaging language',
+                concise: 'brief and to-the-point, eliminating unnecessary words',
+                detailed: 'comprehensive and thorough with extensive explanations',
+                enthusiastic: 'excited and energetic, full of passion and positivity',
+                humorous: 'funny and entertaining with wit and lightheartedness',
+                inspirational: 'motivational and uplifting, encouraging positive action'
+            };
+
+            const creativityLevels = {
+                low: 'Maintain the original meaning and key facts. Make minimal changes.',
+                medium: 'Balance creativity with the original intent. Improve flow and engagement.',
+                high: 'Be highly creative while preserving the core message. Add flair and originality.'
+            };
+
+            const lengthPreferences = {
+                auto: 'Keep approximately the same length as the original',
+                shorter: 'Make it significantly shorter and more concise',
+                longer: 'Expand with more details and explanations'
+            };
+
+            const languageMap = {
+                english: 'English',
+                spanish: 'Spanish',
+                french: 'French',
+                german: 'German',
+                italian: 'Italian',
+                portuguese: 'Portuguese'
+            };
+
+            return `Rewrite the following text in a ${toneDescriptions[tone]} tone.
+
+${creativityLevels[creativity]}
+
+Length preference: ${lengthPreferences[length]}
+
+Language: ${languageMap[language]}
+
+IMPORTANT: Respond ONLY with the rewritten text. Do not include any explanations, comments, or additional formatting.
+
+Original text:
+"${text}"
+
+Rewritten version:`;
+        }
+
+        function cleanResponse(text) {
+            // Remove any markdown formatting or quotes that might have been added
+            return text
+                .replace(/^["'`]/, '') // Remove leading quotes
+                .replace(/["'`]$/, '') // Remove trailing quotes
+                .replace(/^\*\*/, '') // Remove leading bold
+                .replace(/\*\*$/, '') // Remove trailing bold
+                .trim();
+        }
+
+        function displayResults() {
+            rewrittenTextDiv.textContent = rewrittenText;
+            resultSection.style.display = 'block';
+
+            // Update stats
+            const words = rewrittenText.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const chars = rewrittenText.length;
+
+            wordCount.textContent = `${words} words`;
+            charCount.textContent = `${chars} characters`;
+
+            showStatus(`✅ Content rewritten successfully in ${selectedTone} tone!`, 'success');
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText(rewrittenText).then(() => {
+                showStatus('Rewritten text copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = rewrittenText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('Rewritten text copied to clipboard!', 'success');
+            });
+        }
+
+        function downloadText() {
+            const blob = new Blob([rewrittenText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rewritten_content_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus('Text file downloaded!', 'success');
+        }
+
+        function showComparison() {
+            document.getElementById('originalComparison').textContent = originalText;
+            document.getElementById('rewrittenComparison').textContent = rewrittenText;
+            document.getElementById('comparisonModal').style.display = 'block';
+        }
+
+        function closeComparison() {
+            document.getElementById('comparisonModal').style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Keep error messages visible longer
+            if (type === 'error') {
+                setTimeout(() => {
+                    if (statusDiv.classList.contains('error')) {
+                        statusDiv.style.display = 'none';
+                    }
+                }, 8000);
+            } else {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('comparisonModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeComparison();
+            }
+        });
+
+        // Keyboard shortcut for rewrite
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                if (!rewriteBtn.disabled) {
+                    rewriteContent();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
