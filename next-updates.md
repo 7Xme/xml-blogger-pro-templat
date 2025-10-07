@@ -4,9 +4,7 @@
 
 ### PDF Tools
 -
-- [ ] PDF Merge - Merge multiple PDFs
-- [ ] PDF Split - Split PDF into parts
-- [ ] PDF Compress - Reduce PDF file size
+- [ ] 
 - [ ] PDF Rotate - Rotate PDF pages
 
 
