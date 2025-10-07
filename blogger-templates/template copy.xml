@@ -778,6 +778,18 @@ a.innerHTML='';
                <p>Extract and clean text from PDFs/images</p>
                <a href='ai-tools/ai-text-extractor.html' class='tool-link'>Try Now</a>
              </div>
+             <div class='tool-card'>
+               <div class='tool-icon'>👁️</div>
+               <h4>AI Image Analyzer</h4>
+               <p>Describe images and extract text using AI</p>
+               <a href='ai-tools/ai-image-analyzer.html' class='tool-link'>Try Now</a>
+             </div>
+             <div class='tool-card'>
+               <div class='tool-icon'>💻</div>
+               <h4>AI Code Formatter</h4>
+               <p>Format and optimize code with AI assistance</p>
+               <a href='ai-tools/ai-code-formatter.html' class='tool-link'>Try Now</a>
+             </div>
            </div>
          </div>
        </div>
