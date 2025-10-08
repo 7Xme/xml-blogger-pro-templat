@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Creator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .tab-selector {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+        .tab-btn.active {
+            background: #dc143c;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option-group input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .add-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .questions-list {
+            margin-bottom: 20px;
+        }
+        .question-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .question-options {
+            margin-left: 20px;
+        }
+        .correct-answer {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .question-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .quiz-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .question-display {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .question-number {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .question-text-display {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .answers-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .answer-option {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        .answer-option:hover {
+            background: #e9ecef;
+        }
+        .answer-option.selected {
+            background: #dc143c;
+            color: white;
+        }
+        .nav-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .submit-btn {
+            background: #28a745;
+        }
+        .submit-btn:hover {
+            background: #218838;
+        }
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #dc143c;
+            margin: 20px 0;
+        }
+        .retry-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .retry-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .quiz-container {
+                padding: 20px;
+            }
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .answers-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz Creator</h1>
+
+        <div class="tab-selector">
+            <button class="tab-btn active" onclick="switchTab('create')">Create Quiz</button>
+            <button class="tab-btn" onclick="switchTab('take')">Take Quiz</button>
+        </div>
+
+        <div id="create" class="tab-content active">
+            <div class="form-section">
+                <h3>Add New Question</h3>
+                <div class="form-group">
+                    <label for="questionText">Question:</label>
+                    <textarea id="questionText" rows="3" placeholder="Enter your question here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Answer Options:</label>
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <input type="radio" name="correct" value="0" checked>
+                            <input type="text" id="option0" placeholder="Option 1">
+                        </div>
+                        <div class="option-group">
+                            <input type="radio" name="correct" value="1">
+                            <input type="text" id="option1" placeholder="Option 2">
+                        </div>
+                        <div class="option-group">
+                            <input type="radio" name="correct" value="2">
+                            <input type="text" id="option2" placeholder="Option 3">
+                        </div>
+                        <div class="option-group">
+                            <input type="radio" name="correct" value="3">
+                            <input type="text" id="option3" placeholder="Option 4">
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addQuestion()">Add Question</button>
+            </div>
+
+            <div class="questions-list" id="questionsList">
+                <!-- Questions will be listed here -->
+            </div>
+        </div>
+
+        <div id="take" class="tab-content">
+            <div class="quiz-section" id="quizSection">
+                <div class="question-display" id="questionDisplay">
+                    <div class="question-number">Question 1 of 5</div>
+                    <div class="question-text-display">Sample question text?</div>
+                    <div class="answers-list" id="answersList">
+                        <div class="answer-option" onclick="selectAnswer(0)">Option 1</div>
+                        <div class="answer-option" onclick="selectAnswer(1)">Option 2</div>
+                        <div class="answer-option" onclick="selectAnswer(2)">Option 3</div>
+                        <div class="answer-option" onclick="selectAnswer(3)">Option 4</div>
+                    </div>
+                    <button class="nav-btn" onclick="previousQuestion()" id="prevBtn" disabled>Previous</button>
+                    <button class="nav-btn" onclick="nextQuestion()" id="nextBtn">Next</button>
+                    <button class="nav-btn submit-btn" onclick="submitQuiz()" id="submitBtn" style="display: none;">Submit Quiz</button>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h3>Quiz Results</h3>
+                <div class="score-display" id="scoreDisplay">0/0</div>
+                <div id="resultsDetails"></div>
+                <button class="retry-btn" onclick="retryQuiz()">Take Quiz Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let selectedAnswers = [];
+        let quizMode = false;
+
+        // Load questions from localStorage
+        loadQuestions();
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+
+            if (tab === 'take') {
+                startQuiz();
+            }
+        }
+
+        function addQuestion() {
+            const questionText = document.getElementById('questionText').value.trim();
+            const options = [
+                document.getElementById('option0').value.trim(),
+                document.getElementById('option1').value.trim(),
+                document.getElementById('option2').value.trim(),
+                document.getElementById('option3').value.trim()
+            ];
+
+            const correctIndex = parseInt(document.querySelector('input[name="correct"]:checked').value);
+
+            if (!questionText || options.some(opt => !opt)) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const question = {
+                id: Date.now(),
+                text: questionText,
+                options: options,
+                correct: correctIndex
+            };
+
+            questions.push(question);
+            saveQuestions();
+            renderQuestions();
+
+            // Clear form
+            document.getElementById('questionText').value = '';
+            options.forEach((_, i) => document.getElementById(`option${i}`).value = '');
+            document.querySelector('input[name="correct"]:first-child').checked = true;
+        }
+
+        function renderQuestions() {
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = '';
+
+            if (questions.length === 0) {
+                questionsList.innerHTML = '<p style="text-align: center; color: #666;">No questions added yet. Add your first question above!</p>';
+                return;
+            }
+
+            questions.forEach((question, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.className = 'question-item';
+
+                let optionsHTML = '';
+                question.options.forEach((option, i) => {
+                    const isCorrect = i === question.correct;
+                    optionsHTML += `<div class="${isCorrect ? 'correct-answer' : ''}">• ${option}${isCorrect ? ' (Correct)' : ''}</div>`;
+                });
+
+                questionItem.innerHTML = `
+                    <div class="question-text">${index + 1}. ${question.text}</div>
+                    <div class="question-options">${optionsHTML}</div>
+                    <div class="question-actions">
+                        <button class="edit-btn" onclick="editQuestion(${question.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteQuestion(${question.id})">Delete</button>
+                    </div>
+                `;
+
+                questionsList.appendChild(questionItem);
+            });
+        }
+
+        function editQuestion(id) {
+            const question = questions.find(q => q.id === id);
+            if (!question) return;
+
+            document.getElementById('questionText').value = question.text;
+            question.options.forEach((opt, i) => {
+                document.getElementById(`option${i}`).value = opt;
+            });
+            document.querySelector(`input[name="correct"][value="${question.correct}"]`).checked = true;
+
+            deleteQuestion(id);
+        }
+
+        function deleteQuestion(id) {
+            questions = questions.filter(q => q.id !== id);
+            saveQuestions();
+            renderQuestions();
+        }
+
+        function saveQuestions() {
+            localStorage.setItem('quizQuestions', JSON.stringify(questions));
+        }
+
+        function loadQuestions() {
+            const saved = localStorage.getItem('quizQuestions');
+            if (saved) {
+                questions = JSON.parse(saved);
+                renderQuestions();
+            }
+        }
+
+        function startQuiz() {
+            if (questions.length === 0) {
+                alert('Please add some questions first!');
+                switchTab('create');
+                return;
+            }
+
+            currentQuestionIndex = 0;
+            selectedAnswers = new Array(questions.length).fill(-1);
+            quizMode = true;
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('quizSection').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            const questionDisplay = document.getElementById('questionDisplay');
+            const answersList = document.getElementById('answersList');
+
+            questionDisplay.querySelector('.question-number').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            questionDisplay.querySelector('.question-text-display').textContent = question.text;
+
+            answersList.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = `answer-option ${selectedAnswers[currentQuestionIndex] === index ? 'selected' : ''}`;
+                optionEl.textContent = option;
+                optionEl.onclick = () => selectAnswer(index);
+                answersList.appendChild(optionEl);
+            });
+
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').style.display = currentQuestionIndex === questions.length - 1 ? 'none' : 'inline-block';
+            document.getElementById('submitBtn').style.display = currentQuestionIndex === questions.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function selectAnswer(index) {
+            selectedAnswers[currentQuestionIndex] = index;
+            document.querySelectorAll('.answer-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === index);
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function submitQuiz() {
+            let correct = 0;
+            const results = [];
+
+            questions.forEach((question, index) => {
+                const selected = selectedAnswers[index];
+                const isCorrect = selected === question.correct;
+                if (isCorrect) correct++;
+
+                results.push({
+                    question: question.text,
+                    selected: selected >= 0 ? question.options[selected] : 'No answer',
+                    correct: question.options[question.correct],
+                    isCorrect: isCorrect
+                });
+            });
+
+            showResults(correct, results);
+        }
+
+        function showResults(correct, results) {
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            document.getElementById('scoreDisplay').textContent = `${correct}/${questions.length}`;
+
+            const resultsDetails = document.getElementById('resultsDetails');
+            resultsDetails.innerHTML = results.map((result, index) => `
+                <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                    <strong>Question ${index + 1}:</strong> ${result.question}<br>
+                    <span style="color: ${result.isCorrect ? '#28a745' : '#dc3545'};">Your answer: ${result.selected}</span><br>
+                    <span style="color: #28a745;">Correct answer: ${result.correct}</span>
+                </div>
+            `).join('');
+        }
+
+        function retryQuiz() {
+            startQuiz();
+        }
+
+        // Initialize
+        renderQuestions();
+    </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .button-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="color"], input[type="range"], input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            cursor: pointer;
+        }
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 200px;
+        }
+        .button-preview {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .button-preview:hover {
+            transform: translateY(-2px);
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        @media (max-width: 768px) {
+            .button-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <h1>Button Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Colors</h3>
+                    <label for="bgColor">Background Color:</label>
+                    <input type="color" id="bgColor" value="#dc143c">
+
+                    <label for="textColor">Text Color:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+
+                    <label for="borderColor">Border Color:</label>
+                    <input type="color" id="borderColor" value="#b22222">
+                </div>
+
+                <div class="control-group">
+                    <h3>Typography</h3>
+                    <label for="fontSize">Font Size:</label>
+                    <input type="range" id="fontSize" min="12" max="24" value="16">
+                    <span class="range-value" id="fontSizeValue">16px</span>
+
+                    <label for="fontWeight">Font Weight:</label>
+                    <select id="fontWeight">
+                        <option value="400">Normal</option>
+                        <option value="600">Semi Bold</option>
+                        <option value="700" selected>Bold</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3>Spacing</h3>
+                    <label for="paddingX">Horizontal Padding:</label>
+                    <input type="range" id="paddingX" min="8" max="40" value="24">
+                    <span class="range-value" id="paddingXValue">24px</span>
+
+                    <label for="paddingY">Vertical Padding:</label>
+                    <input type="range" id="paddingY" min="6" max="20" value="12">
+                    <span class="range-value" id="paddingYValue">12px</span>
+                </div>
+
+                <div class="control-group">
+                    <h3>Border & Radius</h3>
+                    <label for="borderRadius">Border Radius:</label>
+                    <input type="range" id="borderRadius" min="0" max="25" value="5">
+                    <span class="range-value" id="borderRadiusValue">5px</span>
+
+                    <label for="borderWidth">Border Width:</label>
+                    <input type="range" id="borderWidth" min="0" max="5" value="0">
+                    <span class="range-value" id="borderWidthValue">0px</span>
+                </div>
+
+                <div class="control-group">
+                    <h3>Shadow</h3>
+                    <label for="shadowX">Shadow X Offset:</label>
+                    <input type="range" id="shadowX" min="-20" max="20" value="0">
+                    <span class="range-value" id="shadowXValue">0px</span>
+
+                    <label for="shadowY">Shadow Y Offset:</label>
+                    <input type="range" id="shadowY" min="-20" max="20" value="2">
+                    <span class="range-value" id="shadowYValue">2px</span>
+
+                    <label for="shadowBlur">Shadow Blur:</label>
+                    <input type="range" id="shadowBlur" min="0" max="30" value="4">
+                    <span class="range-value" id="shadowBlurValue">4px</span>
+
+                    <label for="shadowColor">Shadow Color:</label>
+                    <input type="color" id="shadowColor" value="#000000">
+                </div>
+
+                <div class="control-group">
+                    <h3>Hover Effects</h3>
+                    <label for="hoverBgColor">Hover Background:</label>
+                    <input type="color" id="hoverBgColor" value="#b22222">
+
+                    <label for="hoverTransform">Hover Transform:</label>
+                    <select id="hoverTransform">
+                        <option value="none">None</option>
+                        <option value="scale(1.05)">Scale Up</option>
+                        <option value="translateY(-2px)">Lift Up</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Button Preview</h3>
+                <button class="button-preview" id="buttonPreview">Click Me!</button>
+                <p style="color: #666; font-size: 14px; margin: 10px 0;">Hover to see effects</p>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="code-output" id="codeOutput">
+/* Button Styles */
+.button {
+  background-color: #dc143c;
+  color: #ffffff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.button:hover {
+  background-color: #b22222;
+  transform: translateY(-2px);
+}
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const controls = {
+            bgColor: document.getElementById('bgColor'),
+            textColor: document.getElementById('textColor'),
+            borderColor: document.getElementById('borderColor'),
+            fontSize: document.getElementById('fontSize'),
+            fontSizeValue: document.getElementById('fontSizeValue'),
+            fontWeight: document.getElementById('fontWeight'),
+            paddingX: document.getElementById('paddingX'),
+            paddingXValue: document.getElementById('paddingXValue'),
+            paddingY: document.getElementById('paddingY'),
+            paddingYValue: document.getElementById('paddingYValue'),
+            borderRadius: document.getElementById('borderRadius'),
+            borderRadiusValue: document.getElementById('borderRadiusValue'),
+            borderWidth: document.getElementById('borderWidth'),
+            borderWidthValue: document.getElementById('borderWidthValue'),
+            shadowX: document.getElementById('shadowX'),
+            shadowXValue: document.getElementById('shadowXValue'),
+            shadowY: document.getElementById('shadowY'),
+            shadowYValue: document.getElementById('shadowYValue'),
+            shadowBlur: document.getElementById('shadowBlur'),
+            shadowBlurValue: document.getElementById('shadowBlurValue'),
+            shadowColor: document.getElementById('shadowColor'),
+            hoverBgColor: document.getElementById('hoverBgColor'),
+            hoverTransform: document.getElementById('hoverTransform')
+        };
+
+        const buttonPreview = document.getElementById('buttonPreview');
+        const codeOutput = document.getElementById('codeOutput');
+        const statusDiv = document.getElementById('status');
+
+        // Add event listeners to all controls
+        Object.keys(controls).forEach(key => {
+            if (controls[key].type === 'range') {
+                controls[key].addEventListener('input', updateRangeValue);
+                controls[key].addEventListener('input', updateButton);
+            } else {
+                controls[key].addEventListener('input', updateButton);
+                controls[key].addEventListener('change', updateButton);
+            }
+        });
+
+        // Initialize
+        updateAllRangeValues();
+        updateButton();
+
+        function updateRangeValue(event) {
+            const control = event.target;
+            const valueElement = controls[control.id + 'Value'];
+            if (valueElement) {
+                valueElement.textContent = control.value + 'px';
+            }
+        }
+
+        function updateAllRangeValues() {
+            Object.keys(controls).forEach(key => {
+                if (key.endsWith('Value')) {
+                    const controlId = key.replace('Value', '');
+                    const control = controls[controlId];
+                    if (control && control.type === 'range') {
+                        controls[key].textContent = control.value + 'px';
+                    }
+                }
+            });
+        }
+
+        function updateButton() {
+            const styles = {
+                backgroundColor: controls.bgColor.value,
+                color: controls.textColor.value,
+                fontSize: controls.fontSize.value + 'px',
+                fontWeight: controls.fontWeight.value,
+                padding: `${controls.paddingY.value}px ${controls.paddingX.value}px`,
+                borderRadius: controls.borderRadius.value + 'px',
+                border: controls.borderWidth.value > 0 ? `${controls.borderWidth.value}px solid ${controls.borderColor.value}` : 'none',
+                boxShadow: controls.shadowX.value === '0' && controls.shadowY.value === '0' && controls.shadowBlur.value === '0' ?
+                    'none' : `${controls.shadowX.value}px ${controls.shadowY.value}px ${controls.shadowBlur.value}px ${controls.shadowColor.value}`
+            };
+
+            // Apply styles to preview button
+            Object.assign(buttonPreview.style, styles);
+
+            // Generate CSS code
+            generateCSS(styles);
+        }
+
+        function generateCSS(styles) {
+            let css = `/* Button Styles */\n`;
+            css += `.button {\n`;
+            css += `  background-color: ${styles.backgroundColor};\n`;
+            css += `  color: ${styles.color};\n`;
+            css += `  padding: ${styles.padding};\n`;
+            css += `  border: ${styles.border};\n`;
+            css += `  border-radius: ${styles.borderRadius};\n`;
+            css += `  font-size: ${styles.fontSize};\n`;
+            css += `  font-weight: ${styles.fontWeight};\n`;
+            css += `  cursor: pointer;\n`;
+            css += `  transition: all 0.3s ease;\n`;
+
+            if (styles.boxShadow !== 'none') {
+                css += `  box-shadow: ${styles.boxShadow};\n`;
+            }
+
+            css += `}\n\n`;
+            css += `.button:hover {\n`;
+            css += `  background-color: ${controls.hoverBgColor.value};\n`;
+
+            if (controls.hoverTransform.value !== 'none') {
+                css += `  transform: ${controls.hoverTransform.value};\n`;
+            }
+
+            css += `}`;
+
+            codeOutput.textContent = css;
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeOutput.textContent).then(() => {
+                showStatus('✓ CSS code copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Processor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .section h2 { margin-top: 0; color: #007bff; }
+        input[type="file"] { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 100%; }
+        .crop-container { position: relative; max-width: 100%; margin: 20px 0; border: 2px dashed #ccc; padding: 20px; text-align: center; }
+        img { max-width: 100%; display: none; }
+        .start-crop { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .start-crop:hover { background: #0056b3; }
+        button { padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #218838; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .preview { margin: 20px 0; }
+        canvas { border: 1px solid #ccc; border-radius: 4px; }
+        .actions { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ID Card Processor</h1>
+        <p style="text-align: center;">Upload front and back images of the ID card, manually crop them, apply brightness enhancement, and generate a PDF.</p>
+
+        <div class="section">
+            <h2>Front Side</h2>
+            <p>1. Upload image. 2. Click Start Cropping. 3. Adjust crop area. 4. Click Crop.</p>
+            <input type="file" id="frontInput" accept="image/*">
+            <div class="crop-container" id="frontCropContainer">
+                <img id="frontImage">
+                <button class="start-crop" onclick="startCropping('front')">Start Cropping</button>
+            </div>
+            <button id="cropFrontBtn" onclick="cropImage('front')" disabled>Crop Front</button>
+            <div class="preview" id="frontPreview"></div>
+        </div>
+
+        <div class="section">
+            <h2>Back Side</h2>
+            <p>1. Upload image. 2. Click Start Cropping. 3. Adjust crop area. 4. Click Crop.</p>
+            <input type="file" id="backInput" accept="image/*">
+            <div class="crop-container" id="backCropContainer">
+                <img id="backImage">
+                <button class="start-crop" onclick="startCropping('back')">Start Cropping</button>
+            </div>
+            <button id="cropBackBtn" onclick="cropImage('back')" disabled>Crop Back</button>
+            <div class="preview" id="backPreview"></div>
+        </div>
+
+        <div class="actions">
+            <p>Note: Crop both front and back images for best results.</p>
+            <button id="processBtn" onclick="processImages()">Enhance Brightness & Generate PDF</button>
+        </div>
+
+        <div id="output" style="text-align: center; margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        let frontCropper, backCropper;
+        let frontCanvas, backCanvas;
+        let frontImageLoaded = false, backImageLoaded = false;
+
+        function loadImage(file, imgElement, side) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imgElement.src = e.target.result;
+                imgElement.style.display = 'none'; // Hide until start cropping
+                const startBtn = imgElement.parentElement.querySelector('.start-crop');
+                startBtn.style.display = 'inline-block';
+                if (side === 'front') {
+                    frontImageLoaded = true;
+                } else {
+                    backImageLoaded = true;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function startCropping(side) {
+            let imgElement, cropperVar;
+            if (side === 'front') {
+                imgElement = document.getElementById('frontImage');
+                cropperVar = 'frontCropper';
+            } else {
+                imgElement = document.getElementById('backImage');
+                cropperVar = 'backCropper';
+            }
+
+            if (!imgElement.src) return;
+
+            imgElement.style.display = 'block';
+            const startBtn = imgElement.parentElement.querySelector('.start-crop');
+            startBtn.style.display = 'none';
+
+            if (window[cropperVar]) window[cropperVar].destroy();
+            window[cropperVar] = new Cropper(imgElement, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                zoomable: false, // Prevent zooming on scroll
+                scalable: false,
+            });
+
+            // Enable crop button
+            document.getElementById('crop' + side.charAt(0).toUpperCase() + side.slice(1) + 'Btn').disabled = false;
+        }
+
+        document.getElementById('frontInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file, document.getElementById('frontImage'), 'front');
+            }
+        });
+
+        document.getElementById('backInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file, document.getElementById('backImage'), 'back');
+            }
+        });
+
+        function cloneCanvas(canvas) {
+            const newCanvas = document.createElement('canvas');
+            newCanvas.width = canvas.width;
+            newCanvas.height = canvas.height;
+            newCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            return newCanvas;
+        }
+
+        function cropImage(side) {
+            let cropper, previewId;
+            if (side === 'front') {
+                cropper = frontCropper;
+                previewId = 'frontPreview';
+            } else {
+                cropper = backCropper;
+                previewId = 'backPreview';
+            }
+
+            if (!cropper) return;
+
+            // Get the cropped canvas
+            const croppedCanvas = cropper.getCroppedCanvas({
+                width: 600,  // Set a fixed width for consistency
+                height: 400  // Set a fixed height for consistency
+            });
+            
+            if (!croppedCanvas) {
+                alert('Could not crop image. Please try again.');
+                return;
+            }
+
+            // Store the cropped canvas globally
+            if (side === 'front') {
+                frontCanvas = croppedCanvas;
+            } else {
+                backCanvas = croppedCanvas;
+            }
+
+            // Show preview
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '<h3>Cropped ' + side.charAt(0).toUpperCase() + side.slice(1) + '</h3>';
+            preview.appendChild(cloneCanvas(croppedCanvas));
+
+            // Hide cropping interface
+            const imgElement = document.getElementById(side + 'Image');
+            imgElement.style.display = 'none';
+            const startBtn = imgElement.parentElement.querySelector('.start-crop');
+            startBtn.style.display = 'inline-block';
+
+            // Destroy cropper
+            cropper.destroy();
+            if (side === 'front') {
+                frontCropper = null;
+            } else {
+                backCropper = null;
+            }
+        }
+
+        function adjustBrightness(canvas, brightness = 1.65) {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] * brightness);
+                data[i + 1] = Math.min(255, data[i + 1] * brightness);
+                data[i + 2] = Math.min(255, data[i + 2] * brightness);
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        function processImages() {
+            // Check if we have any images to process
+            const frontImg = document.getElementById('frontImage');
+            const backImg = document.getElementById('backImage');
+            
+            let frontToProcess = frontCanvas;
+            let backToProcess = backCanvas;
+
+            // If no cropped image, try to get original
+            if (!frontToProcess && frontImg.src) {
+                frontToProcess = document.createElement('canvas');
+                const ctx = frontToProcess.getContext('2d');
+                frontToProcess.width = frontImg.naturalWidth;
+                frontToProcess.height = frontImg.naturalHeight;
+                ctx.drawImage(frontImg, 0, 0);
+            }
+
+            if (!backToProcess && backImg.src) {
+                backToProcess = document.createElement('canvas');
+                const ctx = backToProcess.getContext('2d');
+                backToProcess.width = backImg.naturalWidth;
+                backToProcess.height = backImg.naturalHeight;
+                ctx.drawImage(backImg, 0, 0);
+            }
+
+            if (!frontToProcess && !backToProcess) {
+                alert('No images available to process. Please upload images first.');
+                return;
+            }
+
+            // Brighten front if available
+            const brightFront = frontToProcess ? adjustBrightness(cloneCanvas(frontToProcess)) : null;
+
+            // Brighten back if available
+            const brightBack = backToProcess ? adjustBrightness(cloneCanvas(backToProcess)) : null;
+
+            // Generate PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+
+            // Add front page if available
+            if (brightFront) {
+                const frontDataURL = brightFront.toDataURL('image/jpeg');
+                pdf.addImage(frontDataURL, 'JPEG', 10, 10, 190, 120);
+            }
+
+            // Add back page if available
+            if (brightBack) {
+                if (brightFront) pdf.addPage(); // Add new page only if front was added
+                const backDataURL = brightBack.toDataURL('image/jpeg');
+                pdf.addImage(backDataURL, 'JPEG', 10, 10, 190, 120);
+            }
+
+            // Download PDF
+            pdf.save('id_card.pdf');
+
+            document.getElementById('output').innerHTML = '<p style="color: green; font-weight: bold;">PDF generated and downloaded successfully!</p>';
+        }
+    </script>
+</body>
+</html>

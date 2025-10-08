@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .pattern-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        select, input[type="color"], input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            cursor: pointer;
+        }
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .pattern-preview {
+            width: 250px;
+            height: 250px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .presets {
+            margin-top: 20px;
+        }
+        .preset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .pattern-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="pattern-container">
+        <h1>Pattern Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Pattern Type</h3>
+                    <label for="patternType">Pattern:</label>
+                    <select id="patternType">
+                        <option value="stripes">Stripes</option>
+                        <option value="dots">Dots</option>
+                        <option value="checkerboard">Checkerboard</option>
+                        <option value="diagonal">Diagonal Stripes</option>
+                        <option value="zigzag">Zigzag</option>
+                        <option value="waves">Waves</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3>Colors</h3>
+                    <label for="color1">Color 1:</label>
+                    <input type="color" id="color1" value="#ffffff">
+
+                    <label for="color2">Color 2:</label>
+                    <input type="color" id="color2" value="#000000">
+                </div>
+
+                <div class="control-group">
+                    <h3>Size & Properties</h3>
+                    <label for="size">Pattern Size:</label>
+                    <input type="range" id="size" min="10" max="100" value="20">
+                    <span class="range-value" id="sizeValue">20px</span>
+
+                    <label for="angle">Angle (for stripes):</label>
+                    <input type="range" id="angle" min="0" max="90" value="0">
+                    <span class="range-value" id="angleValue">0°</span>
+                </div>
+
+                <div class="presets">
+                    <h3>Presets</h3>
+                    <button class="preset-btn" onclick="applyPreset('classic')">Classic Stripes</button>
+                    <button class="preset-btn" onclick="applyPreset('polka')">Polka Dots</button>
+                    <button class="preset-btn" onclick="applyPreset('checkered')">Checkered</button>
+                    <button class="preset-btn" onclick="applyPreset('argyle')">Argyle</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="pattern-preview" id="patternPreview"></div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="code-output" id="codeOutput">
+background-image: repeating-linear-gradient(0deg, #ffffff 0px, #ffffff 10px, #000000 10px, #000000 20px);
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const controls = {
+            patternType: document.getElementById('patternType'),
+            color1: document.getElementById('color1'),
+            color2: document.getElementById('color2'),
+            size: document.getElementById('size'),
+            sizeValue: document.getElementById('sizeValue'),
+            angle: document.getElementById('angle'),
+            angleValue: document.getElementById('angleValue')
+        };
+
+        const patternPreview = document.getElementById('patternPreview');
+        const codeOutput = document.getElementById('codeOutput');
+        const statusDiv = document.getElementById('status');
+
+        // Add event listeners
+        Object.keys(controls).forEach(key => {
+            const element = controls[key];
+            if (element.type === 'range') {
+                element.addEventListener('input', updateRangeValue);
+                element.addEventListener('input', updatePattern);
+            } else if (element.type === 'color') {
+                element.addEventListener('input', updatePattern);
+            } else if (element.type === 'select') {
+                element.addEventListener('change', updatePattern);
+            }
+        });
+
+        // Initialize
+        updateAllRangeValues();
+        updatePattern();
+
+        function updateRangeValue(event) {
+            const control = event.target;
+            const valueElement = controls[control.id + 'Value'];
+            if (valueElement) {
+                const unit = control.id === 'angle' ? '°' : 'px';
+                valueElement.textContent = control.value + unit;
+            }
+        }
+
+        function updateAllRangeValues() {
+            Object.keys(controls).forEach(key => {
+                if (key.endsWith('Value')) {
+                    const controlId = key.replace('Value', '');
+                    const control = controls[controlId];
+                    if (control && control.type === 'range') {
+                        const unit = controlId === 'angle' ? '°' : 'px';
+                        controls[key].textContent = control.value + unit;
+                    }
+                }
+            });
+        }
+
+        function updatePattern() {
+            const patternType = controls.patternType.value;
+            const color1 = controls.color1.value;
+            const color2 = controls.color2.value;
+            const size = parseInt(controls.size.value);
+            const angle = parseInt(controls.angle.value);
+
+            const backgroundImage = generatePattern(patternType, color1, color2, size, angle);
+            patternPreview.style.backgroundImage = backgroundImage;
+
+            // Generate CSS code
+            codeOutput.textContent = `background-image: ${backgroundImage};`;
+        }
+
+        function generatePattern(type, color1, color2, size, angle) {
+            switch (type) {
+                case 'stripes':
+                    return `repeating-linear-gradient(${angle}deg, ${color1} 0px, ${color1} ${size}px, ${color2} ${size}px, ${color2} ${size * 2}px)`;
+                case 'dots':
+                    return `radial-gradient(circle, ${color2} ${size/4}px, transparent ${size/4}px), radial-gradient(circle, ${color1} ${size/4}px, transparent ${size/4}px)`;
+                case 'checkerboard':
+                    return `repeating-conic-gradient(${color1} 0% 25%, ${color2} 0% 50%) 0% 0% / ${size * 2}px ${size * 2}px`;
+                case 'diagonal':
+                    return `repeating-linear-gradient(45deg, ${color1} 0px, ${color1} ${size/2}px, ${color2} ${size/2}px, ${color2} ${size}px)`;
+                case 'zigzag':
+                    const zigzag = `repeating-linear-gradient(45deg, ${color1} 0px, ${color1} ${size/4}px, ${color2} ${size/4}px, ${color2} ${size/2}px, ${color1} ${size/2}px, ${color1} ${size * 3/4}px, ${color2} ${size * 3/4}px, ${color2} ${size}px)`;
+                    return zigzag;
+                case 'waves':
+                    return `repeating-linear-gradient(0deg, ${color1} 0px, ${color1} ${size/2}px, ${color2} ${size/2}px, ${color2} ${size}px), repeating-linear-gradient(90deg, ${color1} 0px, ${color1} ${size/2}px, ${color2} ${size/2}px, ${color2} ${size}px)`;
+                default:
+                    return `repeating-linear-gradient(0deg, ${color1} 0px, ${color1} ${size}px, ${color2} ${size}px, ${color2} ${size * 2}px)`;
+            }
+        }
+
+        function applyPreset(preset) {
+            switch (preset) {
+                case 'classic':
+                    setValues('stripes', '#ffffff', '#000000', 20, 0);
+                    break;
+                case 'polka':
+                    setValues('dots', '#ffffff', '#000000', 20, 0);
+                    break;
+                case 'checkered':
+                    setValues('checkerboard', '#ffffff', '#000000', 20, 0);
+                    break;
+                case 'argyle':
+                    setValues('diagonal', '#ffffff', '#000000', 20, 45);
+                    break;
+            }
+        }
+
+        function setValues(type, color1, color2, size, angle) {
+            controls.patternType.value = type;
+            controls.color1.value = color1;
+            controls.color2.value = color2;
+            controls.size.value = size;
+            controls.angle.value = angle;
+            updateAllRangeValues();
+            updatePattern();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeOutput.textContent).then(() => {
+                showStatus('✓ CSS code copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

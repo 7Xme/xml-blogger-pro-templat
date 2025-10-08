@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poll Creator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+        }
+        .poll-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .options-section {
+            margin-top: 20px;
+        }
+        .option-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .option-row input {
+            flex: 1;
+            margin: 0;
+        }
+        .remove-option {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-option:hover {
+            background: #c82333;
+        }
+        .add-option-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .add-option-btn:hover {
+            background: #218838;
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 400px;
+        }
+        .poll-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .poll-question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .poll-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .poll-option {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        .poll-option:hover {
+            background: #e9ecef;
+        }
+        .poll-results {
+            margin-top: 20px;
+        }
+        .result-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .result-label {
+            width: 120px;
+            font-size: 14px;
+        }
+        .result-fill {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+        .result-fill div {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #28a745);
+            transition: width 0.5s ease;
+        }
+        .result-percentage {
+            width: 50px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .generate-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .generate-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .poll-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+            .option-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="poll-container">
+        <h1>Poll Creator</h1>
+
+        <div class="generator-layout">
+            <div class="form-section">
+                <div class="control-group">
+                    <label for="pollQuestion">Poll Question:</label>
+                    <textarea id="pollQuestion" rows="3" placeholder="What's your favorite programming language?"></textarea>
+                </div>
+
+                <div class="options-section">
+                    <h3>Answer Options</h3>
+                    <div id="optionsList">
+                        <div class="option-row">
+                            <input type="text" placeholder="Option 1" value="JavaScript">
+                            <button class="remove-option" onclick="removeOption(this)">×</button>
+                        </div>
+                        <div class="option-row">
+                            <input type="text" placeholder="Option 2" value="Python">
+                            <button class="remove-option" onclick="removeOption(this)">×</button>
+                        </div>
+                    </div>
+                    <button class="add-option-btn" onclick="addOption()">+ Add Option</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="poll-preview">
+                    <div class="poll-question" id="previewQuestion">Poll Question</div>
+                    <div class="poll-options" id="previewOptions">
+                        <!-- Options will be generated here -->
+                    </div>
+                    <div class="poll-results" id="pollResults" style="display: none;">
+                        <h4>Results:</h4>
+                        <div id="resultsList"></div>
+                    </div>
+                    <button class="generate-btn" id="voteBtn" onclick="submitVote()">Vote!</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-output" id="codeOutput">
+<!-- Generated HTML code will appear here -->
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy HTML Code</button>
+    </div>
+
+    <script>
+        let optionCount = 2;
+        let votes = [];
+        let hasVoted = false;
+
+        function addOption() {
+            optionCount++;
+            const optionsList = document.getElementById('optionsList');
+            const newOption = document.createElement('div');
+            newOption.className = 'option-row';
+            newOption.innerHTML = `
+                <input type="text" placeholder="Option ${optionCount}">
+                <button class="remove-option" onclick="removeOption(this)">×</button>
+            `;
+            optionsList.appendChild(newOption);
+            updatePreview();
+        }
+
+        function removeOption(button) {
+            if (document.querySelectorAll('.option-row').length > 2) {
+                button.parentElement.remove();
+                updatePreview();
+            } else {
+                alert('You need at least 2 options!');
+            }
+        }
+
+        function updatePreview() {
+            const question = document.getElementById('pollQuestion').value;
+            const previewQuestion = document.getElementById('previewQuestion');
+            const previewOptions = document.getElementById('previewOptions');
+
+            previewQuestion.textContent = question || 'Your poll question here';
+
+            const options = document.querySelectorAll('.option-row input');
+            previewOptions.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'poll-option';
+                optionEl.textContent = option.value || `Option ${index + 1}`;
+                optionEl.onclick = () => selectOption(index);
+                previewOptions.appendChild(optionEl);
+            });
+
+            generateCode();
+        }
+
+        function selectOption(index) {
+            if (hasVoted) return;
+
+            document.querySelectorAll('.poll-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === index);
+            });
+        }
+
+        function submitVote() {
+            if (hasVoted) return;
+
+            const selectedOption = document.querySelector('.poll-option.selected');
+            if (!selectedOption) {
+                alert('Please select an option first!');
+                return;
+            }
+
+            const options = document.querySelectorAll('.poll-option');
+            const voteIndex = Array.from(options).indexOf(selectedOption);
+
+            if (!votes[voteIndex]) votes[voteIndex] = 0;
+            votes[voteIndex]++;
+
+            hasVoted = true;
+            showResults();
+        }
+
+        function showResults() {
+            document.getElementById('voteBtn').style.display = 'none';
+            document.getElementById('pollResults').style.display = 'block';
+
+            const options = document.querySelectorAll('.poll-option');
+            const resultsList = document.getElementById('resultsList');
+            const totalVotes = votes.reduce((sum, vote) => sum + (vote || 0), 0);
+
+            resultsList.innerHTML = '';
+
+            options.forEach((option, index) => {
+                const voteCount = votes[index] || 0;
+                const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+
+                const resultEl = document.createElement('div');
+                resultEl.className = 'result-bar';
+                resultEl.innerHTML = `
+                    <div class="result-label">${option.textContent}</div>
+                    <div class="result-fill">
+                        <div style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="result-percentage">${percentage}%</div>
+                `;
+
+                resultsList.appendChild(resultEl);
+            });
+        }
+
+        function generateCode() {
+            const question = document.getElementById('pollQuestion').value;
+            const options = Array.from(document.querySelectorAll('.option-row input')).map(input => input.value);
+
+            const htmlCode = `
+<div class="poll-container">
+  <div class="poll-question">${question}</div>
+  <div class="poll-options">
+${options.map(option => `    <div class="poll-option">${option}</div>`).join('\n')}
+  </div>
+  <button class="vote-btn">Vote</button>
+</div>
+
+<style>
+.poll-container { font-family: Arial, sans-serif; max-width: 400px; margin: 20px auto; }
+.poll-question { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+.poll-options { display: flex; flex-direction: column; gap: 10px; }
+.poll-option { padding: 10px; background: #f5f5f5; border-radius: 5px; cursor: pointer; }
+.poll-option:hover { background: #e0e0e0; }
+.vote-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
+</style>
+`;
+
+            document.getElementById('codeOutput').innerHTML = htmlCode;
+        }
+
+        function copyCode() {
+            const code = document.getElementById('codeOutput').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('pollQuestion').addEventListener('input', updatePreview);
+            document.querySelectorAll('.option-row input').forEach(input => {
+                input.addEventListener('input', updatePreview);
+            });
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

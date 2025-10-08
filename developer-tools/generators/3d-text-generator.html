@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Text Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+        }
+        .text3d-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            cursor: pointer;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .text3d-preview {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            transition: text-shadow 0.3s ease;
+            margin: 20px 0;
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .presets {
+            margin-top: 20px;
+        }
+        .preset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .text3d-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+            .text3d-preview {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="text3d-container">
+        <h1>3D Text Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Text Content</h3>
+                    <label for="textContent">Text:</label>
+                    <textarea id="textContent">3D TEXT</textarea>
+                </div>
+
+                <div class="control-group">
+                    <h3>Typography</h3>
+                    <label for="fontSize">Font Size:</label>
+                    <input type="range" id="fontSize" min="24" max="72" value="48">
+                    <span class="range-value" id="fontSizeValue">48px</span>
+
+                    <label for="fontFamily">Font Family:</label>
+                    <select id="fontFamily">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="Times New Roman, serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="Impact, sans-serif">Impact</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3>3D Effect</h3>
+                    <label for="depth">Depth:</label>
+                    <input type="range" id="depth" min="1" max="20" value="5">
+                    <span class="range-value" id="depthValue">5 layers</span>
+
+                    <label for="shadowColor">Shadow Color:</label>
+                    <input type="color" id="shadowColor" value="#000000">
+
+                    <label for="textColor">Text Color:</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+
+                <div class="control-group">
+                    <h3>Direction</h3>
+                    <label for="direction">Shadow Direction:</label>
+                    <select id="direction">
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="radial">Radial</option>
+                    </select>
+                </div>
+
+                <div class="presets">
+                    <h3>Presets</h3>
+                    <button class="preset-btn" onclick="applyPreset('classic')">Classic</button>
+                    <button class="preset-btn" onclick="applyPreset('embossed')">Embossed</button>
+                    <button class="preset-btn" onclick="applyPreset('inset')">Inset</button>
+                    <button class="preset-btn" onclick="applyPreset('neon')">Neon</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="text3d-preview" id="text3dPreview">3D TEXT</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="code-output" id="codeOutput">
+color: #ffffff;
+text-shadow: 1px 1px 0px #000000, 2px 2px 0px #000000, 3px 3px 0px #000000, 4px 4px 0px #000000, 5px 5px 0px #000000;
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const controls = {
+            textContent: document.getElementById('textContent'),
+            fontSize: document.getElementById('fontSize'),
+            fontSizeValue: document.getElementById('fontSizeValue'),
+            fontFamily: document.getElementById('fontFamily'),
+            depth: document.getElementById('depth'),
+            depthValue: document.getElementById('depthValue'),
+            shadowColor: document.getElementById('shadowColor'),
+            textColor: document.getElementById('textColor'),
+            direction: document.getElementById('direction')
+        };
+
+        const text3dPreview = document.getElementById('text3dPreview');
+        const codeOutput = document.getElementById('codeOutput');
+        const statusDiv = document.getElementById('status');
+
+        // Add event listeners
+        Object.keys(controls).forEach(key => {
+            const element = controls[key];
+            if (element.type === 'range') {
+                element.addEventListener('input', updateRangeValue);
+                element.addEventListener('input', updateText3D);
+            } else {
+                element.addEventListener('input', updateText3D);
+                element.addEventListener('change', updateText3D);
+            }
+        });
+
+        // Initialize
+        updateAllRangeValues();
+        updateText3D();
+
+        function updateRangeValue(event) {
+            const control = event.target;
+            const valueElement = controls[control.id + 'Value'];
+            if (valueElement) {
+                const unit = control.id === 'depth' ? ' layers' : 'px';
+                valueElement.textContent = control.value + unit;
+            }
+        }
+
+        function updateAllRangeValues() {
+            Object.keys(controls).forEach(key => {
+                if (key.endsWith('Value')) {
+                    const controlId = key.replace('Value', '');
+                    const control = controls[controlId];
+                    if (control && control.type === 'range') {
+                        const unit = controlId === 'depth' ? ' layers' : 'px';
+                        controls[key].textContent = control.value + unit;
+                    }
+                }
+            });
+        }
+
+        function updateText3D() {
+            const text = controls.textContent.value;
+            const fontSize = controls.fontSize.value;
+            const fontFamily = controls.fontFamily.value;
+            const depth = parseInt(controls.depth.value);
+            const shadowColor = controls.shadowColor.value;
+            const textColor = controls.textColor.value;
+            const direction = controls.direction.value;
+
+            // Update preview
+            text3dPreview.textContent = text;
+            text3dPreview.style.fontSize = fontSize + 'px';
+            text3dPreview.style.fontFamily = fontFamily;
+            text3dPreview.style.color = textColor;
+
+            // Generate text shadows
+            const shadows = generateShadows(depth, shadowColor, direction);
+            text3dPreview.style.textShadow = shadows.join(', ');
+
+            // Generate CSS code
+            let css = `color: ${textColor};\n`;
+            css += `font-family: ${fontFamily};\n`;
+            css += `font-size: ${fontSize}px;\n`;
+            css += `text-shadow: ${shadows.join(', ')};`;
+
+            codeOutput.textContent = css;
+        }
+
+        function generateShadows(depth, color, direction) {
+            const shadows = [];
+            let dx = 0, dy = 0;
+
+            switch (direction) {
+                case 'bottom-right':
+                    dx = 1; dy = 1;
+                    break;
+                case 'bottom-left':
+                    dx = -1; dy = 1;
+                    break;
+                case 'top-right':
+                    dx = 1; dy = -1;
+                    break;
+                case 'top-left':
+                    dx = -1; dy = -1;
+                    break;
+                case 'radial':
+                    // Special case for radial effect
+                    for (let i = 1; i <= depth; i++) {
+                        const angle = (i / depth) * Math.PI * 2;
+                        const x = Math.cos(angle) * i;
+                        const y = Math.sin(angle) * i;
+                        shadows.push(`${x}px ${y}px 0px ${color}`);
+                    }
+                    return shadows;
+            }
+
+            for (let i = 1; i <= depth; i++) {
+                shadows.push(`${dx * i}px ${dy * i}px 0px ${color}`);
+            }
+
+            return shadows;
+        }
+
+        function applyPreset(preset) {
+            switch (preset) {
+                case 'classic':
+                    setValues('3D TEXT', 48, 'Impact, sans-serif', 5, '#000000', '#ffffff', 'bottom-right');
+                    break;
+                case 'embossed':
+                    setValues('EMBOSSED', 48, 'Georgia, serif', 3, '#666666', '#cccccc', 'bottom-right');
+                    break;
+                case 'inset':
+                    setValues('INSET', 48, 'Arial, sans-serif', 4, '#666666', '#999999', 'top-left');
+                    break;
+                case 'neon':
+                    setValues('NEON', 48, 'Arial, sans-serif', 8, '#00ff00', '#ffffff', 'bottom-right');
+                    break;
+            }
+        }
+
+        function setValues(text, fontSize, fontFamily, depth, shadowColor, textColor, direction) {
+            controls.textContent.value = text;
+            controls.fontSize.value = fontSize;
+            controls.fontFamily.value = fontFamily;
+            controls.depth.value = depth;
+            controls.shadowColor.value = shadowColor;
+            controls.textColor.value = textColor;
+            controls.direction.value = direction;
+            updateAllRangeValues();
+            updateText3D();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeOutput.textContent).then(() => {
+                showStatus('✓ CSS code copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

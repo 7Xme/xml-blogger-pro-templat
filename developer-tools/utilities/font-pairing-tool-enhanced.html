@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Pairing Tool (Enhanced)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .font-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .controls-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        .font-selector {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+        }
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input[type="color"] {
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .contrast-ratio {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .contrast-good {
+            background: #d4edda;
+            color: #155724;
+        }
+        .contrast-poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .preview-text {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        .heading-preview {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+        .body-preview {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.6;
+        }
+        .sample-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .sample-heading {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .sample-body {
+            font-size: 1em;
+            color: #555;
+        }
+        .pairing-suggestions {
+            margin-bottom: 30px;
+        }
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .suggestion-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .suggestion-card:hover {
+            border-color: #dc143c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .suggestion-heading {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+        .suggestion-body {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .css-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-css-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        .copy-css-btn:hover {
+            background: #218838;
+        }
+        .font-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        .font-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .font-category {
+            color: #666;
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .font-container {
+                padding: 20px;
+            }
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+            .suggestions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="font-container">
+        <h1>Font Pairing Tool (Enhanced)</h1>
+
+        <div class="controls-section">
+            <div class="control-group">
+                <h3>Heading Font</h3>
+                <div class="font-selector">
+                    <label for="headingFont">Select Heading Font:</label>
+                    <select id="headingFont">
+                        <option value="Playfair Display">Playfair Display (Serif)</option>
+                        <option value="Oswald">Oswald (Sans-serif)</option>
+                        <option value="Montserrat">Montserrat (Sans-serif)</option>
+                        <option value="Roboto Slab">Roboto Slab (Serif)</option>
+                        <option value="Bebas Neue">Bebas Neue (Display)</option>
+                        <option value="Cinzel">Cinzel (Serif)</option>
+                        <option value="Comfortaa">Comfortaa (Display)</option>
+                        <option value="Dancing Script">Dancing Script (Handwriting)</option>
+                        <option value="Fjalla One">Fjalla One (Sans-serif)</option>
+                        <option value="Great Vibes">Great Vibes (Handwriting)</option>
+                        <option value="Karla">Karla (Sans-serif)</option>
+                        <option value="Lobster">Lobster (Display)</option>
+                        <option value="Muli">Muli (Sans-serif)</option>
+                        <option value="Pacifico">Pacifico (Handwriting)</option>
+                        <option value="Poppins">Poppins (Sans-serif)</option>
+                        <option value="Quicksand">Quicksand (Sans-serif)</option>
+                        <option value="Righteous">Righteous (Display)</option>
+                        <option value="Satisfy">Satisfy (Handwriting)</option>
+                        <option value="Ubuntu">Ubuntu (Sans-serif)</option>
+                    </select>
+                </div>
+                <div class="color-picker">
+                    <input type="color" id="headingColor" value="#333333">
+                    <label for="headingColor">Text Color</label>
+                    <span class="contrast-ratio" id="headingContrast"></span>
+                </div>
+                <div class="font-info">
+                    <span class="font-name" id="headingFontName">Playfair Display</span>
+                    <span class="font-category">Serif</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Body Font</h3>
+                <div class="font-selector">
+                    <label for="bodyFont">Select Body Font:</label>
+                    <select id="bodyFont">
+                        <option value="Inter">Inter (Sans-serif)</option>
+                        <option value="Open Sans">Open Sans (Sans-serif)</option>
+                        <option value="Lato">Lato (Sans-serif)</option>
+                        <option value="Nunito">Nunito (Sans-serif)</option>
+                        <option value="Roboto">Roboto (Sans-serif)</option>
+                        <option value="Source Sans Pro">Source Sans Pro (Sans-serif)</option>
+                        <option value="Work Sans">Work Sans (Sans-serif)</option>
+                        <option value="Crimson Text">Crimson Text (Serif)</option>
+                        <option value="Libre Baskerville">Libre Baskerville (Serif)</option>
+                        <option value="Merriweather">Merriweather (Serif)</option>
+                        <option value="Playfair Display">Playfair Display (Serif)</option>
+                        <option value="Vollkorn">Vollkorn (Serif)</option>
+                        <option value="Fira Sans">Fira Sans (Sans-serif)</option>
+                        <option value="Hind">Hind (Sans-serif)</option>
+                        <option value="Karla">Karla (Sans-serif)</option>
+                        <option value="Libre Franklin">Libre Franklin (Sans-serif)</option>
+                        <option value="Muli">Muli (Sans-serif)</option>
+                        <option value="Poppins">Poppins (Sans-serif)</option>
+                        <option value="Quicksand">Quicksand (Sans-serif)</option>
+                        <option value="Rubik">Rubik (Sans-serif)</option>
+                    </select>
+                </div>
+                <div class="color-picker">
+                    <input type="color" id="bodyColor" value="#666666">
+                    <label for="bodyColor">Text Color</label>
+                    <span class="contrast-ratio" id="bodyContrast"></span>
+                </div>
+                <div class="color-picker">
+                    <input type="color" id="backgroundColor" value="#ffffff">
+                    <label for="backgroundColor">Background Color</label>
+                </div>
+                <div class="font-info">
+                    <span class="font-name" id="bodyFontName">Inter</span>
+                    <span class="font-category">Sans-serif</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h3>Live Preview</h3>
+            <div class="preview-text" id="previewContainer">
+                <div class="heading-preview" id="headingPreview">Beautiful Typography</div>
+                <div class="body-preview" id="bodyPreview">
+                    Creating harmonious font combinations is essential for good design.
+                    The right pairing can make your content more readable and visually appealing.
+                    Experiment with different combinations to find what works best for your project.
+                </div>
+            </div>
+
+            <div class="sample-text" id="sampleContainer">
+                <div class="sample-heading" id="sampleHeading">Sample Heading Text</div>
+                <div class="sample-body" id="sampleBody">
+                    This is sample body text to demonstrate how the fonts work together.
+                    The contrast between heading and body fonts should create a clear hierarchy
+                    while maintaining readability and visual appeal.
+                </div>
+            </div>
+        </div>
+
+        <div class="pairing-suggestions">
+            <h3>Recommended Pairings</h3>
+            <div class="suggestions-grid" id="suggestionsGrid">
+                <!-- Suggestions will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="css-output" id="cssOutput">
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;600&display=swap');
+
+/* Apply fonts and colors */
+.heading {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  color: #333333;
+}
+
+.body-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: #666666;
+  background-color: #ffffff;
+}
+        </div>
+        <button class="copy-css-btn" onclick="copyCSS()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Font data with categories and Google Fonts links
+        const fontData = {
+            "Playfair Display": { category: "Serif", weights: "400,700", link: "Playfair+Display:wght@400;700" },
+            "Oswald": { category: "Sans-serif", weights: "400,700", link: "Oswald:wght@400;700" },
+            "Montserrat": { category: "Sans-serif", weights: "400,700", link: "Montserrat:wght@400;700" },
+            "Roboto Slab": { category: "Serif", weights: "400,700", link: "Roboto+Slab:wght@400;700" },
+            "Bebas Neue": { category: "Display", weights: "400", link: "Bebas+Neue" },
+            "Cinzel": { category: "Serif", weights: "400,700", link: "Cinzel:wght@400;700" },
+            "Comfortaa": { category: "Display", weights: "400,700", link: "Comfortaa:wght@400;700" },
+            "Dancing Script": { category: "Handwriting", weights: "400,700", link: "Dancing+Script:wght@400;700" },
+            "Fjalla One": { category: "Sans-serif", weights: "400", link: "Fjalla+One" },
+            "Great Vibes": { category: "Handwriting", weights: "400", link: "Great+Vibes" },
+            "Karla": { category: "Sans-serif", weights: "400,700", link: "Karla:wght@400;700" },
+            "Lobster": { category: "Display", weights: "400", link: "Lobster" },
+            "Muli": { category: "Sans-serif", weights: "400,600", link: "Muli:wght@400;600" },
+            "Pacifico": { category: "Handwriting", weights: "400", link: "Pacifico" },
+            "Poppins": { category: "Sans-serif", weights: "400,600", link: "Poppins:wght@400;600" },
+            "Quicksand": { category: "Sans-serif", weights: "400,600", link: "Quicksand:wght@400;600" },
+            "Righteous": { category: "Display", weights: "400", link: "Righteous" },
+            "Satisfy": { category: "Handwriting", weights: "400", link: "Satisfy" },
+            "Ubuntu": { category: "Sans-serif", weights: "400,700", link: "Ubuntu:wght@400;700" },
+            "Inter": { category: "Sans-serif", weights: "400,600", link: "Inter:wght@400;600" },
+            "Open Sans": { category: "Sans-serif", weights: "400,600", link: "Open+Sans:wght@400;600" },
+            "Lato": { category: "Sans-serif", weights: "400,700", link: "Lato:wght@400;700" },
+            "Nunito": { category: "Sans-serif", weights: "400,600", link: "Nunito:wght@400;600" },
+            "Roboto": { category: "Sans-serif", weights: "400,700", link: "Roboto:wght@400;700" },
+            "Source Sans Pro": { category: "Sans-serif", weights: "400,600", link: "Source+Sans+Pro:wght@400;600" },
+            "Work Sans": { category: "Sans-serif", weights: "400,600", link: "Work+Sans:wght@400;600" },
+            "Crimson Text": { category: "Serif", weights: "400,600", link: "Crimson+Text:wght@400;600" },
+            "Libre Baskerville": { category: "Serif", weights: "400,700", link: "Libre+Baskerville:wght@400;700" },
+            "Merriweather": { category: "Serif", weights: "400,700", link: "Merriweather:wght@400;700" },
+            "Vollkorn": { category: "Serif", weights: "400,600", link: "Vollkorn:wght@400;600" },
+            "Fira Sans": { category: "Sans-serif", weights: "400,600", link: "Fira+Sans:wght@400;600" },
+            "Hind": { category: "Sans-serif", weights: "400,600", link: "Hind:wght@400;600" },
+            "Libre Franklin": { category: "Sans-serif", weights: "400,600", link: "Libre+Franklin:wght@400;600" },
+            "Rubik": { category: "Sans-serif", weights: "400,600", link: "Rubik:wght@400;600" }
+        };
+
+        // DOM elements
+        const headingFont = document.getElementById('headingFont');
+        const bodyFont = document.getElementById('bodyFont');
+        const headingColor = document.getElementById('headingColor');
+        const bodyColor = document.getElementById('bodyColor');
+        const backgroundColor = document.getElementById('backgroundColor');
+        const headingPreview = document.getElementById('headingPreview');
+        const bodyPreview = document.getElementById('bodyPreview');
+        const sampleHeading = document.getElementById('sampleHeading');
+        const sampleBody = document.getElementById('sampleBody');
+        const previewContainer = document.getElementById('previewContainer');
+        const sampleContainer = document.getElementById('sampleContainer');
+        const cssOutput = document.getElementById('cssOutput');
+        const suggestionsGrid = document.getElementById('suggestionsGrid');
+        const headingContrast = document.getElementById('headingContrast');
+        const bodyContrast = document.getElementById('bodyContrast');
+
+        // Current fonts and colors
+        let currentHeadingFont = 'Playfair Display';
+        let currentBodyFont = 'Inter';
+        let currentHeadingColor = '#333333';
+        let currentBodyColor = '#666666';
+        let currentBackgroundColor = '#ffffff';
+
+        // Event listeners
+        headingFont.addEventListener('change', updateFonts);
+        bodyFont.addEventListener('change', updateFonts);
+        headingColor.addEventListener('input', updateColors);
+        bodyColor.addEventListener('input', updateColors);
+        backgroundColor.addEventListener('input', updateColors);
+
+        // Initialize
+        updateFonts();
+        generateSuggestions();
+
+        async function updateFonts() {
+            currentHeadingFont = headingFont.value;
+            currentBodyFont = bodyFont.value;
+
+            // Update font names and categories
+            document.getElementById('headingFontName').textContent = currentHeadingFont;
+            document.getElementById('bodyFontName').textContent = currentBodyFont;
+            document.querySelector('.font-info:nth-child(1) .font-category').textContent = fontData[currentHeadingFont].category;
+            document.querySelector('.font-info:nth-child(2) .font-category').textContent = fontData[currentBodyFont].category;
+
+            // Load fonts
+            await loadFonts();
+
+            // Apply fonts and colors
+            applyFonts();
+            updateColors();
+
+            // Update CSS
+            updateCSS();
+        }
+
+        async function loadFonts() {
+            const headingLink = fontData[currentHeadingFont].link;
+            const bodyLink = fontData[currentBodyFont].link;
+
+            // Remove existing font links
+            document.querySelectorAll('link[data-font]').forEach(link => link.remove());
+
+            // Add new font links
+            const headingFontLink = document.createElement('link');
+            headingFontLink.rel = 'stylesheet';
+            headingFontLink.href = `https://fonts.googleapis.com/css2?family=${headingLink}&display=swap`;
+            headingFontLink.setAttribute('data-font', 'heading');
+            document.head.appendChild(headingFontLink);
+
+            if (headingLink !== bodyLink) {
+                const bodyFontLink = document.createElement('link');
+                bodyFontLink.rel = 'stylesheet';
+                bodyFontLink.href = `https://fonts.googleapis.com/css2?family=${bodyLink}&display=swap`;
+                bodyFontLink.setAttribute('data-font', 'body');
+                document.head.appendChild(bodyFontLink);
+            }
+
+            // Wait for fonts to load
+            await document.fonts.ready;
+        }
+
+        function applyFonts() {
+            const headingStyle = `font-family: '${currentHeadingFont}', ${fontData[currentHeadingFont].category.toLowerCase()}; font-weight: 700; color: ${currentHeadingColor};`;
+            const bodyStyle = `font-family: '${currentBodyFont}', ${fontData[currentBodyFont].category.toLowerCase()}; font-weight: 400; color: ${currentBodyColor};`;
+
+            headingPreview.style.cssText = headingStyle;
+            bodyPreview.style.cssText = bodyStyle;
+            sampleHeading.style.cssText = headingStyle;
+            sampleBody.style.cssText = bodyStyle;
+        }
+
+        function updateColors() {
+            currentHeadingColor = headingColor.value;
+            currentBodyColor = bodyColor.value;
+            currentBackgroundColor = backgroundColor.value;
+
+            previewContainer.style.backgroundColor = currentBackgroundColor;
+            sampleContainer.style.backgroundColor = currentBackgroundColor;
+
+            applyFonts();
+
+            // Calculate contrast ratios
+            const headingRatio = calculateContrastRatio(currentHeadingColor, currentBackgroundColor);
+            const bodyRatio = calculateContrastRatio(currentBodyColor, currentBackgroundColor);
+
+            headingContrast.textContent = `Contrast: ${headingRatio.toFixed(1)}:1`;
+            headingContrast.className = `contrast-ratio ${headingRatio >= 4.5 ? 'contrast-good' : 'contrast-poor'}`;
+
+            bodyContrast.textContent = `Contrast: ${bodyRatio.toFixed(1)}:1`;
+            bodyContrast.className = `contrast-ratio ${bodyRatio >= 4.5 ? 'contrast-good' : 'contrast-poor'}`;
+
+            updateCSS();
+        }
+
+        function calculateContrastRatio(color1, color2) {
+            const l1 = getLuminance(color1);
+            const l2 = getLuminance(color2);
+            const lighter = Math.max(l1, l2);
+            const darker = Math.min(l1, l2);
+            return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function getLuminance(hex) {
+            const rgb = hexToRgb(hex);
+            const rsRGB = rgb.r / 255;
+            const gsRGB = rgb.g / 255;
+            const bsRGB = rgb.b / 255;
+
+            const r = rsRGB <= 0.03928 ? rsRGB / 12.92 : Math.pow((rsRGB + 0.055) / 1.055, 2.4);
+            const g = gsRGB <= 0.03928 ? gsRGB / 12.92 : Math.pow((gsRGB + 0.055) / 1.055, 2.4);
+            const b = bsRGB <= 0.03928 ? bsRGB / 12.92 : Math.pow((bsRGB + 0.055) / 1.055, 2.4);
+
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function updateCSS() {
+            const headingLink = fontData[currentHeadingFont].link;
+            const bodyLink = fontData[currentBodyFont].link;
+
+            let css = `/* Import Google Fonts */\n`;
+            css += `@import url('https://fonts.googleapis.com/css2?family=${headingLink}&display=swap');\n`;
+
+            if (headingLink !== bodyLink) {
+                css += `@import url('https://fonts.googleapis.com/css2?family=${bodyLink}&display=swap');\n`;
+            }
+
+            css += `\n/* Apply fonts and colors */\n`;
+            css += `.heading {\n`;
+            css += `  font-family: '${currentHeadingFont}', ${fontData[currentHeadingFont].category.toLowerCase()};\n`;
+            css += `  font-weight: 700;\n`;
+            css += `  color: ${currentHeadingColor};\n`;
+            css += `}\n\n`;
+            css += `.body-text {\n`;
+            css += `  font-family: '${currentBodyFont}', ${fontData[currentBodyFont].category.toLowerCase()};\n`;
+            css += `  font-weight: 400;\n`;
+            css += `  color: ${currentBodyColor};\n`;
+            css += `  background-color: ${currentBackgroundColor};\n`;
+            css += `}`;
+
+            cssOutput.textContent = css;
+        }
+
+        function generateSuggestions() {
+            const suggestions = [
+                { heading: 'Montserrat', body: 'Open Sans', desc: 'Modern & Clean' },
+                { heading: 'Playfair Display', body: 'Inter', desc: 'Classic Elegance' },
+                { heading: 'Oswald', body: 'Lato', desc: 'Bold & Minimal' },
+                { heading: 'Cinzel', body: 'Nunito', desc: 'Traditional & Modern' },
+                { heading: 'Bebas Neue', body: 'Roboto', desc: 'Display & Readable' },
+                { heading: 'Great Vibes', body: 'Poppins', desc: 'Elegant & Contemporary' },
+                { heading: 'Fjalla One', body: 'Libre Franklin', desc: 'Strong & Professional' },
+                { heading: 'Lobster', body: 'Quicksand', desc: 'Fun & Friendly' }
+            ];
+
+            suggestionsGrid.innerHTML = '';
+
+            suggestions.forEach(suggestion => {
+                const card = document.createElement('div');
+                card.className = 'suggestion-card';
+                card.onclick = () => applySuggestion(suggestion.heading, suggestion.body);
+
+                card.innerHTML = `
+                    <div class="suggestion-heading" style="font-family: '${suggestion.heading}', ${fontData[suggestion.heading]?.category.toLowerCase() || 'sans-serif'}; font-weight: 700;">${suggestion.heading}</div>
+                    <div class="suggestion-body" style="font-family: '${suggestion.body}', ${fontData[suggestion.body]?.category.toLowerCase() || 'sans-serif'};">${suggestion.body}</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 8px;">${suggestion.desc}</div>
+                `;
+
+                suggestionsGrid.appendChild(card);
+            });
+        }
+
+        function applySuggestion(heading, body) {
+            headingFont.value = heading;
+            bodyFont.value = body;
+            updateFonts();
+        }
+
+        function copyCSS() {
+            navigator.clipboard.writeText(cssOutput.textContent).then(() => {
+                const btn = document.querySelector('.copy-css-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.background = '#218838';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

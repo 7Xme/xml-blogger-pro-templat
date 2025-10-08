@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Creator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+        }
+        .gif-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type="number"] {
+            width: 80px;
+        }
+        .upload-section {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+        .upload-section:hover {
+            border-color: #dc143c;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .upload-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .frames-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .frame-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .frame-thumb {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+        .remove-frame {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-frame:hover {
+            background: #c82333;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 400px;
+        }
+        .gif-preview {
+            width: 250px;
+            height: 250px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .gif-preview img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            animation: none;
+        }
+        .gif-preview.playing img {
+            animation: gifAnimation 2s steps(1, end) infinite;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .play-btn, .generate-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .play-btn:hover, .generate-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .generate-btn {
+            background: #dc143c;
+        }
+        .generate-btn:hover {
+            background: #b22222;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        @media (max-width: 768px) {
+            .gif-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="gif-container">
+        <h1>GIF Creator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="upload-section" onclick="document.getElementById('imageInput').click()">
+                    <p>Click to add frames (upload multiple images)</p>
+                    <input type="file" id="imageInput" accept="image/*" multiple>
+                    <br><br>
+                    <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Add Frames</button>
+                </div>
+
+                <div class="control-group">
+                    <label>Frame Duration (seconds):</label>
+                    <input type="number" id="frameDuration" value="0.5" min="0.1" max="2" step="0.1">
+                </div>
+
+                <div class="frames-list" id="framesList">
+                    <!-- Frames will be listed here -->
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="gif-preview" id="gifPreview">
+                    No frames added yet
+                    <div id="frameImages"></div>
+                </div>
+                <div class="controls">
+                    <button class="play-btn" id="playBtn" onclick="togglePlay()" disabled>Play Animation</button>
+                    <button class="generate-btn" onclick="generateGIF()">Generate GIF</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const framesList = document.getElementById('framesList');
+        const gifPreview = document.getElementById('gifPreview');
+        const frameImages = document.getElementById('frameImages');
+        const playBtn = document.getElementById('playBtn');
+        const statusDiv = document.getElementById('status');
+
+        let frames = [];
+        let isPlaying = false;
+
+        // Event listeners
+        document.getElementById('imageInput').addEventListener('change', handleFiles);
+        document.getElementById('frameDuration').addEventListener('input', updateAnimation);
+
+        function handleFiles(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        addFrame(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function addFrame(src) {
+            const frame = {
+                id: Date.now(),
+                src: src
+            };
+            frames.push(frame);
+            renderFrames();
+            updatePreview();
+            playBtn.disabled = frames.length === 0;
+        }
+
+        function removeFrame(id) {
+            frames = frames.filter(frame => frame.id !== id);
+            renderFrames();
+            updatePreview();
+            playBtn.disabled = frames.length === 0;
+        }
+
+        function renderFrames() {
+            framesList.innerHTML = '';
+            frames.forEach((frame, index) => {
+                const frameItem = document.createElement('div');
+                frameItem.className = 'frame-item';
+
+                frameItem.innerHTML = `
+                    <span>${index + 1}.</span>
+                    <img src="${frame.src}" class="frame-thumb" alt="Frame ${index + 1}">
+                    <span>Frame ${index + 1}</span>
+                    <button class="remove-frame" onclick="removeFrame(${frame.id})">×</button>
+                `;
+
+                framesList.appendChild(frameItem);
+            });
+        }
+
+        function updatePreview() {
+            frameImages.innerHTML = '';
+            frames.forEach(frame => {
+                const img = document.createElement('img');
+                img.src = frame.src;
+                img.alt = 'Animation frame';
+                frameImages.appendChild(img);
+            });
+            updateAnimation();
+        }
+
+        function updateAnimation() {
+            const duration = parseFloat(document.getElementById('frameDuration').value);
+            const totalDuration = frames.length * duration;
+
+            if (frames.length > 0) {
+                const keyframes = frames.map((frame, index) => {
+                    const percentage = (index / frames.length) * 100;
+                    return `${percentage}% { opacity: ${index === Math.floor(frames.length / 2) ? 1 : 0}; }`;
+                }).join('\n');
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes gifAnimation {
+                        ${keyframes}
+                    }
+                `;
+
+                // Remove existing style
+                const existingStyle = document.querySelector('style[data-gif]');
+                if (existingStyle) {
+                    existingStyle.remove();
+                }
+
+                style.setAttribute('data-gif', 'true');
+                document.head.appendChild(style);
+
+                frameImages.style.animation = `gifAnimation ${totalDuration}s steps(1, end) infinite`;
+            }
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                gifPreview.classList.add('playing');
+                playBtn.textContent = 'Pause Animation';
+            } else {
+                gifPreview.classList.remove('playing');
+                playBtn.textContent = 'Play Animation';
+            }
+        }
+
+        function generateGIF() {
+            if (frames.length === 0) {
+                showStatus('Please add some frames first!', 'error');
+                return;
+            }
+
+            // For this demo, we'll create a simple animated sequence using CSS
+            // In a real implementation, you'd use a library like gif.js to create actual GIF files
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size to first frame
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Create a simple animated preview (not a real GIF)
+                // This is a limitation of browser-based GIF creation without server-side processing
+
+                showStatus('Animation preview created! (Note: Actual GIF export requires server-side processing or additional libraries)', 'success');
+            };
+            img.src = frames[0].src;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

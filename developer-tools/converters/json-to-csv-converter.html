@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to CSV Converter</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-weight: 600;
+            color: #555;
+        }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #dc143c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+        .examples {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .example-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .example-btn:hover {
+            background: #5a6268;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            font-size: 14px;
+            color: #666;
+        }
+        @media (max-width: 768px) {
+            .converter-container {
+                padding: 20px;
+            }
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                justify-content: center;
+            }
+            .stats {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <h1>JSON to CSV Converter</h1>
+
+        <div class="controls">
+            <button id="convertBtn">Convert to CSV</button>
+            <button id="clearBtn">Clear All</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="editor-container">
+            <div class="input-section">
+                <div class="section-header">
+                    <div class="section-title">Input JSON</div>
+                    <button class="copy-btn" id="copyInput">Copy</button>
+                </div>
+                <textarea id="inputJson" placeholder="Paste your JSON array here..."></textarea>
+                <div class="stats" id="inputStats"></div>
+            </div>
+
+            <div class="output-section">
+                <div class="section-header">
+                    <div class="section-title">Output CSV</div>
+                    <button class="copy-btn" id="copyOutput">Copy</button>
+                </div>
+                <textarea id="outputCsv" placeholder="CSV will appear here..." readonly></textarea>
+                <div class="stats" id="outputStats"></div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>Quick Examples:</h3>
+            <button class="example-btn" onclick="loadExample('simple')">Simple Array</button>
+            <button class="example-btn" onclick="loadExample('products')">Products Array</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const inputJson = document.getElementById('inputJson');
+        const outputCsv = document.getElementById('outputCsv');
+        const statusDiv = document.getElementById('status');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyInput = document.getElementById('copyInput');
+        const copyOutput = document.getElementById('copyOutput');
+        const inputStats = document.getElementById('inputStats');
+        const outputStats = document.getElementById('outputStats');
+
+        // Event listeners
+        convertBtn.addEventListener('click', convertJSON);
+        clearBtn.addEventListener('click', clearAll);
+        copyInput.addEventListener('click', () => copyToClipboard(inputJson.value));
+        copyOutput.addEventListener('click', () => copyToClipboard(outputCsv.value));
+
+        function convertJSON() {
+            const input = inputJson.value.trim();
+            if (!input) {
+                showStatus('Please enter some JSON to convert.', 'info');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(input);
+                if (!Array.isArray(data)) {
+                    throw new Error('JSON must be an array of objects.');
+                }
+                if (data.length === 0) {
+                    throw new Error('Array is empty.');
+                }
+
+                const headers = Object.keys(data[0]);
+                const csvRows = [headers.join(',')];
+                data.forEach(obj => {
+                    const row = headers.map(h => obj[h] || '').join(',');
+                    csvRows.push(row);
+                });
+                const csv = csvRows.join('\n');
+
+                outputCsv.value = csv;
+                updateStats(inputStats, input);
+                updateStats(outputStats, csv);
+                showStatus('✓ Converted to CSV successfully!', 'success');
+
+            } catch (error) {
+                showStatus(`✗ Error: ${error.message}`, 'error');
+                outputCsv.value = '';
+                updateStats(outputStats, '');
+            }
+        }
+
+        function updateStats(statsDiv, text) {
+            if (!text) {
+                statsDiv.innerHTML = '';
+                return;
+            }
+
+            const chars = text.length;
+            const lines = text.split('\n').length;
+            const words = text.trim().split(/\s+/).length;
+
+            statsDiv.innerHTML = `
+                <span class="stat">Characters: ${chars}</span>
+                <span class="stat">Lines: ${lines}</span>
+                <span class="stat">Words: ${words}</span>
+            `;
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearAll() {
+            inputJson.value = '';
+            outputCsv.value = '';
+            statusDiv.style.display = 'none';
+            updateStats(inputStats, '');
+            updateStats(outputStats, '');
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showStatus('✓ Copied to clipboard!', 'success');
+            } catch (err) {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('✓ Copied to clipboard!', 'success');
+            }
+        }
+
+        // Example JSON loaders
+        function loadExample(type) {
+            let json = '';
+
+            switch (type) {
+                case 'simple':
+                    json = `[
+  {"name": "John", "age": 30, "email": "john@example.com"},
+  {"name": "Jane", "age": 25, "email": "jane@example.com"}
+]`;
+                    break;
+                case 'products':
+                    json = `[
+  {"id": 1, "name": "Laptop", "price": 999, "category": "Electronics"},
+  {"id": 2, "name": "Book", "price": 20, "category": "Education"},
+  {"id": 3, "name": "Shirt", "price": 50, "category": "Clothing"}
+]`;
+                    break;
+            }
+
+            inputJson.value = json;
+            convertJSON();
+        }
+
+        // Load a default example on page load
+        loadExample('simple');
+    </script>
+</body>
+</html>

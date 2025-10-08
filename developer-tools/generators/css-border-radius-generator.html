@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Border Radius Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .border-radius-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .corners-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .corner-control {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .border-radius-preview {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #dc143c, #007bff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            transition: border-radius 0.3s ease;
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .presets {
+            margin-top: 20px;
+        }
+        .preset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .border-radius-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+            .corners-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="border-radius-container">
+        <h1>CSS Border Radius Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Corner Radii</h3>
+                    <div class="corners-grid">
+                        <div class="corner-control">
+                            <label for="topLeft">Top Left:</label>
+                            <input type="range" id="topLeft" min="0" max="100" value="10">
+                            <span class="range-value" id="topLeftValue">10px</span>
+                        </div>
+                        <div class="corner-control">
+                            <label for="topRight">Top Right:</label>
+                            <input type="range" id="topRight" min="0" max="100" value="10">
+                            <span class="range-value" id="topRightValue">10px</span>
+                        </div>
+                        <div class="corner-control">
+                            <label for="bottomRight">Bottom Right:</label>
+                            <input type="range" id="bottomRight" min="0" max="100" value="10">
+                            <span class="range-value" id="bottomRightValue">10px</span>
+                        </div>
+                        <div class="corner-control">
+                            <label for="bottomLeft">Bottom Left:</label>
+                            <input type="range" id="bottomLeft" min="0" max="100" value="10">
+                            <span class="range-value" id="bottomLeftValue">10px</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="presets">
+                    <h3>Presets</h3>
+                    <button class="preset-btn" onclick="applyPreset('square')">Square</button>
+                    <button class="preset-btn" onclick="applyPreset('round')">Round</button>
+                    <button class="preset-btn" onclick="applyPreset('pill')">Pill</button>
+                    <button class="preset-btn" onclick="applyPreset('leaf')">Leaf</button>
+                    <button class="preset-btn" onclick="applyPreset('random')">Random</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Border Radius Preview</h3>
+                <div class="border-radius-preview" id="borderRadiusPreview">Preview</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="code-output" id="codeOutput">
+border-radius: 10px;
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const controls = {
+            topLeft: document.getElementById('topLeft'),
+            topLeftValue: document.getElementById('topLeftValue'),
+            topRight: document.getElementById('topRight'),
+            topRightValue: document.getElementById('topRightValue'),
+            bottomRight: document.getElementById('bottomRight'),
+            bottomRightValue: document.getElementById('bottomRightValue'),
+            bottomLeft: document.getElementById('bottomLeft'),
+            bottomLeftValue: document.getElementById('bottomLeftValue')
+        };
+
+        const borderRadiusPreview = document.getElementById('borderRadiusPreview');
+        const codeOutput = document.getElementById('codeOutput');
+        const statusDiv = document.getElementById('status');
+
+        // Add event listeners
+        Object.keys(controls).forEach(key => {
+            if (!key.endsWith('Value')) {
+                controls[key].addEventListener('input', updateRangeValue);
+                controls[key].addEventListener('input', updateBorderRadius);
+            }
+        });
+
+        // Initialize
+        updateAllRangeValues();
+        updateBorderRadius();
+
+        function updateRangeValue(event) {
+            const control = event.target;
+            const valueElement = controls[control.id + 'Value'];
+            if (valueElement) {
+                valueElement.textContent = control.value + 'px';
+            }
+        }
+
+        function updateAllRangeValues() {
+            Object.keys(controls).forEach(key => {
+                if (key.endsWith('Value')) {
+                    const controlId = key.replace('Value', '');
+                    const control = controls[controlId];
+                    if (control) {
+                        controls[key].textContent = control.value + 'px';
+                    }
+                }
+            });
+        }
+
+        function updateBorderRadius() {
+            const tl = controls.topLeft.value;
+            const tr = controls.topRight.value;
+            const br = controls.bottomRight.value;
+            const bl = controls.bottomLeft.value;
+
+            const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px`;
+            borderRadiusPreview.style.borderRadius = borderRadius;
+
+            // Generate CSS code
+            if (tl === tr && tr === br && br === bl) {
+                codeOutput.textContent = `border-radius: ${tl}px;`;
+            } else {
+                codeOutput.textContent = `border-radius: ${borderRadius};`;
+            }
+        }
+
+        function applyPreset(preset) {
+            let values;
+            switch (preset) {
+                case 'square':
+                    values = [0, 0, 0, 0];
+                    break;
+                case 'round':
+                    values = [10, 10, 10, 10];
+                    break;
+                case 'pill':
+                    values = [100, 100, 100, 100];
+                    break;
+                case 'leaf':
+                    values = [0, 100, 0, 100];
+                    break;
+                case 'random':
+                    values = [
+                        Math.floor(Math.random() * 101),
+                        Math.floor(Math.random() * 101),
+                        Math.floor(Math.random() * 101),
+                        Math.floor(Math.random() * 101)
+                    ];
+                    break;
+                default:
+                    return;
+            }
+
+            controls.topLeft.value = values[0];
+            controls.topRight.value = values[1];
+            controls.bottomRight.value = values[2];
+            controls.bottomLeft.value = values[3];
+
+            updateAllRangeValues();
+            updateBorderRadius();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeOutput.textContent).then(() => {
+                showStatus('✓ CSS code copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

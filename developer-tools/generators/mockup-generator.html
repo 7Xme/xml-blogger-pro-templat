@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mockup Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .mockup-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        select, input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 400px;
+        }
+        .mockup-preview {
+            max-width: 300px;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        .download-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        @media (max-width: 768px) {
+            .mockup-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mockup-container">
+        <h1>Mockup Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Device Frame</h3>
+                    <label for="deviceType">Device:</label>
+                    <select id="deviceType">
+                        <option value="iphone">iPhone</option>
+                        <option value="android">Android Phone</option>
+                        <option value="tablet">Tablet</option>
+                        <option value="laptop">Laptop</option>
+                        <option value="desktop">Desktop</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <h3>Screen Content</h3>
+                    <label for="screenImage">Upload Image:</label>
+                    <input type="file" id="screenImage" accept="image/*">
+                    <p style="font-size: 12px; color: #666; margin-top: 5px;">Upload an image to place on the device screen</p>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div id="mockupContainer">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 500'><rect width='300' height='500' fill='%23f8f9fa'/><text x='150' y='250' text-anchor='middle' fill='%23666'>Select device and upload image</text></svg>" class="mockup-preview" id="mockupPreview" alt="Mockup Preview">
+                </div>
+                <button class="download-btn" id="downloadBtn" onclick="downloadMockup()" disabled>Download Mockup</button>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const deviceTypeSelect = document.getElementById('deviceType');
+        const screenImageInput = document.getElementById('screenImage');
+        const mockupPreview = document.getElementById('mockupPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDiv = document.getElementById('status');
+
+        let uploadedImage = null;
+
+        deviceTypeSelect.addEventListener('change', updateMockup);
+        screenImageInput.addEventListener('change', handleImageUpload);
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    updateMockup();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateMockup() {
+            const deviceType = deviceTypeSelect.value;
+            const mockupURL = generateMockup(deviceType, uploadedImage);
+            mockupPreview.src = mockupURL;
+            downloadBtn.disabled = !uploadedImage;
+        }
+
+        function generateMockup(device, imageSrc) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width, height, screenX, screenY, screenWidth, screenHeight;
+
+            switch (device) {
+                case 'iphone':
+                    width = 300;
+                    height = 600;
+                    screenX = 20;
+                    screenY = 80;
+                    screenWidth = 260;
+                    screenHeight = 440;
+                    break;
+                case 'android':
+                    width = 300;
+                    height = 550;
+                    screenX = 15;
+                    screenY = 70;
+                    screenWidth = 270;
+                    screenHeight = 410;
+                    break;
+                case 'tablet':
+                    width = 400;
+                    height = 600;
+                    screenX = 30;
+                    screenY = 80;
+                    screenWidth = 340;
+                    screenHeight = 440;
+                    break;
+                case 'laptop':
+                    width = 600;
+                    height = 400;
+                    screenX = 50;
+                    screenY = 50;
+                    screenWidth = 500;
+                    screenHeight = 300;
+                    break;
+                case 'desktop':
+                    width = 800;
+                    height = 600;
+                    screenX = 100;
+                    screenY = 100;
+                    screenWidth = 600;
+                    screenHeight = 400;
+                    break;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw device frame (simple rectangle for demo)
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw screen area
+            if (imageSrc) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, screenX, screenY, screenWidth, screenHeight);
+                    updatePreview();
+                };
+                img.src = imageSrc;
+            } else {
+                ctx.fillStyle = '#666';
+                ctx.fillRect(screenX, screenY, screenWidth, screenHeight);
+                ctx.fillStyle = '#fff';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Screen Content', width/2, height/2);
+                updatePreview();
+            }
+
+            function updatePreview() {
+                mockupPreview.src = canvas.toDataURL('image/png');
+            }
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function downloadMockup() {
+            const link = document.createElement('a');
+            link.download = `mockup-${deviceTypeSelect.value}.png`;
+            link.href = mockupPreview.src;
+            link.click();
+            showStatus('✓ Mockup downloaded!', 'success');
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Initialize
+        updateMockup();
+    </script>
+</body>
+</html>

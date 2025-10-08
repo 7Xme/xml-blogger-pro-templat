@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .receipt-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .items-section {
+            margin-top: 20px;
+        }
+        .item-row {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .item-row input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .add-item-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .add-item-btn:hover {
+            background: #218838;
+        }
+        .remove-item {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .remove-item:hover {
+            background: #c82333;
+        }
+        .totals {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .preview-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 600px;
+        }
+        .receipt-preview {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-family: 'Courier New', monospace;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .receipt-header h2 {
+            margin: 5px 0;
+            font-size: 18px;
+        }
+        .receipt-details {
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .receipt-items {
+            margin-bottom: 15px;
+        }
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        .receipt-totals {
+            border-top: 1px dashed #333;
+            padding-top: 10px;
+        }
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .receipt-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 10px;
+            border-top: 1px dashed #333;
+            padding-top: 10px;
+        }
+        .generate-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        .generate-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .receipt-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .item-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        <h1>Receipt Generator</h1>
+
+        <div class="generator-layout">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="storeName">Store/Business Name:</label>
+                    <input type="text" id="storeName" value="Your Store Name">
+                </div>
+                <div class="form-group">
+                    <label for="storeAddress">Address:</label>
+                    <textarea id="storeAddress" rows="2">123 Main Street
+City, State 12345</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="storePhone">Phone:</label>
+                    <input type="text" id="storePhone" value="(555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label for="receiptNumber">Receipt Number:</label>
+                    <input type="text" id="receiptNumber" value="RCP-001">
+                </div>
+                <div class="form-group">
+                    <label for="receiptDate">Date:</label>
+                    <input type="date" id="receiptDate" value="2024-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="receiptTime">Time:</label>
+                    <input type="time" id="receiptTime" value="14:30">
+                </div>
+                <div class="form-group">
+                    <label for="cashier">Cashier/Server:</label>
+                    <input type="text" id="cashier" value="John Doe">
+                </div>
+
+                <div class="items-section">
+                    <h3>Items Purchased</h3>
+                    <div id="itemsList">
+                        <div class="item-row">
+                            <input type="text" placeholder="Item description" value="Coffee">
+                            <input type="number" placeholder="Qty" value="1" min="1">
+                            <input type="number" placeholder="Price" value="3.50" min="0" step="0.01">
+                            <button class="remove-item" onclick="removeItem(this)">×</button>
+                        </div>
+                    </div>
+                    <button class="add-item-btn" onclick="addItem()">+ Add Item</button>
+                </div>
+
+                <div class="totals">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$3.50</span>
+                    </div>
+                    <div class="total-row">
+                        <span>Tax:</span>
+                        <input type="number" id="taxAmount" value="0.28" min="0" step="0.01" onchange="calculateTotals()"> 
+                        <span id="taxDisplay">$0.28</span>
+                    </div>
+                    <div class="total-row">
+                        <strong>Total:</strong>
+                        <strong id="total">$3.78</strong>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentMethod">Payment Method:</label>
+                    <select id="paymentMethod">
+                        <option value="Cash">Cash</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Digital Wallet">Digital Wallet</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="receipt-preview" id="receiptPreview">
+                    <!-- Receipt preview will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="generate-btn" onclick="generateReceipt()">Generate Receipt</button>
+            <button class="generate-btn" onclick="printReceipt()" style="background: #28a745;">Print Receipt</button>
+        </div>
+    </div>
+
+    <script>
+        let itemCount = 1;
+
+        function addItem() {
+            itemCount++;
+            const itemsList = document.getElementById('itemsList');
+            const newItem = document.createElement('div');
+            newItem.className = 'item-row';
+            newItem.innerHTML = `
+                <input type="text" placeholder="Item description">
+                <input type="number" placeholder="Qty" value="1" min="1">
+                <input type="number" placeholder="Price" value="0.00" min="0" step="0.01">
+                <button class="remove-item" onclick="removeItem(this)">×</button>
+            `;
+            itemsList.appendChild(newItem);
+
+            // Add event listeners for calculation
+            const inputs = newItem.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+        }
+
+        function removeItem(button) {
+            button.parentElement.remove();
+            calculateTotals();
+            generateReceipt();
+        }
+
+        function calculateTotals() {
+            const itemRows = document.querySelectorAll('.item-row');
+            let subtotal = 0;
+
+            itemRows.forEach(row => {
+                const qty = parseFloat(row.children[1].value) || 0;
+                const price = parseFloat(row.children[2].value) || 0;
+                subtotal += qty * price;
+            });
+
+            const taxAmount = parseFloat(document.getElementById('taxAmount').value) || 0;
+            const total = subtotal + taxAmount;
+
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('taxDisplay').textContent = '$' + taxAmount.toFixed(2);
+            document.getElementById('total').textContent = '$' + total.toFixed(2);
+        }
+
+        function generateReceipt() {
+            const storeName = document.getElementById('storeName').value;
+            const storeAddress = document.getElementById('storeAddress').value.replace(/\n/g, '<br>');
+            const storePhone = document.getElementById('storePhone').value;
+            const receiptNumber = document.getElementById('receiptNumber').value;
+            const receiptDate = document.getElementById('receiptDate').value;
+            const receiptTime = document.getElementById('receiptTime').value;
+            const cashier = document.getElementById('cashier').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            let receiptHTML = `
+                <div class="receipt-header">
+                    <h2>${storeName}</h2>
+                    <div>${storeAddress}</div>
+                    <div>${storePhone}</div>
+                </div>
+
+                <div class="receipt-details">
+                    <div><strong>Receipt #:</strong> ${receiptNumber}</div>
+                    <div><strong>Date:</strong> ${new Date(receiptDate).toLocaleDateString()} ${receiptTime}</div>
+                    <div><strong>Cashier:</strong> ${cashier}</div>
+                    <div><strong>Payment:</strong> ${paymentMethod}</div>
+                </div>
+
+                <div class="receipt-items">
+            `;
+
+            const itemRows = document.querySelectorAll('.item-row');
+            itemRows.forEach(row => {
+                const description = row.children[0].value;
+                const qty = row.children[1].value;
+                const price = parseFloat(row.children[2].value).toFixed(2);
+                const itemTotal = (qty * price).toFixed(2);
+
+                receiptHTML += `
+                    <div class="receipt-item">
+                        <span>${description} x${qty}</span>
+                        <span>$${itemTotal}</span>
+                    </div>
+                `;
+            });
+
+            const subtotal = document.getElementById('subtotal').textContent;
+            const taxDisplay = document.getElementById('taxDisplay').textContent;
+            const total = document.getElementById('total').textContent;
+
+            receiptHTML += `
+                </div>
+
+                <div class="receipt-totals">
+                    <div class="receipt-item">
+                        <span>Subtotal:</span>
+                        <span>${subtotal}</span>
+                    </div>
+                    <div class="receipt-item">
+                        <span>Tax:</span>
+                        <span>${taxDisplay}</span>
+                    </div>
+                    <div class="receipt-total">
+                        <span>TOTAL:</span>
+                        <span>${total}</span>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <div>Thank you for your business!</div>
+                    <div>Please come again</div>
+                </div>
+            `;
+
+            document.getElementById('receiptPreview').innerHTML = receiptHTML;
+        }
+
+        function printReceipt() {
+            const printWindow = window.open('', '_blank');
+            const receiptContent = document.getElementById('receiptPreview').innerHTML;
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Receipt</title>
+                    <style>
+                        body { font-family: 'Courier New', monospace; margin: 0; padding: 10px; font-size: 12px; }
+                        .receipt-header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px; margin-bottom: 10px; }
+                        .receipt-header h2 { margin: 5px 0; font-size: 18px; }
+                        .receipt-details { margin-bottom: 15px; }
+                        .receipt-items { margin-bottom: 15px; }
+                        .receipt-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+                        .receipt-totals { border-top: 1px dashed #333; padding-top: 10px; }
+                        .receipt-total { font-weight: bold; font-size: 14px; }
+                        .receipt-footer { text-align: center; margin-top: 15px; font-size: 10px; border-top: 1px dashed #333; padding-top: 10px; }
+                    </style>
+                </head>
+                <body>
+                    ${receiptContent}
+                </body>
+                </html>
+            `);
+
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to existing item inputs
+            const inputs = document.querySelectorAll('.item-row input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+
+            generateReceipt();
+        });
+    </script>
+</body>
+</html>

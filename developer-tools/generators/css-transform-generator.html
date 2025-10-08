@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Transform Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .transform-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .controls-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        .control-group h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        .preview-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+        .transform-preview {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #dc143c, #007bff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        .code-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        .copy-code-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .copy-code-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .presets {
+            margin-top: 20px;
+        }
+        .preset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #5a6268;
+        }
+        .reset-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s ease;
+        }
+        .reset-btn:hover {
+            background: #218838;
+        }
+        @media (max-width: 768px) {
+            .transform-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="transform-container">
+        <h1>CSS Transform Generator</h1>
+
+        <div class="generator-layout">
+            <div class="controls-section">
+                <div class="control-group">
+                    <h3>Translate</h3>
+                    <label for="translateX">Translate X:</label>
+                    <input type="range" id="translateX" min="-100" max="100" value="0">
+                    <span class="range-value" id="translateXValue">0px</span>
+
+                    <label for="translateY">Translate Y:</label>
+                    <input type="range" id="translateY" min="-100" max="100" value="0">
+                    <span class="range-value" id="translateYValue">0px</span>
+                </div>
+
+                <div class="control-group">
+                    <h3>Rotate & Scale</h3>
+                    <label for="rotate">Rotate:</label>
+                    <input type="range" id="rotate" min="0" max="360" value="0">
+                    <span class="range-value" id="rotateValue">0deg</span>
+
+                    <label for="scaleX">Scale X:</label>
+                    <input type="range" id="scaleX" min="0.1" max="3" step="0.1" value="1">
+                    <span class="range-value" id="scaleXValue">1</span>
+
+                    <label for="scaleY">Scale Y:</label>
+                    <input type="range" id="scaleY" min="0.1" max="3" step="0.1" value="1">
+                    <span class="range-value" id="scaleYValue">1</span>
+                </div>
+
+                <div class="control-group">
+                    <h3>Skew</h3>
+                    <label for="skewX">Skew X:</label>
+                    <input type="range" id="skewX" min="-45" max="45" value="0">
+                    <span class="range-value" id="skewXValue">0deg</span>
+
+                    <label for="skewY">Skew Y:</label>
+                    <input type="range" id="skewY" min="-45" max="45" value="0">
+                    <span class="range-value" id="skewYValue">0deg</span>
+                </div>
+
+                <div class="presets">
+                    <h3>Presets</h3>
+                    <button class="preset-btn" onclick="applyPreset('rotate')">Rotate 45°</button>
+                    <button class="preset-btn" onclick="applyPreset('scale')">Scale Up</button>
+                    <button class="preset-btn" onclick="applyPreset('skew')">Skew</button>
+                    <button class="preset-btn" onclick="applyPreset('flip')">Flip Horizontal</button>
+                    <button class="preset-btn" onclick="applyPreset('tilt')">Tilt</button>
+                    <button class="reset-btn" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>Transform Preview</h3>
+                <div class="transform-preview" id="transformPreview">Transform Me!</div>
+            </div>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="code-output" id="codeOutput">
+transform: none;
+        </div>
+        <button class="copy-code-btn" onclick="copyCode()">Copy CSS Code</button>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const controls = {
+            translateX: document.getElementById('translateX'),
+            translateXValue: document.getElementById('translateXValue'),
+            translateY: document.getElementById('translateY'),
+            translateYValue: document.getElementById('translateYValue'),
+            rotate: document.getElementById('rotate'),
+            rotateValue: document.getElementById('rotateValue'),
+            scaleX: document.getElementById('scaleX'),
+            scaleXValue: document.getElementById('scaleXValue'),
+            scaleY: document.getElementById('scaleY'),
+            scaleYValue: document.getElementById('scaleYValue'),
+            skewX: document.getElementById('skewX'),
+            skewXValue: document.getElementById('skewXValue'),
+            skewY: document.getElementById('skewY'),
+            skewYValue: document.getElementById('skewYValue')
+        };
+
+        const transformPreview = document.getElementById('transformPreview');
+        const codeOutput = document.getElementById('codeOutput');
+        const statusDiv = document.getElementById('status');
+
+        // Add event listeners
+        Object.keys(controls).forEach(key => {
+            if (!key.endsWith('Value')) {
+                controls[key].addEventListener('input', updateRangeValue);
+                controls[key].addEventListener('input', updateTransform);
+            }
+        });
+
+        // Initialize
+        updateAllRangeValues();
+        updateTransform();
+
+        function updateRangeValue(event) {
+            const control = event.target;
+            const valueElement = controls[control.id + 'Value'];
+            if (valueElement) {
+                const unit = control.id.includes('rotate') || control.id.includes('skew') ? 'deg' : 
+                           control.id.includes('scale') ? '' : 'px';
+                valueElement.textContent = control.value + unit;
+            }
+        }
+
+        function updateAllRangeValues() {
+            Object.keys(controls).forEach(key => {
+                if (key.endsWith('Value')) {
+                    const controlId = key.replace('Value', '');
+                    const control = controls[controlId];
+                    if (control) {
+                        const unit = controlId.includes('rotate') || controlId.includes('skew') ? 'deg' : 
+                                   controlId.includes('scale') ? '' : 'px';
+                        controls[key].textContent = control.value + unit;
+                    }
+                }
+            });
+        }
+
+        function updateTransform() {
+            const tx = controls.translateX.value;
+            const ty = controls.translateY.value;
+            const rotate = controls.rotate.value;
+            const sx = controls.scaleX.value;
+            const sy = controls.scaleY.value;
+            const skx = controls.skewX.value;
+            const sky = controls.skewY.value;
+
+            let transform = '';
+
+            if (tx != 0 || ty != 0) {
+                transform += ` translate(${tx}px, ${ty}px)`;
+            }
+            if (rotate != 0) {
+                transform += ` rotate(${rotate}deg)`;
+            }
+            if (sx != 1 || sy != 1) {
+                if (sx === sy) {
+                    transform += ` scale(${sx})`;
+                } else {
+                    transform += ` scale(${sx}, ${sy})`;
+                }
+            }
+            if (skx != 0 || sky != 0) {
+                transform += ` skew(${skx}deg, ${sky}deg)`;
+            }
+
+            transformPreview.style.transform = transform.trim();
+
+            // Generate CSS code
+            if (transform.trim() === '') {
+                codeOutput.textContent = 'transform: none;';
+            } else {
+                codeOutput.textContent = `transform:${transform};`;
+            }
+        }
+
+        function applyPreset(preset) {
+            resetAll();
+            switch (preset) {
+                case 'rotate':
+                    controls.rotate.value = 45;
+                    break;
+                case 'scale':
+                    controls.scaleX.value = 1.2;
+                    controls.scaleY.value = 1.2;
+                    break;
+                case 'skew':
+                    controls.skewX.value = 15;
+                    break;
+                case 'flip':
+                    controls.scaleX.value = -1;
+                    break;
+                case 'tilt':
+                    controls.rotate.value = 15;
+                    controls.skewX.value = 5;
+                    break;
+            }
+            updateAllRangeValues();
+            updateTransform();
+        }
+
+        function resetAll() {
+            controls.translateX.value = 0;
+            controls.translateY.value = 0;
+            controls.rotate.value = 0;
+            controls.scaleX.value = 1;
+            controls.scaleY.value = 1;
+            controls.skewX.value = 0;
+            controls.skewY.value = 0;
+            updateAllRangeValues();
+            updateTransform();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(codeOutput.textContent).then(() => {
+                showStatus('✓ CSS code copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .wireframe-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-layout {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .tools-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .tool-btn {
+            display: block;
+            width: 100%;
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        .tool-btn:hover {
+            background: #b22222;
+        }
+        .canvas-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 500px;
+            position: relative;
+        }
+        .wireframe-canvas {
+            background: white;
+            border: 1px solid #ddd;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        .wireframe-element {
+            position: absolute;
+            border: 2px dashed #999;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: move;
+            user-select: none;
+        }
+        .wireframe-element.selected {
+            border-color: #dc143c;
+            box-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
+        }
+        .element-controls {
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: #dc143c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .export-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        .export-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        @media (max-width: 768px) {
+            .wireframe-container {
+                padding: 20px;
+            }
+            .generator-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wireframe-container">
+        <h1>Wireframe Generator</h1>
+
+        <div class="generator-layout">
+            <div class="tools-section">
+                <h3>Add Elements</h3>
+                <button class="tool-btn" onclick="addElement('header')">Header</button>
+                <button class="tool-btn" onclick="addElement('nav')">Navigation</button>
+                <button class="tool-btn" onclick="addElement('content')">Content Block</button>
+                <button class="tool-btn" onclick="addElement('sidebar')">Sidebar</button>
+                <button class="tool-btn" onclick="addElement('button')">Button</button>
+                <button class="tool-btn" onclick="addElement('input')">Input Field</button>
+                <button class="tool-btn" onclick="addElement('image')">Image Placeholder</button>
+                <button class="tool-btn" onclick="addElement('text')">Text Block</button>
+                <hr>
+                <button class="tool-btn" style="background: #6c757d;" onclick="clearCanvas()">Clear All</button>
+            </div>
+
+            <div class="canvas-section">
+                <div class="wireframe-canvas" id="wireframeCanvas"></div>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>Export Wireframe</h3>
+            <button class="export-btn" onclick="exportHTML()">Export as HTML</button>
+            <button class="export-btn" onclick="exportImage()">Export as Image</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const wireframeCanvas = document.getElementById('wireframeCanvas');
+        const statusDiv = document.getElementById('status');
+        let selectedElement = null;
+        let elementCounter = 0;
+
+        // Event listeners
+        wireframeCanvas.addEventListener('click', deselectElement);
+
+        function addElement(type) {
+            elementCounter++;
+            const element = document.createElement('div');
+            element.className = 'wireframe-element';
+            element.id = `element-${elementCounter}`;
+            element.dataset.type = type;
+
+            let width, height, label;
+
+            switch (type) {
+                case 'header':
+                    width = 100;
+                    height = 60;
+                    label = 'HEADER';
+                    element.style.top = '0px';
+                    element.style.left = '0px';
+                    element.style.width = '100%';
+                    break;
+                case 'nav':
+                    width = 100;
+                    height = 40;
+                    label = 'NAV';
+                    element.style.top = '70px';
+                    element.style.left = '0px';
+                    element.style.width = '100%';
+                    break;
+                case 'content':
+                    width = 60;
+                    height = 200;
+                    label = 'CONTENT';
+                    element.style.top = '120px';
+                    element.style.left = '20px';
+                    break;
+                case 'sidebar':
+                    width = 150;
+                    height = 200;
+                    label = 'SIDEBAR';
+                    element.style.top = '120px';
+                    element.style.left = 'calc(100% - 170px)';
+                    break;
+                case 'button':
+                    width = 80;
+                    height = 30;
+                    label = 'BUTTON';
+                    element.style.top = '150px';
+                    element.style.left = '50px';
+                    break;
+                case 'input':
+                    width = 200;
+                    height = 30;
+                    label = 'INPUT';
+                    element.style.top = '200px';
+                    element.style.left = '50px';
+                    break;
+                case 'image':
+                    width = 150;
+                    height = 100;
+                    label = 'IMAGE';
+                    element.style.top = '250px';
+                    element.style.left = '50px';
+                    break;
+                case 'text':
+                    width = 300;
+                    height = 60;
+                    label = 'TEXT';
+                    element.style.top = '370px';
+                    element.style.left = '50px';
+                    break;
+            }
+
+            element.style.width = width + '%';
+            element.style.height = height + 'px';
+            element.textContent = label;
+
+            // Add controls
+            const controls = document.createElement('div');
+            controls.className = 'element-controls';
+            controls.textContent = '×';
+            controls.onclick = (e) => {
+                e.stopPropagation();
+                element.remove();
+            };
+            element.appendChild(controls);
+
+            // Make draggable
+            makeDraggable(element);
+
+            // Add click to select
+            element.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectElement(element);
+            });
+
+            wireframeCanvas.appendChild(element);
+        }
+
+        function makeDraggable(element) {
+            let isDragging = false;
+            let startX, startY, startLeft, startTop;
+
+            element.addEventListener('mousedown', startDrag);
+            element.addEventListener('touchstart', startDrag);
+
+            function startDrag(e) {
+                isDragging = true;
+                const rect = element.getBoundingClientRect();
+                startX = e.clientX || e.touches[0].clientX;
+                startY = e.clientY || e.touches[0].clientY;
+                startLeft = rect.left - wireframeCanvas.getBoundingClientRect().left;
+                startTop = rect.top - wireframeCanvas.getBoundingClientRect().top;
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+
+                selectElement(element);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+
+                const deltaX = clientX - startX;
+                const deltaY = clientY - startY;
+
+                const newLeft = Math.max(0, Math.min(startLeft + deltaX, wireframeCanvas.clientWidth - element.offsetWidth));
+                const newTop = Math.max(0, Math.min(startTop + deltaY, wireframeCanvas.clientHeight - element.offsetHeight));
+
+                element.style.left = newLeft + 'px';
+                element.style.top = newTop + 'px';
+            }
+
+            function endDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchend', endDrag);
+            }
+        }
+
+        function selectElement(element) {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+            }
+            selectedElement = element;
+            element.classList.add('selected');
+        }
+
+        function deselectElement() {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+                selectedElement = null;
+            }
+        }
+
+        function clearCanvas() {
+            wireframeCanvas.innerHTML = '';
+            selectedElement = null;
+        }
+
+        function exportHTML() {
+            const elements = Array.from(wireframeCanvas.children);
+            let html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Wireframe</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        .wireframe-element { border: 2px dashed #999; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px; font-weight: bold; position: absolute; }
+    </style>
+</head>
+<body>
+    <div style="width: 100%; height: 600px; position: relative; background: white;">\n`;
+
+            elements.forEach(element => {
+                const style = element.style;
+                html += `        <div class="wireframe-element" style="left: ${style.left}; top: ${style.top}; width: ${style.width}; height: ${style.height};">${element.textContent.replace('×', '')}</div>\n`;
+            });
+
+            html += `    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'wireframe.html';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showStatus('✓ HTML exported!', 'success');
+        }
+
+        function exportImage() {
+            // Simple screenshot using html2canvas if available, otherwise placeholder
+            html2canvas(wireframeCanvas).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'wireframe.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                showStatus('✓ Image exported!', 'success');
+            }).catch(() => {
+                showStatus('Image export requires html2canvas library', 'error');
+            });
+        }
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
