@@ -1104,6 +1104,36 @@ a.innerHTML='';
          </div>
        </div>
 
+       <!-- Text Tools -->
+       <div class='tools-category'>
+         <button class='category-header collapsed' onclick='toggleCategory(this)'>
+           <span><span class='category-icon'>📝</span> Text Tools</span>
+           <span class='toggle-icon'>▶</span>
+         </button>
+         <div class='category-content'>
+           <div class='tools-grid'>
+             <div class='tool-card'>
+               <div class='tool-icon'>📊</div>
+               <h4>Word Counter & Statistics</h4>
+               <p>Analyze text with comprehensive statistics</p>
+               <a href='text-tools/word-counter-statistics.html' class='tool-link'>Try Now</a>
+             </div>
+             <div class='tool-card'>
+               <div class='tool-icon'>🔄</div>
+               <h4>Case Converter</h4>
+               <p>Convert between different text cases</p>
+               <a href='text-tools/case-converter.html' class='tool-link'>Try Now</a>
+             </div>
+             <div class='tool-card'>
+               <div class='tool-icon'>📝</div>
+               <h4>Lorem Ipsum Generator</h4>
+               <p>Generate placeholder text</p>
+               <a href='text-tools/lorem-ipsum-generator.html' class='tool-link'>Try Now</a>
+             </div>
+           </div>
+         </div>
+       </div>
+
        <!-- Developer Tools -->
        <div class='tools-category'>
          <button class='category-header collapsed' onclick='toggleCategory(this)'>
@@ -1549,13 +1579,22 @@ a.innerHTML='';
       }
     }
 
-    // PWA Service Worker Registration
+    // PWA Service Worker Registration (Inline for Blogger compatibility)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').then(function(registration) {
-          console.log('ServiceWorker registration successful');
-        }, function(err) {
+        // Register inline service worker for Blogger
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(registration) {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }).catch(function(err) {
           console.log('ServiceWorker registration failed: ', err);
+          // Fallback: try to register from alternative location if available
+          if (window.pwaConfig && window.pwaConfig.swUrl) {
+            navigator.serviceWorker.register(window.pwaConfig.swUrl).then(function(registration) {
+              console.log('ServiceWorker registered from alternative URL');
+            }).catch(function(err) {
+              console.log('Alternative ServiceWorker registration also failed');
+            });
+          }
         });
       });
     }

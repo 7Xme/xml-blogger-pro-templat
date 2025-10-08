@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Converter</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .converter-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .text-area {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+        }
+        .text-area:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .conversion-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .option-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .option-group h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .case-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: translateY(-2px);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        .btn.active {
+            background: #28a745;
+            box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+        }
+        .btn.active:hover {
+            background: #218838;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .sample-text {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sample-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 5px;
+            transition: background 0.3s ease;
+        }
+        .sample-btn:hover {
+            background: #218838;
+        }
+        .stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .stats-text {
+            color: #495057;
+            font-size: 14px;
+        }
+        .copy-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #138496;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .converter-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .conversion-options {
+                grid-template-columns: 1fr;
+            }
+            .case-buttons {
+                grid-template-columns: 1fr;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Case Converter</h1>
+
+        <div class="sample-text">
+            <button class="sample-btn" onclick="loadSample('mixed')">Load Mixed Case</button>
+            <button class="sample-btn" onclick="loadSample('screaming')">Load ALL CAPS</button>
+            <button class="sample-btn" onclick="loadSample('whisper')">Load all lowercase</button>
+        </div>
+
+        <div class="converter-section">
+            <div class="input-section">
+                <div class="section-header">
+                    <h2 class="section-title">Input Text</h2>
+                    <button class="copy-btn" onclick="copyToClipboard('input')">Copy</button>
+                </div>
+                <textarea class="text-area" id="inputText" placeholder="Enter your text here...
+
+Example:
+this is a MIXED case TEXT with VARIOUS styles.
+SOME WORDS ARE UPPERCASE, others are lowercase.
+What will happen after conversion?"></textarea>
+            </div>
+
+            <div class="output-section">
+                <div class="section-header">
+                    <h2 class="section-title">Converted Text</h2>
+                    <button class="copy-btn" onclick="copyToClipboard('output')">Copy</button>
+                </div>
+                <textarea class="text-area" id="outputText" placeholder="Converted text will appear here..." readonly></textarea>
+            </div>
+        </div>
+
+        <div class="conversion-options">
+            <div class="option-group">
+                <h3>Basic Conversions</h3>
+                <div class="case-buttons">
+                    <button class="btn" id="uppercaseBtn" onclick="convertCase('uppercase')">UPPERCASE</button>
+                    <button class="btn" id="lowercaseBtn" onclick="convertCase('lowercase')">lowercase</button>
+                    <button class="btn" id="titleCaseBtn" onclick="convertCase('title')">Title Case</button>
+                    <button class="btn" id="sentenceBtn" onclick="convertCase('sentence')">Sentence case</button>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h3>Advanced Conversions</h3>
+                <div class="case-buttons">
+                    <button class="btn" id="camelCaseBtn" onclick="convertCase('camel')">camelCase</button>
+                    <button class="btn" id="pascalCaseBtn" onclick="convertCase('pascal')">PascalCase</button>
+                    <button class="btn" id="snakeCaseBtn" onclick="convertCase('snake')">snake_case</button>
+                    <button class="btn" id="kebabCaseBtn" onclick="convertCase('kebab')">kebab-case</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats" id="statsSection">
+            <div class="stats-text">Enter text and select a conversion to see statistics</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn secondary" onclick="swapTexts()">Swap Input/Output</button>
+        </div>
+    </div>
+
+    <script>
+        let currentConversion = '';
+        let activeButton = null;
+
+        function loadSample(type) {
+            const samples = {
+                mixed: `this IS a MIXED case TEXT with VARIOUS styles.
+SOME WORDS ARE UPPERCASE, others are lowercase.
+What will HAPPEN after CONVERSION?
+
+Here are some MORE examples:
+- HTML, CSS, JavaScript
+- iPhone, eBay, YouTube
+- McDonald's, O'Connor, D'Angelo`,
+
+                screaming: `THIS IS ALL CAPS TEXT!
+IT CAN BE ANNOYING TO READ.
+BUT SOMETIMES IT'S USED FOR EMPHASIS.
+OR WHEN YOU'RE REALLY EXCITED!!!`,
+
+                whisper: `this is all lowercase text.
+it can be calming to read.
+sometimes it's used for subtlety.
+or when you're feeling quiet.`
+            };
+
+            document.getElementById('inputText').value = samples[type] || '';
+            document.getElementById('outputText').value = '';
+            clearActiveButtons();
+            updateStats();
+        }
+
+        function convertCase(type) {
+            const input = document.getElementById('inputText').value;
+            if (!input.trim()) {
+                alert('Please enter some text to convert.');
+                return;
+            }
+
+            let output = '';
+
+            switch (type) {
+                case 'uppercase':
+                    output = input.toUpperCase();
+                    break;
+                case 'lowercase':
+                    output = input.toLowerCase();
+                    break;
+                case 'title':
+                    output = toTitleCase(input);
+                    break;
+                case 'sentence':
+                    output = toSentenceCase(input);
+                    break;
+                case 'camel':
+                    output = toCamelCase(input);
+                    break;
+                case 'pascal':
+                    output = toPascalCase(input);
+                    break;
+                case 'snake':
+                    output = toSnakeCase(input);
+                    break;
+                case 'kebab':
+                    output = toKebabCase(input);
+                    break;
+            }
+
+            document.getElementById('outputText').value = output;
+            currentConversion = type;
+            setActiveButton(type);
+            updateStats();
+
+            // Track tool usage
+            if (window.trackToolUsage) {
+                window.trackToolUsage('case-converter');
+            }
+        }
+
+        function toTitleCase(str) {
+            return str.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function toSentenceCase(str) {
+            return str.toLowerCase().replace(/(^\w|\.\s+\w)/g, l => l.toUpperCase());
+        }
+
+        function toCamelCase(str) {
+            return str
+                .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
+                    index === 0 ? word.toLowerCase() : word.toUpperCase()
+                )
+                .replace(/\s+/g, '');
+        }
+
+        function toPascalCase(str) {
+            return str
+                .replace(/(?:^\w|[A-Z]|\b\w)/g, word => word.toUpperCase())
+                .replace(/\s+/g, '');
+        }
+
+        function toSnakeCase(str) {
+            return str
+                .toLowerCase()
+                .replace(/\s+/g, '_')
+                .replace(/[^\w_]/g, '');
+        }
+
+        function toKebabCase(str) {
+            return str
+                .toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w-]/g, '');
+        }
+
+        function setActiveButton(type) {
+            clearActiveButtons();
+            const buttonMap = {
+                uppercase: 'uppercaseBtn',
+                lowercase: 'lowercaseBtn',
+                title: 'titleCaseBtn',
+                sentence: 'sentenceBtn',
+                camel: 'camelCaseBtn',
+                pascal: 'pascalCaseBtn',
+                snake: 'snakeCaseBtn',
+                kebab: 'kebabCaseBtn'
+            };
+            const buttonId = buttonMap[type];
+            if (buttonId) {
+                document.getElementById(buttonId).classList.add('active');
+                activeButton = buttonId;
+            }
+        }
+
+        function clearActiveButtons() {
+            if (activeButton) {
+                document.getElementById(activeButton).classList.remove('active');
+                activeButton = null;
+            }
+        }
+
+        function updateStats() {
+            const input = document.getElementById('inputText').value;
+            const output = document.getElementById('outputText').value;
+            const statsSection = document.getElementById('statsSection');
+
+            if (!input.trim()) {
+                statsSection.innerHTML = '<div class="stats-text">Enter text and select a conversion to see statistics</div>';
+                return;
+            }
+
+            if (!output.trim()) {
+                statsSection.innerHTML = '<div class="stats-text">Select a conversion type to see results</div>';
+                return;
+            }
+
+            const inputWords = input.trim().split(/\s+/).length;
+            const outputWords = output.trim().split(/\s+/).length;
+            const changes = countDifferences(input, output);
+
+            statsSection.innerHTML = `
+                <div class="stats-text">
+                    <strong>Statistics:</strong> ${inputWords} input words →
+                    ${outputWords} output words |
+                    ${changes} characters changed |
+                    Conversion: ${currentConversion.replace(/^\w/, c => c.toUpperCase())}
+                </div>
+            `;
+        }
+
+        function countDifferences(str1, str2) {
+            let differences = 0;
+            const maxLen = Math.max(str1.length, str2.length);
+
+            for (let i = 0; i < maxLen; i++) {
+                if (str1[i] !== str2[i]) {
+                    differences++;
+                }
+            }
+
+            return differences;
+        }
+
+        function copyToClipboard(type) {
+            const elementId = type === 'input' ? 'inputText' : 'outputText';
+            const text = document.getElementById(elementId).value;
+
+            if (!text.trim()) {
+                alert('No text to copy.');
+                return;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Text copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Text copied to clipboard!');
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            clearActiveButtons();
+            currentConversion = '';
+            updateStats();
+        }
+
+        function swapTexts() {
+            const input = document.getElementById('inputText').value;
+            const output = document.getElementById('outputText').value;
+
+            document.getElementById('inputText').value = output;
+            document.getElementById('outputText').value = input;
+            updateStats();
+        }
+
+        // Auto-convert on input change (debounced)
+        let convertTimeout;
+        document.getElementById('inputText').addEventListener('input', () => {
+            clearTimeout(convertTimeout);
+            convertTimeout = setTimeout(() => {
+                if (currentConversion && document.getElementById('inputText').value.trim()) {
+                    convertCase(currentConversion);
+                } else {
+                    updateStats();
+                }
+            }, 300);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSample('mixed');
+        });
+    </script>
+</body>
+</html>

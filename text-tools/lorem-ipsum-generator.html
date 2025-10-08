@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorem Ipsum Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .control-group select, .control-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .generate-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .generate-btn {
+            background: linear-gradient(135deg, #dc143c, #b22222);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(220, 20, 60, 0.3);
+        }
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(220, 20, 60, 0.4);
+        }
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        .output-section {
+            margin-bottom: 30px;
+        }
+        .output-text {
+            width: 100%;
+            min-height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            line-height: 1.6;
+            background: #fafafa;
+            resize: vertical;
+        }
+        .output-text:focus {
+            outline: none;
+            border-color: #dc143c;
+            background: white;
+        }
+        .output-text[readonly] {
+            background: #f8f9fa;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        .stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .stats-text {
+            color: #495057;
+            font-size: 14px;
+        }
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .preset-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        .preset-btn:hover {
+            background: #218838;
+        }
+        .presets-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .presets-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .generator-controls {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            .preset-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Lorem Ipsum Generator</h1>
+
+        <div class="presets-section">
+            <h3>Quick Presets</h3>
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="applyPreset(1, 'paragraphs')">1 Paragraph</button>
+                <button class="preset-btn" onclick="applyPreset(3, 'paragraphs')">3 Paragraphs</button>
+                <button class="preset-btn" onclick="applyPreset(5, 'paragraphs')">5 Paragraphs</button>
+                <button class="preset-btn" onclick="applyPreset(50, 'words')">50 Words</button>
+                <button class="preset-btn" onclick="applyPreset(100, 'words')">100 Words</button>
+                <button class="preset-btn" onclick="applyPreset(10, 'sentences')">10 Sentences</button>
+            </div>
+        </div>
+
+        <form class="generator-controls" onsubmit="generateLorem(event)">
+            <div class="control-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" min="1" max="100" value="3" required>
+            </div>
+
+            <div class="control-group">
+                <label for="unit">Unit</label>
+                <select id="unit">
+                    <option value="paragraphs">Paragraphs</option>
+                    <option value="sentences">Sentences</option>
+                    <option value="words">Words</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="startWithLorem">Start with "Lorem ipsum dolor sit amet..."</label>
+                <select id="startWithLorem">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="includeHtml">Include HTML Tags</label>
+                <select id="includeHtml">
+                    <option value="no">No</option>
+                    <option value="p">Paragraphs (<p>)</option>
+                    <option value="br">Line breaks (<br>)</option>
+                </select>
+            </div>
+        </form>
+
+        <div class="generate-section">
+            <button class="generate-btn" onclick="generateLorem()">Generate Lorem Ipsum</button>
+        </div>
+
+        <div class="output-section">
+            <textarea class="output-text" id="outputText" readonly placeholder="Generated Lorem Ipsum text will appear here..."></textarea>
+        </div>
+
+        <div class="stats" id="statsSection">
+            <div class="stats-text">Click "Generate" to create Lorem Ipsum text</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" onclick="copyToClipboard()">Copy Text</button>
+            <button class="btn secondary" onclick="downloadText()">Download as TXT</button>
+            <button class="btn secondary" onclick="clearOutput()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        // Lorem Ipsum word database
+        const loremWords = [
+            "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
+            "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
+            "magna", "aliqua", "enim", "ad", "minim", "veniam", "quis", "nostrud", "exercitation",
+            "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea", "commodo", "consequat",
+            "duis", "aute", "irure", "in", "reprehenderit", "voluptate", "velit", "esse",
+            "cillum", "dolore", "eu", "fugiat", "nulla", "pariatur", "excepteur", "sint",
+            "occaecat", "cupidatat", "non", "proident", "sunt", "in", "culpa", "qui", "officia",
+            "deserunt", "mollit", "anim", "id", "est", "laborum"
+        ];
+
+        const sentences = [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.",
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
+            "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.",
+            "Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt.",
+            "Ut labore et dolore magnam aliquam quaerat voluptatem.",
+            "Ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur."
+        ];
+
+        function applyPreset(amount, unit) {
+            document.getElementById('amount').value = amount;
+            document.getElementById('unit').value = unit;
+            generateLorem();
+        }
+
+        function generateLorem(event) {
+            if (event) event.preventDefault();
+
+            const amount = parseInt(document.getElementById('amount').value);
+            const unit = document.getElementById('unit').value;
+            const startWithLorem = document.getElementById('startWithLorem').value === 'yes';
+            const includeHtml = document.getElementById('includeHtml').value;
+
+            let result = '';
+
+            switch (unit) {
+                case 'paragraphs':
+                    result = generateParagraphs(amount, startWithLorem, includeHtml);
+                    break;
+                case 'sentences':
+                    result = generateSentences(amount, startWithLorem, includeHtml);
+                    break;
+                case 'words':
+                    result = generateWords(amount, startWithLorem, includeHtml);
+                    break;
+            }
+
+            document.getElementById('outputText').value = result;
+            updateStats(result);
+
+            // Track tool usage
+            if (window.trackToolUsage) {
+                window.trackToolUsage('lorem-ipsum-generator');
+            }
+        }
+
+        function generateParagraphs(count, startWithLorem, includeHtml) {
+            let paragraphs = [];
+
+            for (let i = 0; i < count; i++) {
+                let paragraph = '';
+
+                if (i === 0 && startWithLorem) {
+                    paragraph = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                               generateRandomSentences(3 + Math.floor(Math.random() * 3));
+                } else {
+                    paragraph = generateRandomSentences(4 + Math.floor(Math.random() * 4));
+                }
+
+                // Capitalize first letter
+                paragraph = paragraph.charAt(0).toUpperCase() + paragraph.slice(1);
+
+                if (includeHtml === 'p') {
+                    paragraphs.push(`<p>${paragraph}</p>`);
+                } else {
+                    paragraphs.push(paragraph);
+                }
+            }
+
+            return paragraphs.join(includeHtml === 'br' ? '<br><br>' : '\n\n');
+        }
+
+        function generateSentences(count, startWithLorem, includeHtml) {
+            let result = [];
+
+            if (startWithLorem) {
+                result.push("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+                count--;
+            }
+
+            for (let i = 0; i < count; i++) {
+                result.push(generateRandomSentence());
+            }
+
+            return result.join(includeHtml === 'br' ? '<br>' : ' ');
+        }
+
+        function generateWords(count, startWithLorem, includeHtml) {
+            let words = [];
+
+            if (startWithLorem) {
+                words = ["Lorem", "ipsum", "dolor", "sit", "amet"];
+                count -= 5;
+            }
+
+            for (let i = 0; i < count; i++) {
+                words.push(getRandomWord());
+            }
+
+            let result = words.join(' ');
+
+            // Capitalize first letter
+            result = result.charAt(0).toUpperCase() + result.slice(1);
+
+            // Add period at the end
+            if (!result.endsWith('.')) {
+                result += '.';
+            }
+
+            return result;
+        }
+
+        function generateRandomSentences(count) {
+            let result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(generateRandomSentence());
+            }
+            return result.join(' ');
+        }
+
+        function generateRandomSentence() {
+            const wordCount = 8 + Math.floor(Math.random() * 12); // 8-20 words
+            let words = [];
+
+            for (let i = 0; i < wordCount; i++) {
+                words.push(getRandomWord());
+            }
+
+            let sentence = words.join(' ');
+            sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+
+            // Add punctuation randomly
+            const punctuations = ['.', '!', '?'];
+            const punctuation = punctuations[Math.floor(Math.random() * punctuations.length)];
+            sentence += punctuation;
+
+            return sentence;
+        }
+
+        function getRandomWord() {
+            return loremWords[Math.floor(Math.random() * loremWords.length)];
+        }
+
+        function updateStats(text) {
+            const statsSection = document.getElementById('statsSection');
+
+            if (!text.trim()) {
+                statsSection.innerHTML = '<div class="stats-text">Click "Generate" to create Lorem Ipsum text</div>';
+                return;
+            }
+
+            const words = text.replace(/<[^>]*>/g, '').trim().split(/\s+/).length;
+            const characters = text.replace(/<[^>]*>/g, '').length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+
+            statsSection.innerHTML = `
+                <div class="stats-text">
+                    <strong>Statistics:</strong> ${words} words | ${characters} characters |
+                    ${sentences} sentences | ${paragraphs} paragraphs
+                </div>
+            `;
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('outputText').value;
+
+            if (!text.trim()) {
+                alert('No text to copy. Generate some Lorem Ipsum first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Lorem Ipsum text copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Lorem Ipsum text copied to clipboard!');
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function downloadText() {
+            const text = document.getElementById('outputText').value;
+
+            if (!text.trim()) {
+                alert('No text to download. Generate some Lorem Ipsum first.');
+                return;
+            }
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'lorem-ipsum-text.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearOutput() {
+            document.getElementById('outputText').value = '';
+            updateStats('');
+        }
+
+        // Initialize with a sample
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('amount').value = 2;
+            document.getElementById('unit').value = 'paragraphs';
+            generateLorem();
+        });
+    </script>
+</body>
+</html>

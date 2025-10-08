@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter & Text Statistics</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        .text-input {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        .text-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .control-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .control-group select {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .control-group select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #dc143c;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .reading-time {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .reading-time .stat-value {
+            color: white;
+            font-size: 1.5em;
+        }
+        .keyword-density {
+            margin-top: 30px;
+        }
+        .keyword-density h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .keyword-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .keyword-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .keyword-word {
+            font-weight: 600;
+            color: #333;
+        }
+        .keyword-count {
+            color: #dc143c;
+            font-weight: bold;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        .sample-text {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .sample-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 5px;
+            transition: background 0.3s ease;
+        }
+        .sample-btn:hover {
+            background: #218838;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            .keyword-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Word Counter & Text Statistics</h1>
+
+        <div class="sample-text">
+            <button class="sample-btn" onclick="loadSample('essay')">Load Essay Sample</button>
+            <button class="sample-btn" onclick="loadSample('article')">Load Article Sample</button>
+            <button class="sample-btn" onclick="loadSample('speech')">Load Speech Sample</button>
+        </div>
+
+        <div class="input-section">
+            <textarea class="text-input" id="textInput" placeholder="Enter your text here to analyze...
+
+Example: This is a sample text for analysis. It contains multiple sentences and paragraphs. Word counting tools help writers understand their content better.
+
+Statistics provide valuable insights about readability, complexity, and content structure."></textarea>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="language">Language</label>
+                    <select id="language">
+                        <option value="english">English</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="french">French</option>
+                        <option value="german">German</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="readingSpeed">Reading Speed (WPM)</label>
+                    <select id="readingSpeed">
+                        <option value="200">Slow (200 WPM)</option>
+                        <option value="250" selected>Normal (250 WPM)</option>
+                        <option value="300">Fast (300 WPM)</option>
+                        <option value="350">Very Fast (350 WPM)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- Statistics will be populated here -->
+        </div>
+
+        <div class="reading-time" id="readingTime">
+            <!-- Reading time will be shown here -->
+        </div>
+
+        <div class="keyword-density" id="keywordDensity">
+            <!-- Keyword density will be shown here -->
+        </div>
+
+        <div class="actions">
+            <button class="btn" onclick="analyzeText()">Analyze Text</button>
+            <button class="btn secondary" onclick="clearText()">Clear</button>
+            <button class="btn secondary" onclick="copyResults()">Copy Results</button>
+        </div>
+    </div>
+
+    <script>
+        let currentAnalysis = '';
+
+        function loadSample(type) {
+            const samples = {
+                essay: `The Importance of Education in Modern Society
+
+Education stands as the foundation of progress and development in any civilized society. It is through education that individuals acquire the knowledge, skills, and values necessary to contribute meaningfully to their communities and the world at large.
+
+In today's rapidly changing world, the role of education extends beyond mere academic learning. It encompasses the development of critical thinking, problem-solving abilities, and social skills that prepare individuals for the challenges of the 21st century. Quality education opens doors to opportunities and empowers people to shape their own destinies.
+
+Furthermore, education serves as a powerful tool for social mobility. It provides individuals from disadvantaged backgrounds with the means to overcome economic barriers and achieve success. When education is accessible to all, it promotes equality and reduces social disparities.
+
+However, the quality and accessibility of education vary significantly across different regions and socioeconomic groups. Addressing these disparities requires concerted efforts from governments, educational institutions, and communities to ensure that every child has access to quality education regardless of their background or circumstances.
+
+In conclusion, education is not just a pathway to personal success but also a cornerstone of societal progress. Investing in education is investing in a better future for all.`,
+
+                article: `The Future of Artificial Intelligence
+
+Artificial Intelligence (AI) is revolutionizing industries and transforming the way we live, work, and interact with technology. From self-driving cars to personalized medicine, AI applications are becoming increasingly sophisticated and widespread.
+
+Machine learning algorithms power recommendation systems on streaming platforms, fraud detection in financial transactions, and even climate modeling for environmental research. Natural language processing enables virtual assistants to understand and respond to human queries, while computer vision allows machines to interpret visual information.
+
+Despite these advancements, AI development raises important ethical considerations. Issues such as algorithmic bias, data privacy, and the impact of automation on employment require careful attention. Ensuring that AI systems are developed responsibly and benefit all of humanity is crucial.
+
+The future of AI holds immense potential. Continued research and development will lead to breakthroughs in areas such as drug discovery, climate change mitigation, and personalized education. However, realizing this potential requires collaboration between technologists, policymakers, and society at large.
+
+As AI continues to evolve, it is essential to approach its development with both optimism and caution, ensuring that technological progress serves the greater good.`,
+
+                speech: `My fellow citizens,
+
+Today, I stand before you at a moment of great challenge and even greater opportunity. Our nation faces unprecedented changes that will shape the course of our future. But I believe in the resilience of our people and the strength of our shared values.
+
+We have witnessed how crises can bring out the best in humanity. Neighbors helping neighbors, communities coming together, and individuals stepping up to serve the greater good. These are the moments that define us as a nation.
+
+As we navigate these uncertain times, let us remember that our diversity is our greatest strength. Our differences in background, belief, and experience enrich our society and make us stronger. We must embrace this diversity and work together toward common goals.
+
+Education, innovation, and compassion will be our guiding lights. By investing in our young people, fostering creativity, and caring for the most vulnerable among us, we can build a future that honors our past while embracing the possibilities of tomorrow.
+
+Let us move forward with hope, determination, and unity. Together, we will overcome the challenges before us and create a brighter future for all.
+
+Thank you, and God bless our nation.`
+            };
+
+            document.getElementById('textInput').value = samples[type] || '';
+            analyzeText();
+        }
+
+        function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            const language = document.getElementById('language').value;
+            const readingSpeed = parseInt(document.getElementById('readingSpeed').value);
+
+            if (!text.trim()) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+
+            // Basic statistics
+            const stats = calculateStatistics(text);
+
+            // Reading time
+            const readingTime = calculateReadingTime(stats.words, readingSpeed);
+
+            // Keyword density
+            const keywords = calculateKeywordDensity(text);
+
+            displayResults(stats, readingTime, keywords);
+
+            // Track tool usage
+            if (window.trackToolUsage) {
+                window.trackToolUsage('word-counter-statistics');
+            }
+        }
+
+        function calculateStatistics(text) {
+            const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            const characters = text.length;
+            const charactersNoSpaces = text.replace(/\s/g, '').length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0).length;
+            const lines = text.split('\n').length;
+
+            // Average word length
+            const wordsArray = text.trim().split(/\s+/).filter(w => w.length > 0);
+            const avgWordLength = wordsArray.length > 0 ?
+                wordsArray.reduce((sum, word) => sum + word.length, 0) / wordsArray.length : 0;
+
+            // Reading level (simplified)
+            const syllables = countSyllables(text);
+            const fleschScore = words > 0 ? 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words) : 0;
+            const readingLevel = fleschScore > 90 ? 'Very Easy' :
+                               fleschScore > 80 ? 'Easy' :
+                               fleschScore > 70 ? 'Fairly Easy' :
+                               fleschScore > 60 ? 'Standard' :
+                               fleschScore > 50 ? 'Fairly Difficult' :
+                               fleschScore > 30 ? 'Difficult' : 'Very Difficult';
+
+            return {
+                words,
+                characters,
+                charactersNoSpaces,
+                sentences,
+                paragraphs,
+                lines,
+                avgWordLength: avgWordLength.toFixed(1),
+                syllables,
+                readingLevel,
+                fleschScore: fleschScore.toFixed(1)
+            };
+        }
+
+        function countSyllables(text) {
+            // Simplified syllable counting
+            const words = text.toLowerCase().split(/\s+/);
+            let syllables = 0;
+
+            words.forEach(word => {
+                word = word.replace(/[^a-z]/g, '');
+                if (word.length <= 3) syllables += 1;
+                else syllables += Math.max(1, word.match(/[aeiou]/g)?.length || 1);
+            });
+
+            return syllables;
+        }
+
+        function calculateReadingTime(words, wpm) {
+            const minutes = words / wpm;
+            const seconds = Math.round((minutes % 1) * 60);
+
+            if (minutes < 1) {
+                return `${seconds} seconds`;
+            } else {
+                const wholeMinutes = Math.floor(minutes);
+                return `${wholeMinutes} minute${wholeMinutes > 1 ? 's' : ''}${seconds > 0 ? ` ${seconds} second${seconds > 1 ? 's' : ''}` : ''}`;
+            }
+        }
+
+        function calculateKeywordDensity(text) {
+            const words = text.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 3); // Only words longer than 3 characters
+
+            const wordCount = {};
+            words.forEach(word => {
+                wordCount[word] = (wordCount[word] || 0) + 1;
+            });
+
+            // Sort by frequency and get top 10
+            return Object.entries(wordCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 10)
+                .map(([word, count]) => ({
+                    word,
+                    count,
+                    density: ((count / words.length) * 100).toFixed(2)
+                }));
+        }
+
+        function displayResults(stats, readingTime, keywords) {
+            const statsGrid = document.getElementById('statsGrid');
+            const readingTimeDiv = document.getElementById('readingTime');
+            const keywordDensityDiv = document.getElementById('keywordDensity');
+
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.words.toLocaleString()}</div>
+                    <div class="stat-label">Words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.characters.toLocaleString()}</div>
+                    <div class="stat-label">Characters</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.charactersNoSpaces.toLocaleString()}</div>
+                    <div class="stat-label">Characters (No Spaces)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.sentences.toLocaleString()}</div>
+                    <div class="stat-label">Sentences</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.paragraphs.toLocaleString()}</div>
+                    <div class="stat-label">Paragraphs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.lines.toLocaleString()}</div>
+                    <div class="stat-label">Lines</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avgWordLength}</div>
+                    <div class="stat-label">Avg Word Length</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.readingLevel}</div>
+                    <div class="stat-label">Reading Level</div>
+                </div>
+            `;
+
+            readingTimeDiv.innerHTML = `
+                <div class="stat-value">${readingTime}</div>
+                <div class="stat-label">Estimated Reading Time</div>
+            `;
+
+            if (keywords.length > 0) {
+                keywordDensityDiv.innerHTML = `
+                    <h3>Top Keywords</h3>
+                    <div class="keyword-list">
+                        ${keywords.map(k => `
+                            <div class="keyword-item">
+                                <span class="keyword-word">${k.word}</span>
+                                <span class="keyword-count">${k.count} (${k.density}%)</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                keywordDensityDiv.innerHTML = '';
+            }
+
+            currentAnalysis = `Text Statistics:
+Words: ${stats.words}
+Characters: ${stats.characters}
+Characters (no spaces): ${stats.charactersNoSpaces}
+Sentences: ${stats.sentences}
+Paragraphs: ${stats.paragraphs}
+Reading Time: ${readingTime}
+Reading Level: ${stats.readingLevel}
+
+Top Keywords:
+${keywords.map(k => `${k.word}: ${k.count} (${k.density}%)`).join('\n')}`;
+        }
+
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            document.getElementById('statsGrid').innerHTML = '';
+            document.getElementById('readingTime').innerHTML = '';
+            document.getElementById('keywordDensity').innerHTML = '';
+            currentAnalysis = '';
+        }
+
+        function copyResults() {
+            if (!currentAnalysis) {
+                alert('Please analyze some text first.');
+                return;
+            }
+
+            navigator.clipboard.writeText(currentAnalysis).then(() => {
+                alert('Results copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = currentAnalysis;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Results copied to clipboard!');
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // Auto-analyze on input (debounced)
+        let analysisTimeout;
+        document.getElementById('textInput').addEventListener('input', () => {
+            clearTimeout(analysisTimeout);
+            analysisTimeout = setTimeout(() => {
+                if (document.getElementById('textInput').value.trim()) {
+                    analyzeText();
+                }
+            }, 500);
+        });
+
+        // Initial sample load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSample('essay');
+        });
+    </script>
+</body>
+</html>

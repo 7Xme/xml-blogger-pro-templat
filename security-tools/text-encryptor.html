@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Encrypt and decrypt text using various algorithms including Caesar cipher, Vigenère cipher, AES, and more">
+    <title>Text Encryptor & Decryptor</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .mode-btn {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        .mode-btn.active {
+            background: #dc143c;
+            color: white;
+            border-color: #dc143c;
+        }
+        .mode-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .input-group, .output-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .copy-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #138496;
+        }
+        .text-area {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 120px;
+            margin-bottom: 10px;
+        }
+        .text-area:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .algorithm-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .algorithm-btn {
+            background: white;
+            border: 2px solid #dee2e6;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .algorithm-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .algorithm-btn:hover:not(.active) {
+            background: #f8f9fa;
+            border-color: #dc143c;
+        }
+        .setting-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .setting-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .setting-input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .setting-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .setting-textarea {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .setting-textarea:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .examples-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .examples-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .example-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .example-text {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .example-result {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #333;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .input-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .setting-group {
+                grid-template-columns: 1fr;
+            }
+            .algorithm-selector {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Text Encryptor & Decryptor</h1>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="setMode('encrypt')">Encrypt</button>
+            <button class="mode-btn" onclick="setMode('decrypt')">Decrypt</button>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <div class="section-header">
+                    <h2 class="section-title">Input Text</h2>
+                </div>
+                <textarea class="text-area" id="inputText" placeholder="Enter text to encrypt/decrypt..."></textarea>
+            </div>
+
+            <div class="output-group">
+                <div class="section-header">
+                    <h2 class="section-title">Output Text</h2>
+                    <button class="copy-btn" onclick="copyOutput()">Copy</button>
+                </div>
+                <textarea class="text-area" id="outputText" placeholder="Result will appear here..." readonly></textarea>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-title">Encryption Settings</div>
+
+            <div class="algorithm-selector">
+                <button class="algorithm-btn active" onclick="setAlgorithm('caesar')">Caesar Cipher</button>
+                <button class="algorithm-btn" onclick="setAlgorithm('vigenere')">Vigenère Cipher</button>
+                <button class="algorithm-btn" onclick="setAlgorithm('aes')">AES-256</button>
+                <button class="algorithm-btn" onclick="setAlgorithm('base64')">Base64</button>
+                <button class="algorithm-btn" onclick="setAlgorithm('rot13')">ROT13</button>
+            </div>
+
+            <div class="setting-group" id="algorithmSettings">
+                <!-- Caesar Cipher Settings -->
+                <div class="setting-item caesar-settings">
+                    <label class="setting-label" for="caesarShift">Shift Amount:</label>
+                    <input type="number" class="setting-input" id="caesarShift" value="3" min="1" max="25">
+                </div>
+
+                <!-- Vigenère Cipher Settings -->
+                <div class="setting-item vigenere-settings" style="display: none;">
+                    <label class="setting-label" for="vigenereKey">Key:</label>
+                    <input type="text" class="setting-input" id="vigenereKey" placeholder="Enter key word..." maxlength="50">
+                </div>
+
+                <!-- AES Settings -->
+                <div class="setting-item aes-settings" style="display: none;">
+                    <label class="setting-label" for="aesKey">Password:</label>
+                    <input type="password" class="setting-input" id="aesKey" placeholder="Enter encryption password...">
+                </div>
+
+                <!-- ROT13 has no additional settings -->
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn success" onclick="processText()">Process Text</button>
+            <button class="btn" onclick="swapText()">Swap Input/Output</button>
+            <button class="btn secondary" onclick="clearAll()">Clear All</button>
+        </div>
+
+        <div class="status-message" id="statusMessage" style="display: none;">
+            Status message will appear here
+        </div>
+
+        <div class="examples-section">
+            <div class="examples-title">Algorithm Examples</div>
+            <div class="example-item">
+                <div class="example-text">Caesar Cipher (shift 3): "HELLO" → "KHOOR"</div>
+            </div>
+            <div class="example-item">
+                <div class="example-text">Vigenère Cipher (key "KEY"): "HELLO" → "RIJVS"</div>
+            </div>
+            <div class="example-item">
+                <div class="example-text">ROT13: "HELLO" → "URYYB"</div>
+            </div>
+            <div class="example-item">
+                <div class="example-text">Base64: "HELLO" → "SEVMTE8="</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'encrypt';
+        let currentAlgorithm = 'caesar';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update button text
+            const processBtn = document.querySelector('.btn.success');
+            processBtn.textContent = mode === 'encrypt' ? 'Encrypt Text' : 'Decrypt Text';
+
+            updateStatus('');
+        }
+
+        function setAlgorithm(algorithm) {
+            currentAlgorithm = algorithm;
+            document.querySelectorAll('.algorithm-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide algorithm-specific settings
+            document.querySelectorAll('.setting-item').forEach(item => {
+                item.style.display = 'none';
+            });
+
+            const settingsClass = algorithm + '-settings';
+            const settingsElement = document.querySelector('.' + settingsClass);
+            if (settingsElement) {
+                settingsElement.style.display = 'block';
+            }
+
+            updateStatus('');
+        }
+
+        function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('outputText');
+
+            if (!inputText.trim()) {
+                showStatus('Please enter text to process', 'error');
+                return;
+            }
+
+            try {
+                let result = '';
+
+                switch (currentAlgorithm) {
+                    case 'caesar':
+                        result = processCaesarCipher(inputText, currentMode);
+                        break;
+                    case 'vigenere':
+                        result = processVigenereCipher(inputText, currentMode);
+                        break;
+                    case 'aes':
+                        result = processAESCipher(inputText, currentMode);
+                        break;
+                    case 'base64':
+                        result = processBase64(inputText, currentMode);
+                        break;
+                    case 'rot13':
+                        result = processROT13(inputText);
+                        break;
+                    default:
+                        throw new Error('Unknown algorithm');
+                }
+
+                outputText.value = result;
+                showStatus(`Text ${currentMode === 'encrypt' ? 'encrypted' : 'decrypted'} successfully!`, 'success');
+
+                // Track tool usage
+                if (window.trackToolUsage) {
+                    window.trackToolUsage('text-encryptor');
+                }
+
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+
+        function processCaesarCipher(text, mode) {
+            const shift = parseInt(document.getElementById('caesarShift').value);
+            if (isNaN(shift) || shift < 1 || shift > 25) {
+                throw new Error('Shift must be between 1 and 25');
+            }
+
+            const actualShift = mode === 'encrypt' ? shift : -shift;
+
+            return text.split('').map(char => {
+                if (char.match(/[a-z]/)) {
+                    return String.fromCharCode((char.charCodeAt(0) - 97 + actualShift + 26) % 26 + 97);
+                } else if (char.match(/[A-Z]/)) {
+                    return String.fromCharCode((char.charCodeAt(0) - 65 + actualShift + 26) % 26 + 65);
+                }
+                return char;
+            }).join('');
+        }
+
+        function processVigenereCipher(text, mode) {
+            const key = document.getElementById('vigenereKey').value.toUpperCase().replace(/[^A-Z]/g, '');
+            if (!key) {
+                throw new Error('Please enter a key for Vigenère cipher');
+            }
+
+            let result = '';
+            let keyIndex = 0;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                if (char.match(/[a-zA-Z]/)) {
+                    const base = char.toUpperCase() === char ? 65 : 97;
+                    const textCharCode = char.charCodeAt(0) - base;
+                    const keyCharCode = key[keyIndex % key.length].charCodeAt(0) - 65;
+
+                    let shifted;
+                    if (mode === 'encrypt') {
+                        shifted = (textCharCode + keyCharCode) % 26;
+                    } else {
+                        shifted = (textCharCode - keyCharCode + 26) % 26;
+                    }
+
+                    result += String.fromCharCode(base + shifted);
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+
+            return result;
+        }
+
+        async function processAESCipher(text, mode) {
+            const key = document.getElementById('aesKey').value;
+            if (!key) {
+                throw new Error('Please enter a password for AES encryption');
+            }
+
+            if (typeof CryptoJS === 'undefined') {
+                throw new Error('CryptoJS library is required for AES encryption');
+            }
+
+            try {
+                if (mode === 'encrypt') {
+                    return CryptoJS.AES.encrypt(text, key).toString();
+                } else {
+                    const bytes = CryptoJS.AES.decrypt(text, key);
+                    return bytes.toString(CryptoJS.enc.Utf8);
+                }
+            } catch (error) {
+                throw new Error('Invalid encrypted text or password');
+            }
+        }
+
+        function processBase64(text, mode) {
+            try {
+                if (mode === 'encrypt') {
+                    return btoa(unescape(encodeURIComponent(text)));
+                } else {
+                    return decodeURIComponent(escape(atob(text)));
+                }
+            } catch (error) {
+                throw new Error('Invalid Base64 string');
+            }
+        }
+
+        function processROT13(text) {
+            return text.split('').map(char => {
+                if (char.match(/[a-z]/)) {
+                    return String.fromCharCode((char.charCodeAt(0) - 97 + 13) % 26 + 97);
+                } else if (char.match(/[A-Z]/)) {
+                    return String.fromCharCode((char.charCodeAt(0) - 65 + 13) % 26 + 65);
+                }
+                return char;
+            }).join('');
+        }
+
+        function copyOutput() {
+            const outputText = document.getElementById('outputText');
+            if (!outputText.value) {
+                alert('No output text to copy');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                showStatus('Output copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback
+                outputText.select();
+                document.execCommand('copy');
+                showStatus('Output copied to clipboard!', 'success');
+            });
+        }
+
+        function swapText() {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+
+            const temp = inputText.value;
+            inputText.value = outputText.value;
+            outputText.value = temp;
+        }
+
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('outputText').value = '';
+            updateStatus('');
+        }
+
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = 'status-message';
+
+            if (type) {
+                statusElement.classList.add('status-' + type);
+            }
+
+            statusElement.style.display = message ? 'block' : 'none';
+        }
+
+        function updateStatus(message) {
+            showStatus(message, message ? 'info' : '');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setAlgorithm('caesar');
+        });
+    </script>
+
+    <!-- Load crypto-js for AES support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate cryptographically secure random numbers, strings, passwords, and data using Web Crypto API">
+    <title>Secure Random Generator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .generator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .generator-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .generate-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .generate-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+
+        .settings-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .setting-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .setting-input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .setting-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .setting-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .setting-select:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+
+        .output-area {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .output-empty {
+            color: #999;
+            font-style: italic;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        .btn.secondary {
+            background: #6c757d;
+        }
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        .btn.success {
+            background: #28a745;
+        }
+        .btn.success:hover {
+            background: #218838;
+        }
+
+        .copy-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 10px;
+            transition: background 0.3s ease;
+        }
+        .copy-btn:hover {
+            background: #138496;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkbox-group input {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+        .checkbox-group label {
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .range-input {
+            width: 100%;
+            margin: 5px 0;
+        }
+        .range-value {
+            text-align: center;
+            font-weight: bold;
+            color: #dc143c;
+            font-size: 16px;
+        }
+
+        .stats-section {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .stats-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #004085;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #004085;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #004085;
+            text-transform: uppercase;
+        }
+
+        .security-notice {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .security-text {
+            font-size: 14px;
+            color: #856404;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .generator-grid {
+                grid-template-columns: 1fr;
+            }
+            .settings-group {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Secure Random Generator</h1>
+
+        <div class="generator-grid">
+            <!-- Numbers Generator -->
+            <div class="generator-section">
+                <div class="section-header">
+                    <h2 class="section-title">🔢 Random Numbers</h2>
+                    <button class="generate-btn" onclick="generateNumbers()">Generate</button>
+                </div>
+
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label class="setting-label" for="numCount">Count:</label>
+                        <input type="number" class="setting-input" id="numCount" value="5" min="1" max="100">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="numMin">Min Value:</label>
+                        <input type="number" class="setting-input" id="numMin" value="1">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="numMax">Max Value:</label>
+                        <input type="number" class="setting-input" id="numMax" value="100">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="numFormat">Format:</label>
+                        <select class="setting-select" id="numFormat">
+                            <option value="decimal">Decimal</option>
+                            <option value="hex">Hexadecimal</option>
+                            <option value="binary">Binary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="output-area" id="numbersOutput">
+                    <span class="output-empty">Click "Generate" to create random numbers</span>
+                </div>
+            </div>
+
+            <!-- Strings Generator -->
+            <div class="generator-section">
+                <div class="section-header">
+                    <h2 class="section-title">📝 Random Strings</h2>
+                    <button class="generate-btn" onclick="generateStrings()">Generate</button>
+                </div>
+
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label class="setting-label" for="strLength">Length:</label>
+                        <input type="number" class="setting-input" id="strLength" value="16" min="1" max="1000">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="strCount">Count:</label>
+                        <input type="number" class="setting-input" id="strCount" value="3" min="1" max="50">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="strCase">Case:</label>
+                        <select class="setting-select" id="strCase">
+                            <option value="mixed">Mixed Case</option>
+                            <option value="upper">Uppercase</option>
+                            <option value="lower">Lowercase</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeUppercase" checked>
+                    <label for="includeUppercase">Include Uppercase (A-Z)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeLowercase" checked>
+                    <label for="includeLowercase">Include Lowercase (a-z)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeNumbers" checked>
+                    <label for="includeNumbers">Include Numbers (0-9)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSymbols">
+                    <label for="includeSymbols">Include Symbols (!@#$%^&*)</label>
+                </div>
+
+                <div class="output-area" id="stringsOutput">
+                    <span class="output-empty">Click "Generate" to create random strings</span>
+                </div>
+            </div>
+
+            <!-- Password Generator -->
+            <div class="generator-section">
+                <div class="section-header">
+                    <h2 class="section-title">🔑 Random Passwords</h2>
+                    <button class="generate-btn" onclick="generatePasswords()">Generate</button>
+                </div>
+
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label class="setting-label" for="pwdLength">Length:</label>
+                        <input type="range" class="range-input" id="pwdLength" min="8" max="64" value="16">
+                        <div class="range-value" id="pwdLengthValue">16</div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="pwdCount">Count:</label>
+                        <input type="number" class="setting-input" id="pwdCount" value="5" min="1" max="20">
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pwdUppercase" checked>
+                    <label for="pwdUppercase">Uppercase Letters</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pwdLowercase" checked>
+                    <label for="pwdLowercase">Lowercase Letters</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pwdNumbers" checked>
+                    <label for="pwdNumbers">Numbers</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="pwdSymbols" checked>
+                    <label for="pwdSymbols">Symbols</label>
+                </div>
+
+                <div class="output-area" id="passwordsOutput">
+                    <span class="output-empty">Click "Generate" to create random passwords</span>
+                </div>
+            </div>
+
+            <!-- Bytes Generator -->
+            <div class="generator-section">
+                <div class="section-header">
+                    <h2 class="section-title">📊 Random Bytes</h2>
+                    <button class="generate-btn" onclick="generateBytes()">Generate</button>
+                </div>
+
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label class="setting-label" for="bytesCount">Byte Count:</label>
+                        <input type="number" class="setting-input" id="bytesCount" value="16" min="1" max="1024">
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label" for="bytesFormat">Format:</label>
+                        <select class="setting-select" id="bytesFormat">
+                            <option value="hex">Hexadecimal</option>
+                            <option value="decimal">Decimal</option>
+                            <option value="binary">Binary</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="output-area" id="bytesOutput">
+                    <span class="output-empty">Click "Generate" to create random bytes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn success" onclick="generateAll()">Generate All</button>
+            <button class="btn secondary" onclick="clearAll()">Clear All</button>
+            <button class="btn" onclick="exportResults()">Export Results</button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stats-title">📈 Generation Statistics</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalGenerated">0</div>
+                    <div class="stat-label">Total Generated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastGeneration">Never</div>
+                    <div class="stat-label">Last Generation</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgGeneration">0ms</div>
+                    <div class="stat-label">Avg Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="sessionCount">0</div>
+                    <div class="stat-label">Session Count</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="security-notice">
+            <p class="security-text">
+                <strong>🔒 Security Notice:</strong> All random data is generated using the Web Crypto API's
+                cryptographically secure random number generator (CSPRNG). This ensures maximum security
+                and unpredictability for all generated values.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Statistics tracking
+        let totalGenerated = 0;
+        let sessionCount = 0;
+        let generationTimes = [];
+        let lastGeneration = null;
+
+        function updateStats() {
+            document.getElementById('totalGenerated').textContent = totalGenerated.toLocaleString();
+            document.getElementById('lastGeneration').textContent = lastGeneration ?
+                new Date(lastGeneration).toLocaleTimeString() : 'Never';
+            document.getElementById('sessionCount').textContent = sessionCount.toLocaleString();
+
+            if (generationTimes.length > 0) {
+                const avgTime = generationTimes.reduce((a, b) => a + b, 0) / generationTimes.length;
+                document.getElementById('avgGeneration').textContent = Math.round(avgTime) + 'ms';
+            }
+        }
+
+        // Generate cryptographically secure random bytes
+        function getRandomBytes(length) {
+            const array = new Uint8Array(length);
+            crypto.getRandomValues(array);
+            return array;
+        }
+
+        // Generate cryptographically secure random number in range
+        function getRandomInRange(min, max) {
+            const range = max - min + 1;
+            const bytesNeeded = Math.ceil(Math.log2(range) / 8);
+            const maxValid = Math.floor(256 ** bytesNeeded / range) * range - 1;
+
+            let randomValue;
+            do {
+                const randomBytes = getRandomBytes(bytesNeeded);
+                randomValue = 0;
+                for (let i = 0; i < bytesNeeded; i++) {
+                    randomValue = randomValue * 256 + randomBytes[i];
+                }
+            } while (randomValue > maxValid);
+
+            return min + (randomValue % range);
+        }
+
+        function generateNumbers() {
+            const startTime = Date.now();
+            const count = parseInt(document.getElementById('numCount').value);
+            const min = parseInt(document.getElementById('numMin').value);
+            const max = parseInt(document.getElementById('numMax').value);
+            const format = document.getElementById('numFormat').value;
+
+            if (min >= max) {
+                alert('Minimum value must be less than maximum value');
+                return;
+            }
+
+            let result = '';
+            for (let i = 0; i < count; i++) {
+                const num = getRandomInRange(min, max);
+                let formattedNum;
+
+                switch (format) {
+                    case 'hex':
+                        formattedNum = '0x' + num.toString(16).toUpperCase();
+                        break;
+                    case 'binary':
+                        formattedNum = '0b' + num.toString(2);
+                        break;
+                    default:
+                        formattedNum = num.toString();
+                }
+
+                result += formattedNum + '\n';
+            }
+
+            document.getElementById('numbersOutput').textContent = result.trim();
+            trackGeneration(count, startTime);
+
+            // Track tool usage
+            if (window.trackToolUsage) {
+                window.trackToolUsage('secure-random-generator');
+            }
+        }
+
+        function generateStrings() {
+            const startTime = Date.now();
+            const length = parseInt(document.getElementById('strLength').value);
+            const count = parseInt(document.getElementById('strCount').value);
+            const caseType = document.getElementById('strCase').value;
+
+            const includeUppercase = document.getElementById('includeUppercase').checked;
+            const includeLowercase = document.getElementById('includeLowercase').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSymbols = document.getElementById('includeSymbols').checked;
+
+            if (!includeUppercase && !includeLowercase && !includeNumbers && !includeSymbols) {
+                alert('Please select at least one character set');
+                return;
+            }
+
+            // Build character pool
+            let charPool = '';
+            if (includeUppercase) charPool += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (includeLowercase) charPool += 'abcdefghijklmnopqrstuvwxyz';
+            if (includeNumbers) charPool += '0123456789';
+            if (includeSymbols) charPool += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            let result = '';
+            for (let i = 0; i < count; i++) {
+                let str = '';
+                for (let j = 0; j < length; j++) {
+                    const randomIndex = getRandomInRange(0, charPool.length - 1);
+                    str += charPool[randomIndex];
+                }
+
+                // Apply case transformation
+                switch (caseType) {
+                    case 'upper':
+                        str = str.toUpperCase();
+                        break;
+                    case 'lower':
+                        str = str.toLowerCase();
+                        break;
+                }
+
+                result += str + '\n';
+            }
+
+            document.getElementById('stringsOutput').textContent = result.trim();
+            trackGeneration(count, startTime);
+        }
+
+        function generatePasswords() {
+            const startTime = Date.now();
+            const length = parseInt(document.getElementById('pwdLength').value);
+            const count = parseInt(document.getElementById('pwdCount').value);
+
+            const includeUppercase = document.getElementById('pwdUppercase').checked;
+            const includeLowercase = document.getElementById('pwdLowercase').checked;
+            const includeNumbers = document.getElementById('pwdNumbers').checked;
+            const includeSymbols = document.getElementById('pwdSymbols').checked;
+
+            if (!includeUppercase && !includeLowercase && !includeNumbers && !includeSymbols) {
+                alert('Please select at least one character type for passwords');
+                return;
+            }
+
+            // Ensure strong password by including at least one of each selected type
+            const charSets = [];
+            if (includeUppercase) charSets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+            if (includeLowercase) charSets.push('abcdefghijklmnopqrstuvwxyz');
+            if (includeNumbers) charSets.push('0123456789');
+            if (includeSymbols) charSets.push('!@#$%^&*()_+-=[]{}|;:,.<>?');
+
+            let result = '';
+            for (let i = 0; i < count; i++) {
+                let password = '';
+
+                // Ensure at least one character from each set
+                charSets.forEach(charSet => {
+                    const randomIndex = getRandomInRange(0, charSet.length - 1);
+                    password += charSet[randomIndex];
+                });
+
+                // Fill remaining length
+                const allChars = charSets.join('');
+                while (password.length < length) {
+                    const randomIndex = getRandomInRange(0, allChars.length - 1);
+                    password += allChars[randomIndex];
+                }
+
+                // Shuffle password
+                password = shuffleString(password);
+
+                result += password + '\n';
+            }
+
+            document.getElementById('passwordsOutput').textContent = result.trim();
+            trackGeneration(count, startTime);
+        }
+
+        function generateBytes() {
+            const startTime = Date.now();
+            const count = parseInt(document.getElementById('bytesCount').value);
+            const format = document.getElementById('bytesFormat').value;
+
+            const bytes = getRandomBytes(count);
+
+            let result = '';
+            switch (format) {
+                case 'hex':
+                    result = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                    break;
+                case 'decimal':
+                    result = Array.from(bytes).join(' ');
+                    break;
+                case 'binary':
+                    result = Array.from(bytes).map(b => b.toString(2).padStart(8, '0')).join(' ');
+                    break;
+            }
+
+            document.getElementById('bytesOutput').textContent = result;
+            trackGeneration(1, startTime);
+        }
+
+        function generateAll() {
+            generateNumbers();
+            generateStrings();
+            generatePasswords();
+            generateBytes();
+        }
+
+        function shuffleString(str) {
+            const array = str.split('');
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = getRandomInRange(0, i);
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array.join('');
+        }
+
+        function trackGeneration(count, startTime) {
+            totalGenerated += count;
+            sessionCount++;
+            const duration = Date.now() - startTime;
+            generationTimes.push(duration);
+            if (generationTimes.length > 10) {
+                generationTimes.shift(); // Keep only last 10 measurements
+            }
+            lastGeneration = Date.now();
+            updateStats();
+        }
+
+        function clearAll() {
+            document.getElementById('numbersOutput').innerHTML = '<span class="output-empty">Click "Generate" to create random numbers</span>';
+            document.getElementById('stringsOutput').innerHTML = '<span class="output-empty">Click "Generate" to create random strings</span>';
+            document.getElementById('passwordsOutput').innerHTML = '<span class="output-empty">Click "Generate" to create random passwords</span>';
+            document.getElementById('bytesOutput').innerHTML = '<span class="output-empty">Click "Generate" to create random bytes</span>';
+        }
+
+        function exportResults() {
+            const results = {
+                numbers: document.getElementById('numbersOutput').textContent,
+                strings: document.getElementById('stringsOutput').textContent,
+                passwords: document.getElementById('passwordsOutput').textContent,
+                bytes: document.getElementById('bytesOutput').textContent,
+                timestamp: new Date().toISOString(),
+                totalGenerated: totalGenerated
+            };
+
+            const dataStr = JSON.stringify(results, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `random-generation-results-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('pwdLength').addEventListener('input', function() {
+            document.getElementById('pwdLengthValue').textContent = this.value;
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStats();
+        });
+    </script>
+</body>
+</html>
