@@ -57,11 +57,11 @@
     "jobTitle": "Full-Stack Web and Mobile App Developer",
     "url": "<data:blog.url/>",
     "sameAs": [
-      "https://github.com/yourusername", <!-- Replace with your actual GitHub URL -->
-      "https://www.linkedin.com/in/youractualprofile", <!-- Replace with your actual LinkedIn URL -->
-      "https://www.instagram.com/yourusername", <!-- Replace with your actual Instagram URL -->
-      "https://app.hackthebox.com/profile/youruserid"  <!-- Replace with your actual Hack The Box profile URL -->
-    ],
+     "https://github.com/7Xme", <!-- Replace with your actual GitHub URL -->
+     "https://www.linkedin.com/in/ayoub7x", <!-- Replace with your actual LinkedIn URL -->
+     "https://www.instagram.com/AYOUB7X", <!-- Replace with your actual Instagram URL -->
+     "https://app.hackthebox.com/profile/ayoub7x"  <!-- Replace with your actual Hack The Box profile URL -->
+   ],
     "knowsAbout": ["Web Development", "Mobile Apps", "SEO", "JavaScript", "React", "Node.js"]
   }
   ]]>
@@ -812,10 +812,10 @@ a.innerHTML='';
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
               <div class='social-links'>
-                <a href='https://github.com/yourusername' class='social-link' target='_blank' rel='noopener noreferrer' title='GitHub'><i class='fab fa-github'></i></a>
-                <a href='https://www.linkedin.com/in/youractualprofile' class='social-link' target='_blank' rel='noopener noreferrer' title='LinkedIn'><i class='fab fa-linkedin'></i></a>
-                <a href='https://www.instagram.com/yourusername' class='social-link' target='_blank' rel='noopener noreferrer' title='Instagram'><i class='fab fa-instagram'></i></a>
-                <a href='https://app.hackthebox.com/profile/youruserid' class='social-link' target='_blank' rel='noopener noreferrer' title='Hack The Box'><i class='fas fa-terminal'></i></a>
+                <a href='https://github.com/7Xme' class='social-link' target='_blank' rel='noopener noreferrer' title='GitHub'><i class='fab fa-github'></i></a>
+                <a href='https://www.linkedin.com/in/ayoub7x' class='social-link' target='_blank' rel='noopener noreferrer' title='LinkedIn'><i class='fab fa-linkedin'></i></a>
+                <a href='https://www.instagram.com/AYOUB7X' class='social-link' target='_blank' rel='noopener noreferrer' title='Instagram'><i class='fab fa-instagram'></i></a>
+                <a href='https://app.hackthebox.com/profile/ayoub7x' class='social-link' target='_blank' rel='noopener noreferrer' title='Hack The Box'><i class='fas fa-terminal'></i></a>
               </div>
             </div>
           </div>
@@ -906,7 +906,7 @@ a.innerHTML='';
               <img alt='Project 2' loading='lazy' src='project2.jpg'/> <!-- Replace with actual image -->
               <h3>Mobile Chat App</h3>
               <p>Real-time messaging app built with React Native.</p>
-              <a href='#'>View Project</a>
+              <a href='https://ayoubdevx.blogspot.com/2025/10/mobile-chat-app-simulator-root-primary.html'>View Project</a>
             </div>
             <div class='project-card'>
               <img alt='Project 3' loading='lazy' src='project3.jpg'/> <!-- Replace with actual image -->
@@ -1651,6 +1651,12 @@ a.innerHTML='';
                <h4>E-commerce Simulator</h4>
                <p>Simulate e-commerce functionality</p>
                <a class='tool-link' href='developer-tools/ecommerce-simulator.html'>Try Now</a>
+             </div>
+             <div class='tool-card'>
+               <div class='tool-icon'>💬</div>
+               <h4>Mobile Chat Simulator</h4>
+               <p>Experience mobile chat app interface</p>
+               <a class='tool-link' href='developer-tools/mobile-chat-simulator.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>💻</div>

@@ -46,10 +46,11 @@
     "jobTitle": "Full-Stack Web and Mobile App Developer",
     "url": "<data:blog.url/>",
     "sameAs": [
-      "https://github.com/yourusername", <!-- Replace with your actual GitHub URL -->
-      "https://www.linkedin.com/in/youractualprofile", <!-- Replace with your actual LinkedIn URL -->
-      "https://twitter.com/youractualusername"  <!-- Replace with your actual Twitter URL -->
-    ],
+     "https://github.com/7Xme", <!-- Replace with your actual GitHub URL -->
+     "https://www.linkedin.com/in/ayoub7x", <!-- Replace with your actual LinkedIn URL -->
+     "https://www.instagram.com/AYOUB7X", <!-- Replace with your actual Instagram URL -->
+     "https://app.hackthebox.com/profile/ayoub7x"  <!-- Replace with your actual Hack The Box profile URL -->
+   ],
     "knowsAbout": ["Web Development", "Mobile Apps", "SEO", "JavaScript", "React", "Node.js"]
   }
   ]]>
@@ -481,7 +482,7 @@ a.innerHTML='';
         <b:includable id='main'>
           <div class='container'>
             <div class='hero-content'>
-              <img class='profile-pic' src='https://via.placeholder.com/150' alt='Your Name' loading='lazy'/><!-- Replace with your actual image URL -->
+              <img class='profile-pic' src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjaiRNlgwNOnvxYMDm-o6PEbpsfe8DMZpUnlPkS0GRatYTNDstvFX3rqRlikWESieKi716UtUDpz26GwbzbK8w7PADm-cc_8KSG11PLOcze-1sPHx_xv0F_A7c0I4yRWngpSqtqqHGQe4BsXg13BmIMlVdF671n6jA-Ba142t3gRqe8pKZGFC1G1MZrGQrm/s288/unnamed.png' alt='Your Name' loading='lazy'/><!-- Replace with your actual image URL -->
               <h2>Hi, I'm <data:blog.title/></h2>
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
@@ -565,7 +566,7 @@ a.innerHTML='';
               <img src='project2.jpg' alt='Project 2' loading='lazy'/> <!-- Replace with actual image -->
               <h3>Mobile Chat App</h3>
               <p>Real-time messaging app built with React Native.</p>
-              <a href='#'>View Project</a>
+              <a href='https://ayoubdevx.blogspot.com/2025/10/mobile-chat-app-simulator-root-primary.html'>View Project</a>
             </div>
             <div class='project-card'>
               <img src='project3.jpg' alt='Project 3' loading='lazy'/> <!-- Replace with actual image -->
@@ -884,7 +885,13 @@ a.innerHTML='';
                   <a href='developer-tools/ecommerce-simulator.html' class='tool-link'>Try Now</a>
                 </div>
                 <div class='tool-card'>
-                  <div class='tool-icon'>💻</div>
+                  <div class='tool-icon'>💬</div>
+                  <h4>Mobile Chat Simulator</h4>
+                  <p>Experience mobile chat app interface</p>
+                  <a href='developer-tools/mobile-chat-simulator.html' class='tool-link'>Try Now</a>
+                </div>
+                <div class='tool-card'>
+                  <div class='tool-icon'></div>
                   <h4>File Type Converter</h4>
                   <p>Convert between different file formats</p>
                   <a href='developer-tools/file-type-converter.html' class='tool-link'>Try Now</a>
