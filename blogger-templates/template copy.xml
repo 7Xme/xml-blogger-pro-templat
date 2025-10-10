@@ -297,8 +297,9 @@ footer p { margin: 0; font-weight: 300; }
 .cta-button:hover { background: #b22222; transform: scale(1.05); }
 
 /* Social Links */
-.social-links a { color: var(--text-color); transition: all 0.3s ease; }
-.social-links a:hover { color: var(--accent); transform: translateY(-3px); }
+.social-links { margin-top: 30px; text-align: center; }
+.social-link { display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease; }
+.social-link:hover { color: var(--accent); transform: translateY(-3px); }
 
 /* About Section */
 .about { padding: 60px 0; background: rgba(255, 255, 255, 0.9); color: #000; } /* Added color for contrast */
@@ -805,15 +806,6 @@ a.innerHTML='';
               <h2>Hi, I'm <data:blog.title/></h2>
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
-
-              <!-- Social Media Links -->
-              <div class='social-links' style='margin-top: 30px; text-align: center;'>
-                <a href='#' title='Portfolio' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fas fa-briefcase'></i></a>
-                <a href='#' title='GitHub' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-github'></i></a>
-                <a href='#' title='LinkedIn' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-linkedin-in'></i></a>
-                <a href='#' title='Hack The Box' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fas fa-cube'></i></a>
-                <a href='#' title='Instagram' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-instagram'></i></a>
-              </div>
             </div>
           </div>
         </b:includable>
@@ -1618,7 +1610,7 @@ a.innerHTML='';
     const installBtn = document.createElement('button');
     installBtn.id = 'installBtn';
     installBtn.innerHTML = '📱 Install App';
-    installBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; display: none; z-index: 1000; box-shadow: 0 4px 16px rgba(0,0,0,0.2);';
+    installBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #dc143c; color: white; border: none; padding: 12px 20px; border-radius: 25px; cursor: pointer; font-weight: 600; display: none; z-index: 1000; box-shadow: 0 4px 16px rgba(0,0,0,0.2);';
 
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
