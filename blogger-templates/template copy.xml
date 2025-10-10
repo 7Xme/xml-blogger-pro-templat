@@ -296,6 +296,10 @@ footer p { margin: 0; font-weight: 300; }
 .cta-button { background: #dc143c; color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; display: inline-block; }
 .cta-button:hover { background: #b22222; transform: scale(1.05); }
 
+/* Social Links */
+.social-links a { color: var(--text-color); transition: all 0.3s ease; }
+.social-links a:hover { color: var(--accent); transform: translateY(-3px); }
+
 /* About Section */
 .about { padding: 60px 0; background: rgba(255, 255, 255, 0.9); color: #000; } /* Added color for contrast */
 .about h2 { text-align: center; margin-bottom: 30px; color: #000; }
@@ -308,7 +312,9 @@ footer p { margin: 0; font-weight: 300; }
 .skill-item:hover { transform: translateY(-5px); }
 .skill-item h3 { margin-bottom: 20px; color: #000; }
 .skill-item ul { list-style: none; padding: 0; }
-.skill-item li { margin-bottom: 10px; color: #333; }
+.skill-item li { margin-bottom: 10px; color: #333; display: flex; align-items: center; }
+.skill-item li i { margin-right: 10px; color: var(--accent); font-size: 16px; }
+.skill-item h3 i { margin-right: 10px; color: var(--accent); }
 
 /* Force LTR direction */
 html, body { direction: ltr !important; }
@@ -795,10 +801,19 @@ a.innerHTML='';
         <b:includable id='main'>
           <div class='container'>
             <div class='hero-content'>
-              <img class='profile-pic' src='https://via.placeholder.com/150' alt='Your Name' loading='lazy'/><!-- Replace with your actual image URL -->
+              <img class='profile-pic' src='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjaiRNlgwNOnvxYMDm-o6PEbpsfe8DMZpUnlPkS0GRatYTNDstvFX3rqRlikWESieKi716UtUDpz26GwbzbK8w7PADm-cc_8KSG11PLOcze-1sPHx_xv0F_A7c0I4yRWngpSqtqqHGQe4BsXg13BmIMlVdF671n6jA-Ba142t3gRqe8pKZGFC1G1MZrGQrm/s288/unnamed.png' alt='Your Name' loading='lazy'/><!-- Replace with your actual image URL -->
               <h2>Hi, I'm <data:blog.title/></h2>
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
+
+              <!-- Social Media Links -->
+              <div class='social-links' style='margin-top: 30px; text-align: center;'>
+                <a href='#' title='Portfolio' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fas fa-briefcase'></i></a>
+                <a href='#' title='GitHub' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-github'></i></a>
+                <a href='#' title='LinkedIn' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-linkedin-in'></i></a>
+                <a href='#' title='Hack The Box' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fas fa-cube'></i></a>
+                <a href='#' title='Instagram' style='display: inline-block; margin: 0 10px; color: var(--text-color); font-size: 24px; transition: all 0.3s ease;'><i class='fab fa-instagram'></i></a>
+              </div>
             </div>
           </div>
         </b:includable>
@@ -823,38 +838,38 @@ a.innerHTML='';
           <h2>My Skills</h2>
           <div class='skills-grid'>
             <div class='skill-item'>
-              <h3>Frontend</h3>
+              <h3><i class='fas fa-code'></i> Frontend</h3>
               <ul>
-                <li>HTML5</li>
-                <li>CSS3</li>
-                <li>JavaScript</li>
-                <li>React</li>
+                <li><i class='fab fa-html5'></i> HTML5</li>
+                <li><i class='fab fa-css3-alt'></i> CSS3</li>
+                <li><i class='fab fa-js'></i> JavaScript</li>
+                <li><i class='fab fa-react'></i> React</li>
               </ul>
             </div>
             <div class='skill-item'>
-              <h3>Backend</h3>
+              <h3><i class='fas fa-server'></i> Backend</h3>
               <ul>
-                <li>Node.js</li>
-                <li>Express</li>
-                <li>MongoDB</li>
-                <li>SQL</li>
+                <li><i class='fab fa-node-js'></i> Node.js</li>
+                <li><i class='fas fa-server'></i> Express</li>
+                <li><i class='fas fa-database'></i> MongoDB</li>
+                <li><i class='fas fa-database'></i> SQL</li>
               </ul>
             </div>
             <div class='skill-item'>
-              <h3>Mobile</h3>
+              <h3><i class='fas fa-mobile-alt'></i> Mobile</h3>
               <ul>
-                <li>React Native</li>
-                <li>Flutter</li>
-                <li>iOS/Android</li>
+                <li><i class='fab fa-react'></i> React Native</li>
+                <li><i class='fas fa-mobile-alt'></i> Flutter</li>
+                <li><i class='fab fa-apple'></i> iOS/Android</li>
               </ul>
             </div>
             <div class='skill-item'>
-              <h3>Tools</h3>
+              <h3><i class='fas fa-tools'></i> Tools</h3>
               <ul>
-                <li>Git</li>
-                <li>Docker</li>
-                <li>AWS</li>
-                <li>SEO</li>
+                <li><i class='fab fa-git-alt'></i> Git</li>
+                <li><i class='fab fa-docker'></i> Docker</li>
+                <li><i class='fab fa-aws'></i> AWS</li>
+                <li><i class='fas fa-search'></i> SEO</li>
               </ul>
             </div>
           </div>
@@ -870,7 +885,7 @@ a.innerHTML='';
           <h2>My Projects</h2>
           <div class='project-grid'>
             <div class='project-card'>
-              <img src='project1.jpg' alt='Project 1' loading='lazy'/> <!-- Replace with actual image -->
+              <img src='https://blogger.googleusercontent.com/img/a/AVvXsEhIhIZEjgkt6d0LfMtQXV89LLyraHl-3Tdrq5VzNgbDO_hv7yUN33m3XisER_fj1qwjVSMBEXvl7wf-PvxcCYyDjqOLI7NNL37FFrWYcUHfTYHzkl0yGjEIHUj_yK0__0MKr-A4-QpdLGMi8HDhXZvfsZFkB19y3xWkU3imAt74nCLQbSvPUsqREn-k_Vza' alt='E-commerce App' loading='lazy'/>
               <h3>E-commerce App</h3>
               <p>A full-stack e-commerce platform with payment integration.</p>
               <a href='#'>View Project</a>
@@ -894,6 +909,32 @@ a.innerHTML='';
     </b:widget>
   </b:section>
 </b:if>
+
+<!-- Blog Posts Section -->
+<b:section class='blog-posts' id='blog' showaddelement='yes'>
+ <b:widget id='Blog1' locked='false' title='Blog Posts' type='Blog'>
+   <b:includable id='main'>
+     <b:if cond='data:blog.pageType == "item"'>
+       <b:loop values='data:posts' var='post'>
+         <b:include name='post' data='post'/>
+       </b:loop>
+     </b:if>
+   </b:includable>
+   <b:includable id='post' var='post'>
+     <div class='container'>
+       <article class='post'>
+         <h1><data:post.title/></h1>
+         <div class='post-meta'>
+           <span class='date'>Published on <data:post.dateHeader/></span>
+         </div>
+         <div class='post-body' expr:id='"post-body-" + data:post.id'>
+           <data:post.body/>
+         </div>
+       </article>
+     </div>
+   </b:includable>
+ </b:widget>
+</b:section>
 
   <!-- Static Cards Section -->
   <!-- Static Cards Section -->
@@ -1239,33 +1280,6 @@ a.innerHTML='';
  </b:widget>
 </b:section>
 
-<!-- Blog Posts Section -->
-<b:section class='blog-posts' id='blog' showaddelement='yes'>
- <b:widget id='Blog1' locked='false' title='Blog Posts' type='Blog'>
-   <b:includable id='main'>
-     <b:if cond='data:blog.pageType == "item"'>
-       <b:loop values='data:posts' var='post'>
-         <b:include name='post' data='post'/>
-       </b:loop>
-     </b:if>
-   </b:includable>
-   <b:includable id='post' var='post'>
-     <div class='container'>
-       <article class='post'>
-         <h1><data:post.title/></h1>
-         <div class='post-meta'>
-           <span class='date'>Published on <data:post.dateHeader/></span>
-         </div>
-         <div class='post-body' expr:id='"post-body-" + data:post.id'>
-           <data:post.body/>
-         </div>
-       </article>
-     </div>
-   </b:includable>
- </b:widget>
-</b:section>
-
-
   <b:section class='contact' id='contact' showaddelement='yes'>
     <b:widget id='ContactForm1' locked='false' title='Contact Form' type='ContactForm'>
       <b:includable id='main'>
@@ -1278,21 +1292,21 @@ a.innerHTML='';
                 <i class='fas fa-envelope'></i>
                 <div>
                   <strong>Email</strong><br/>
-                  your.email@example.com <!-- Replace with your actual email -->
+                  ayoubatigui@gmail.com
                 </div>
               </div>
               <div class='contact-item'>
                 <i class='fas fa-phone'></i>
                 <div>
                   <strong>Phone</strong><br/>
-                  +1 (123) 456-7890 <!-- Replace with your actual phone -->
+                  +212 770 264394
                 </div>
               </div>
               <div class='contact-item'>
                 <i class='fas fa-map-marker-alt'></i>
                 <div>
                   <strong>Location</strong><br/>
-                  Your City, Country <!-- Replace with your location -->
+                  Agadir, Morocco
                 </div>
               </div>
               <div class='contact-item'>
