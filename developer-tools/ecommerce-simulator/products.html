@@ -555,12 +555,12 @@
                 E-Shop
             </div>
             <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="products.html">Products</a></li>
+                <li><a href="https://ayoubdevx.blogspot.com/2025/10/e-commerce-simulator-index-root.html">Home</a></li>
+                <li><a href="https://ayoubdevx.blogspot.com/2025/10/e-commerce-simulator-products-root.html">Products</a></li>
                 <li><a href="#categories">Categories</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <div class="cart-icon">
+            <div class="cart-icon" onclick="window.location.href='https://ayoubdevx.blogspot.com/2025/10/e-commerce-simulator-cart-root.html'">
                 <i class="fas fa-shopping-cart"></i>
                 <span class="cart-count" id="cartCount">0</span>
             </div>
@@ -864,7 +864,7 @@
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category}</div>
-                        <a href="product.html?id=${product.id}" class="product-name">${product.name}</a>
+                        <a href="https://ayoubdevx.blogspot.com/2025/10/products.html" class="product-name">${product.name}</a>
                         <div class="product-rating">
                             <div class="stars">${stars}</div>
                             <span class="rating-count">(${product.reviews})</span>
@@ -985,7 +985,7 @@
         function quickView(productId) {
             const product = allProducts.find(p => p.id === productId);
             if (!product) return;
-            window.location.href = `product.html?id=${product.id}`;
+            window.location.href = `https://ayoubdevx.blogspot.com/2025/10/products.html`;
         }
 
         // Notification system
