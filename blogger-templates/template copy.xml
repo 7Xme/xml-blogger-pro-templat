@@ -910,9 +910,9 @@ a.innerHTML='';
             </div>
             <div class='project-card'>
               <img alt='Project 3' loading='lazy' src='project3.jpg'/> <!-- Replace with actual image -->
-              <h3>Portfolio Website</h3>
-              <p>Responsive portfolio site showcasing my work.</p>
-              <a href='#'>View Project</a>
+              <h3>Quiz Game Maker</h3>
+              <p>Interactive quiz game creation tool with scoring system.</p>
+              <a href='developer-tools/utilities/quiz-game-maker.html'>View Project</a>
             </div>
             <!-- Add more projects -->
           </div>
