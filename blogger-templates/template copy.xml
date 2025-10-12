@@ -389,6 +389,14 @@ html, body { direction: ltr !important; }
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.language-splash.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 .splash-content {
@@ -816,7 +824,7 @@ a.innerHTML='';
 
 <body>
   <!-- Language Selection Splash Screen -->
-  <div class='language-splash' id='languageSplash' style='display: none;'>
+  <div class='language-splash' id='languageSplash'>
     <div class='splash-content'>
       <h1>Choose Your Language</h1>
       <div class='language-options'>
@@ -2307,8 +2315,10 @@ a.innerHTML='';
 
     // Show splash screen if no language is saved
     if (!localStorage.getItem('language')) {
-      languageSplash.style.display = 'flex';
+      languageSplash.classList.add('show');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling behind splash
     } else {
+      languageSplash.classList.remove('show');
       setLanguage(savedLang);
     }
 
@@ -2317,7 +2327,8 @@ a.innerHTML='';
       btn.addEventListener('click', () => {
         const lang = btn.getAttribute('data-lang');
         localStorage.setItem('language', lang);
-        languageSplash.style.display = 'none';
+        languageSplash.classList.remove('show');
+        document.body.style.overflow = ''; // Restore scrolling
         setLanguage(lang);
       });
     });
