@@ -320,7 +320,30 @@ footer p { margin: 0; font-weight: 300; }
 .skill-item li i { margin-right: 10px; color: var(--accent); font-size: 16px; }
 .skill-item h3 i { margin-right: 10px; color: var(--accent); }
 
-/* Force LTR direction */
+/* Language-specific styles */
+[data-lang="ar"] {
+  direction: rtl;
+}
+
+[data-lang="ar"] .container {
+  direction: rtl;
+}
+
+[data-lang="ar"] .hero h2,
+[data-lang="ar"] .about h2,
+[data-lang="ar"] .skills h2,
+[data-lang="ar"] .contact h2 {
+  direction: rtl;
+}
+
+[data-lang="ar"] .tool-card p,
+[data-lang="ar"] .skill-item p,
+[data-lang="ar"] .project-card p {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Force LTR direction for default */
 html, body { direction: ltr !important; }
 .mobile { direction: ltr !important; }
 
@@ -354,6 +377,75 @@ html, body { direction: ltr !important; }
 }
 
 /* Modal Styles */
+.language-splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--bg-color), rgba(220, 20, 60, 0.1));
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.splash-content {
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+}
+
+.splash-content h1 {
+  color: var(--card-text);
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+.language-options {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.lang-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 20px 30px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  justify-content: center;
+}
+
+.lang-btn:hover {
+  background: #b22222;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.3);
+}
+
+.flag {
+  font-size: 24px;
+}
+
+.lang-text {
+  font-size: 16px;
+}
+
 .modal {
   position: fixed;
   top: 0;
@@ -723,6 +815,22 @@ a.innerHTML='';
 </head>
 
 <body>
+  <!-- Language Selection Splash Screen -->
+  <div class='language-splash' id='languageSplash' style='display: none;'>
+    <div class='splash-content'>
+      <h1>Choose Your Language</h1>
+      <div class='language-options'>
+        <button class='lang-btn' data-lang='en'>
+          <span class='flag'>🇺🇸</span>
+          <span class='lang-text'>English</span>
+        </button>
+        <button class='lang-btn' data-lang='ar'>
+          <span class='flag'>🇸🇦</span>
+          <span class='lang-text'>العربية</span>
+        </button>
+      </div>
+    </div>
+  </div>
   <header class='container'>
     <div class='header-controls'>
       <button aria-label='Toggle Dark/Light Mode' class='theme-toggle' id='themeToggle' title='Toggle Dark/Light Mode'>🌙</button>
@@ -2119,11 +2227,247 @@ a.innerHTML='';
       document.body.appendChild(installBtn);
     });
 
+    // Language Management
+    const languageSplash = document.getElementById('languageSplash');
+    const langBtns = document.querySelectorAll('.lang-btn');
+    const body = document.body;
+
+    // Language translations
+    const translations = {
+      en: {
+        chooseLanguage: 'Choose Your Language',
+        english: 'English',
+        arabic: 'العربية',
+        home: 'Home',
+        about: 'About',
+        skills: 'Skills',
+        portfolio: 'Portfolio',
+        blog: 'Blog',
+        contact: 'Contact',
+        heroTitle: 'Hi, I\'m',
+        heroSubtitle: 'Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.',
+        viewWork: 'View My Work',
+        aboutMe: 'About Me',
+        aboutText: 'I am a passionate full-stack developer with expertise in web and mobile technologies. With years of experience, I create user-friendly applications and websites that drive results.',
+        mySkills: 'My Skills',
+        myProjects: 'My Projects',
+        contactMe: 'Contact Me',
+        getInTouch: 'Get In Touch',
+        email: 'Email',
+        phone: 'Phone',
+        location: 'Location',
+        responseTime: 'Response Time',
+        within24Hours: 'Within 24 hours',
+        sendMessage: 'Send Message',
+        yourName: 'Your Name',
+        yourEmail: 'Your Email',
+        yourMessage: 'Your Message',
+        toolsCollection: 'Web Development Tools Collection',
+        pdfCompressor: 'PDF Compressor',
+        pdfCompressorDesc: 'Reduce PDF file size while maintaining quality',
+        tryNow: 'Try Now'
+      },
+      ar: {
+        chooseLanguage: 'اختر لغتك',
+        english: 'English',
+        arabic: 'العربية',
+        home: 'الرئيسية',
+        about: 'حول',
+        skills: 'المهارات',
+        portfolio: 'المحفظة',
+        blog: 'المدونة',
+        contact: 'الاتصال',
+        heroTitle: 'مرحباً، أنا',
+        heroSubtitle: 'مطور ويب وتطبيقات موبايل كامل الدورة متخصص في التقنيات الحديثة للويب وتطبيقات الموبايل والحلول الإبداعية.',
+        viewWork: 'شاهد أعمالي',
+        aboutMe: 'حولي',
+        aboutText: 'أنا مطور شغوف يتمتع بخبرة في تقنيات الويب والموبايل. مع سنوات من الخبرة، أقوم بإنشاء تطبيقات ومواقع سهلة الاستخدام تحقق النتائج.',
+        mySkills: 'مهاراتي',
+        myProjects: 'مشاريعي',
+        contactMe: 'اتصل بي',
+        getInTouch: 'تواصل معي',
+        email: 'البريد الإلكتروني',
+        phone: 'الهاتف',
+        location: 'الموقع',
+        responseTime: 'وقت الرد',
+        within24Hours: 'خلال 24 ساعة',
+        sendMessage: 'إرسال الرسالة',
+        yourName: 'اسمك',
+        yourEmail: 'بريدك الإلكتروني',
+        yourMessage: 'رسالتك',
+        toolsCollection: 'مجموعة أدوات تطوير الويب',
+        pdfCompressor: 'ضاغط PDF',
+        pdfCompressorDesc: 'تقليل حجم ملف PDF مع الحفاظ على الجودة',
+        tryNow: 'جرب الآن'
+      }
+    };
+
+    // Check for saved language preference
+    const savedLang = localStorage.getItem('language') || 'en';
+
+    // Show splash screen if no language is saved
+    if (!localStorage.getItem('language')) {
+      languageSplash.style.display = 'flex';
+    } else {
+      setLanguage(savedLang);
+    }
+
+    // Language selection handlers
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.getAttribute('data-lang');
+        localStorage.setItem('language', lang);
+        languageSplash.style.display = 'none';
+        setLanguage(lang);
+      });
+    });
+
+    // Set language function
+    function setLanguage(lang) {
+      body.setAttribute('data-lang', lang);
+
+      // Update text content based on language
+      updateTextContent(lang);
+
+      // Apply RTL if Arabic
+      if (lang === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        body.style.direction = 'rtl';
+      } else {
+        document.documentElement.setAttribute('dir', 'ltr');
+        body.style.direction = 'ltr';
+      }
+    }
+
+    // Update text content
+    function updateTextContent(lang) {
+      const t = translations[lang];
+
+      // Update navigation
+      const navLinks = document.querySelectorAll('nav a');
+      if (navLinks.length >= 6) {
+        navLinks[0].textContent = t.home;
+        navLinks[1].textContent = t.about;
+        navLinks[2].textContent = t.skills;
+        navLinks[3].textContent = t.portfolio;
+        navLinks[4].textContent = t.blog;
+        navLinks[5].textContent = t.contact;
+      }
+
+      // Update hero section
+      const heroH2 = document.querySelector('.hero h2');
+      if (heroH2) {
+        heroH2.innerHTML = t.heroTitle + ' <data:blog.title/>';
+      }
+
+      const heroP = document.querySelector('.hero p');
+      if (heroP) {
+        heroP.textContent = t.heroSubtitle;
+      }
+
+      const ctaBtn = document.querySelector('.cta-button');
+      if (ctaBtn) {
+        ctaBtn.textContent = t.viewWork;
+      }
+
+      // Update about section
+      const aboutH2 = document.querySelector('.about h2');
+      if (aboutH2) {
+        aboutH2.textContent = t.aboutMe;
+      }
+
+      const aboutP = document.querySelector('.about p');
+      if (aboutP) {
+        aboutP.textContent = t.aboutText;
+      }
+
+      // Update skills section
+      const skillsH2 = document.querySelector('.skills h2');
+      if (skillsH2) {
+        skillsH2.textContent = t.mySkills;
+      }
+
+      // Update portfolio section
+      const portfolioH2 = document.querySelector('.portfolio h2');
+      if (portfolioH2) {
+        portfolioH2.textContent = t.myProjects;
+      }
+
+      // Update contact section
+      const contactH2 = document.querySelector('.contact h2');
+      if (contactH2) {
+        contactH2.textContent = t.contactMe;
+      }
+
+      const contactInfoH3 = document.querySelector('.contact-info h3');
+      if (contactInfoH3) {
+        contactInfoH3.textContent = t.getInTouch;
+      }
+
+      // Update contact form placeholders
+      const nameInput = document.getElementById('ContactForm1_contact-form-name');
+      if (nameInput) {
+        nameInput.placeholder = t.yourName;
+      }
+
+      const emailInput = document.getElementById('ContactForm1_contact-form-email');
+      if (emailInput) {
+        emailInput.placeholder = t.yourEmail;
+      }
+
+      const messageTextarea = document.getElementById('ContactForm1_contact-form-email-message');
+      if (messageTextarea) {
+        messageTextarea.placeholder = t.yourMessage;
+      }
+
+      const submitBtn = document.getElementById('ContactForm1_contact-form-submit');
+      if (submitBtn) {
+        submitBtn.value = t.sendMessage;
+      }
+
+      // Update contact info labels
+      const contactLabels = document.querySelectorAll('.contact-item div strong');
+      if (contactLabels.length >= 4) {
+        contactLabels[0].textContent = t.email + ':';
+        contactLabels[1].textContent = t.phone + ':';
+        contactLabels[2].textContent = t.location + ':';
+        contactLabels[3].textContent = t.responseTime + ':';
+      }
+
+      // Update tools section title
+      const toolsTitle = document.querySelector('.main h2');
+      if (toolsTitle) {
+        toolsTitle.textContent = t.toolsCollection;
+      }
+
+      // Update tool descriptions
+      const toolCards = document.querySelectorAll('.tool-card');
+      toolCards.forEach(card => {
+        const title = card.querySelector('h4');
+        const desc = card.querySelector('p');
+        const link = card.querySelector('.tool-link');
+
+        if (title && desc && link) {
+          if (title.textContent.includes('PDF Compressor')) {
+            title.textContent = t.pdfCompressor;
+            desc.textContent = t.pdfCompressorDesc;
+            link.textContent = t.tryNow;
+          }
+          // Add more tool translations as needed
+        }
+      });
+    }
+
     // Initialize on page load
     loadCustomSettings();
     checkLoginStatus();
     loadUserPreferences();
     updateUserStats();
+
+    // Apply saved language if exists
+    if (savedLang) {
+      setLanguage(savedLang);
+    }
     /*]]>*/
   </script>
 
