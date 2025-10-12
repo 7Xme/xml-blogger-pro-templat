@@ -900,19 +900,19 @@ a.innerHTML='';
               <img alt='E-commerce App' loading='lazy' src='https://blogger.googleusercontent.com/img/a/AVvXsEhIhIZEjgkt6d0LfMtQXV89LLyraHl-3Tdrq5VzNgbDO_hv7yUN33m3XisER_fj1qwjVSMBEXvl7wf-PvxcCYyDjqOLI7NNL37FFrWYcUHfTYHzkl0yGjEIHUj_yK0__0MKr-A4-QpdLGMi8HDhXZvfsZFkB19y3xWkU3imAt74nCLQbSvPUsqREn-k_Vza'/>
               <h3>E-commerce App</h3>
               <p>A full-stack e-commerce platform with payment integration.</p>
-              <a href='https://ayoubdevx.blogspot.com/2025/10/e-commerce-simulator-margin-0-padding-0.html'>View Project</a>
+              <a href='projects/ecommerce/index.html'>View Project</a>
             </div>
             <div class='project-card'>
               <img alt='Project 2' loading='lazy' src='project2.jpg'/> <!-- Replace with actual image -->
               <h3>Mobile Chat App</h3>
               <p>Real-time messaging app built with React Native.</p>
-              <a href='https://ayoubdevx.blogspot.com/2025/10/mobile-chat-app-simulator-root-primary.html'>View Project</a>
+              <a href='projects/chat-apps/mobile-chat-simulator.html'>View Project</a>
             </div>
             <div class='project-card'>
               <img alt='Project 3' loading='lazy' src='project3.jpg'/> <!-- Replace with actual image -->
               <h3>Quiz Game Maker</h3>
-              <p>Interactive quiz game creation tool with scoring system.</p>
-              <a href='developer-tools/utilities/quiz-game-maker.html'>View Project</a>
+              <p>The Quiz Game Maker is an appropriate game project that allows users to create interactive quizzes with scoring functionality.</p>
+              <a href='projects/games/quiz-game-maker.html'>View Project</a>
             </div>
             <!-- Add more projects -->
           </div>
