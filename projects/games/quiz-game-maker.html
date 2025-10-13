@@ -350,7 +350,7 @@
         function loadFromLocalStorage() {
             const savedQuestions = localStorage.getItem('quizGame_questions');
             if (savedQuestions) {
-                questions = JSON.parse(savedQuestions);
+                questions = JSON.parse(savedQuestions).filter(q => q !== null);
             } else {
                 questions = [...defaultQuestions];
             }
@@ -511,20 +511,15 @@
 
             // Show achievements
             const achievements = document.getElementById('achievements');
-            achievements.innerHTML = `
-                <div class="achievement ${score >= 2000 ? 'unlocked' : ''}">
-                    🏆 Quiz Master: Score 2000+ points
-                </div>
-                <div class="achievement ${streak >= 3 ? 'unlocked' : ''}">
-                    🔥 Hot Streak: 3+ correct answers in a row
-                </div>
-                <div class="achievement ${score >= 1000 ? 'unlocked' : ''}">
-                    🎯 Sharp Shooter: Score 1000+ points
-                </div>
-                <div class="achievement ${currentQuestionIndex === questions.length ? 'unlocked' : ''}">
-                    🏁 Completionist: Answer all questions
-                </div>
-            `;
+            achievements.innerHTML = '<div class="achievement ' + (score >= 2000 ? 'unlocked' : '') + '">' +
+                '&#127942; Quiz Master: Score 2000+ points</div>' +
+                '<div class="achievement ' + (streak >= 3 ? 'unlocked' : '') + '">' +
+                '&#128293; Hot Streak: 3+ correct answers in a row</div>' +
+                '<div class="achievement ' + (score >= 1000 ? 'unlocked' : '') + '">' +
+                '&#127919; Sharp Shooter: Score 1000+ points</div>' +
+                '<div class="achievement ' + (currentQuestionIndex === questions.length ? 'unlocked' : '') + '">' +
+                '&#127937; Completionist: Answer all questions</div>';
+        }
 
             autoSave();
         }
@@ -541,7 +536,9 @@
                 return;
             }
 
-            questionList.innerHTML = questions.map((q, index) => `
+            questionList.innerHTML = questions.map((q, index) => {
+                if (!q || !q.question) return ''; // Skip null or invalid questions
+                return `
                 <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div style="flex: 1;">
@@ -556,7 +553,7 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function addNewQuestion() {
@@ -693,7 +690,369 @@
 
         function generateQuizHTML(title) {
             const questionsJson = JSON.stringify(questions, null, 4);
-            return; 
+            return `<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .game-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            min-height: 400px;
+        }
+        .question-display {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .question-number {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .question-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: #dc143c;
+            margin: 20px 0;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .answer-option {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 16px;
+        }
+        .answer-option:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        .answer-option.selected {
+            background: #dc143c;
+            color: white;
+        }
+        .answer-option.correct {
+            background: #28a745;
+            color: white;
+        }
+        .answer-option.incorrect {
+            background: #dc3545;
+            color: white;
+        }
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #dc143c;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .nav-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .start-btn {
+            background: #28a745;
+        }
+        .start-btn:hover {
+            background: #218838;
+        }
+        .results-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .final-score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #dc143c;
+            margin: 20px 0;
+        }
+        .achievement {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .achievement.unlocked {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .retry-btn {
+            background: #dc143c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .retry-btn:hover {
+            background: #b22222;
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+            }
+            .answers-grid {
+                grid-template-columns: 1fr;
+            }
+            .game-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>${title}</h1>
+
+        <div class="game-section" id="gameSection">
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-number" id="score">0</div>
+                    <div class="stat-label">Score</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="questionNum">1</div>
+                    <div class="stat-label">Question</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="streak">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+                <div class="stat">
+                    <div class="timer" id="timer">30</div>
+                    <div class="stat-label">Time Left</div>
+                </div>
+            </div>
+
+            <div class="question-display" id="questionDisplay">
+                <div class="question-number">Question 1 of ${questions.length}</div>
+                <div class="question-text">Welcome to ${title}!</div>
+                <button class="start-btn nav-btn" onclick="startGame()">Start Game</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>Game Over!</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <div id="achievements"></div>
+            <button class="retry-btn" onclick="retryGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = ${questionsJson};
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let streak = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        let gameStarted = false;
+        let selectedAnswer = -1;
+
+        function startGame() {
+            gameStarted = true;
+            currentQuestionIndex = 0;
+            score = 0;
+            streak = 0;
+            timeLeft = 30;
+            selectedAnswer = -1;
+
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+
+            updateStats();
+            showQuestion();
+            startTimer();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                endGame();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            const questionDisplay = document.getElementById('questionDisplay');
+
+            questionDisplay.innerHTML =
+                '<div class="question-number">Question ' + (currentQuestionIndex + 1) + ' of ' + questions.length + '</div>' +
+                '<div class="question-text">' + question.question + '</div>' +
+                '<div class="answers-grid" id="answersGrid">' +
+                    question.options.map((option, index) =>
+                        '<div class="answer-option" onclick="selectAnswer(' + index + ')">' + option + '</div>'
+                    ).join('') +
+                '</div>' +
+                '<button class="nav-btn" onclick="submitAnswer()" id="submitBtn" disabled>Submit Answer</button>';
+
+            selectedAnswer = -1;
+            updateStats();
+        }
+
+        function selectAnswer(index) {
+            if (!gameStarted) return;
+
+            selectedAnswer = index;
+            document.querySelectorAll('.answer-option').forEach((el, i) => {
+                el.classList.toggle('selected', i === index);
+            });
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            if (selectedAnswer === -1) return;
+
+            const question = questions[currentQuestionIndex];
+            const options = document.querySelectorAll('.answer-option');
+
+            // Show correct/incorrect
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            // Update score
+            if (selectedAnswer === question.correct) {
+                const timeBonus = Math.max(0, timeLeft * 10);
+                const streakBonus = streak * 50;
+                const points = 100 + timeBonus + streakBonus;
+                score += points;
+                streak++;
+            } else {
+                streak = 0;
+            }
+
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestionIndex++;
+                showQuestion();
+            }, 2000);
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 30;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    if (selectedAnswer === -1) {
+                        selectedAnswer = -2;
+                        submitAnswer();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('questionNum').textContent = currentQuestionIndex + 1;
+            document.getElementById('streak').textContent = streak;
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+
+            document.getElementById('gameSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            document.getElementById('finalScore').textContent = score;
+
+            const achievements = document.getElementById('achievements');
+            achievements.innerHTML = '<div class="achievement ' + (score >= 2000 ? 'unlocked' : '') + '">' +
+                '&#127942; Quiz Master: Score 2000+ points</div>' +
+                '<div class="achievement ' + (streak >= 3 ? 'unlocked' : '') + '">' +
+                '&#128293; Hot Streak: 3+ correct answers in a row</div>' +
+                '<div class="achievement ' + (score >= 1000 ? 'unlocked' : '') + '">' +
+                '&#127919; Sharp Shooter: Score 1000+ points</div>' +
+                '<div class="achievement ' + (currentQuestionIndex === questions.length ? 'unlocked' : '') + '">' +
+                '&#127937; Completionist: Answer all questions</div>';
+        }
+
+        function retryGame() {
+            startGame();
+        }
+    </script>
+</body>
+</html>`;
         }
 
         function downloadFile(filename, content) {
@@ -714,5 +1073,5 @@
             }
         }
     </script>
-</body>
-</html>
+    </body>
+    </html>

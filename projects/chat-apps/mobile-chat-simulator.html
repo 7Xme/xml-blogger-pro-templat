@@ -692,27 +692,6 @@
             }
         }
 
-        /* Dark Mode Toggle */
-        .theme-toggle-mobile {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 20px;
-            padding: 8px 12px;
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .theme-toggle-mobile:hover {
-            background: rgba(255,255,255,0.3);
-        }
 
         /* Improved animations */
         .message.sent {
@@ -954,9 +933,6 @@
             background: linear-gradient(135deg, #2d3748, #4a5568);
         }
 
-        .phone-screen.dark-theme .theme-toggle-mobile {
-            background: rgba(45, 55, 72, 0.8);
-        }
 
         /* Call Interface */
         .call-interface {
@@ -995,10 +971,6 @@
         <div class="phone-screen">
             <!-- App Header -->
             <div class="app-header">
-                <button class="theme-toggle-mobile" id="themeToggleMobile">
-                    <i class="fas fa-moon"></i>
-                    Dark
-                </button>
                 <i class="fas fa-arrow-left back-btn" id="backBtn"></i>
                 <div class="contact-avatar" id="currentAvatar">JD</div>
                 <div class="contact-info">
@@ -1068,9 +1040,6 @@
                     <textarea class="message-input" id="messageInput" placeholder="Type a message..." maxlength="500" rows="1"></textarea>
                     <button class="voice-btn" id="voiceBtn" title="Voice message">
                         <i class="fas fa-microphone"></i>
-                    </button>
-                    <button class="emoji-btn" id="emojiBtn" title="Add emoji">
-                        <i class="far fa-smile"></i>
                     </button>
                     <button class="send-btn" id="sendBtn" disabled>
                         <i class="fas fa-paper-plane"></i>
@@ -1262,7 +1231,6 @@
         const closeImagePreview = document.getElementById('closeImagePreview');
         const previewImage = document.getElementById('previewImage');
         const messageMenu = document.getElementById('messageMenu');
-        const emojiBtn = document.getElementById('emojiBtn');
         const attachmentBtn = document.getElementById('attachmentBtn');
 
         // Call interface elements
@@ -1479,22 +1447,6 @@
             typingIndicator.style.display = 'none';
         }
 
-        // Theme toggle functionality
-        function toggleMobileTheme() {
-            const phoneScreen = document.querySelector('.phone-screen');
-            const toggleBtn = document.getElementById('themeToggleMobile');
-            const icon = toggleBtn.querySelector('i');
-
-            phoneScreen.classList.toggle('dark-theme');
-
-            if (phoneScreen.classList.contains('dark-theme')) {
-                icon.className = 'fas fa-sun';
-                toggleBtn.innerHTML = '<i class="fas fa-sun"></i> Light';
-            } else {
-                icon.className = 'fas fa-moon';
-                toggleBtn.innerHTML = '<i class="fas fa-moon"></i> Dark';
-            }
-        }
 
         // Switch conversation
         function switchConversation(conversationId) {
@@ -2081,16 +2033,6 @@
             }
         }
 
-        // Emoji picker (simple implementation)
-        function toggleEmojiPicker() {
-            // Simple emoji insertion for demo
-            const emojis = ['😀', '😂', '😊', '😍', '🤔', '👍', '❤️', '🎉', '🔥', '💯'];
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            messageInput.value += randomEmoji;
-            messageInput.focus();
-            sendBtn.disabled = false;
-            autoResizeTextarea();
-        }
 
         // Setup event listeners
         function setupEventListeners() {
@@ -2142,8 +2084,6 @@
                 sendVoiceMessage(parseInt(recordingDuration.textContent.split(':')[0]) * 60 + parseInt(recordingDuration.textContent.split(':')[1]));
             };
 
-            // Emoji button
-            emojiBtn.onclick = toggleEmojiPicker;
 
             // Attachment button
             attachmentBtn.onclick = () => {
@@ -2152,8 +2092,6 @@
                 sendImageMessage(imageUrl, 'Check out this beautiful landscape! 🏞️');
             };
 
-            // Theme toggle
-            themeToggleMobile.onclick = toggleMobileTheme;
 
             // Image preview
             closeImagePreview.onclick = hideImagePreview;

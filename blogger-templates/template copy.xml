@@ -1937,14 +1937,14 @@ a.innerHTML='';
 
     // Check for saved theme preference or default to dark
     const currentTheme = localStorage.getItem('theme') || 'dark';
-    body.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
+    bodyElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
     themeToggle.textContent = currentTheme === 'light' ? '☀️' : '🌙';
 
     themeToggle.addEventListener('click', () => {
-      const currentTheme = body.getAttribute('data-theme');
+      const currentTheme = bodyElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'light' ? '' : 'light';
 
-      body.setAttribute('data-theme', newTheme);
+      bodyElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme === 'light' ? 'light' : 'dark');
       themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
     });
@@ -2169,7 +2169,7 @@ a.innerHTML='';
 
         // Apply default theme
         if (data.defaultTheme === 'light') {
-          body.setAttribute('data-theme', 'light');
+          bodyElement.setAttribute('data-theme', 'light');
           themeToggle.textContent = '☀️';
           localStorage.setItem('theme', 'light');
         }
@@ -2238,7 +2238,7 @@ a.innerHTML='';
     // Language Management
     const languageSplash = document.getElementById('languageSplash');
     const langBtns = document.querySelectorAll('.lang-btn');
-    const body = document.body;
+    const bodyElement = document.body;
 
     // Language translations
     const translations = {
@@ -2335,7 +2335,7 @@ a.innerHTML='';
 
     // Set language function
     function setLanguage(lang) {
-      body.setAttribute('data-lang', lang);
+      bodyElement.setAttribute('data-lang', lang);
 
       // Update text content based on language
       updateTextContent(lang);
@@ -2343,10 +2343,10 @@ a.innerHTML='';
       // Apply RTL if Arabic
       if (lang === 'ar') {
         document.documentElement.setAttribute('dir', 'rtl');
-        body.style.direction = 'rtl';
+        bodyElement.style.direction = 'rtl';
       } else {
         document.documentElement.setAttribute('dir', 'ltr');
-        body.style.direction = 'ltr';
+        bodyElement.style.direction = 'ltr';
       }
     }
 
