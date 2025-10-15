@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Exercise Solver</title>
+    <!-- Tailwind CSS - For production, consider installing via npm instead of CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the file input and animations */
+        .file-input-label {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+        }
+        #upload-area.drag-over {
+            border-color: #22d3ee; /* cyan-400 */
+            background-color: #1e293b; /* slate-800 */
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #22d3ee; /* cyan-400 */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        /* Style for the AI response */
+        #solution-container h1, #solution-container h2, #solution-container h3 {
+            font-weight: bold;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        #solution-container h1 { font-size: 1.875rem; }
+        #solution-container h2 { font-size: 1.5rem; }
+        #solution-container h3 { font-size: 1.25rem; }
+        #solution-container p { margin-bottom: 1rem; }
+        #solution-container ul, #solution-container ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            list-style: revert;
+        }
+        #solution-container code {
+            background-color: #1e293b; /* slate-800 */
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans">
+    <div id="app-container" class="min-h-screen text-slate-100 p-4 sm:p-6 lg:p-8">
+      <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+          <h1 class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500">
+            AI Exercise Solver
+          </h1>
+          <p class="text-slate-400 mt-2">Upload an image of your exercise and let Gemini solve it!</p>
+        </header>
+
+        <main id="main-content" class="bg-slate-800 rounded-lg shadow-2xl p-6 space-y-6">
+            <!-- Upload Area -->
+            <div>
+                <label for="file-upload" class="block text-lg font-semibold text-cyan-400 mb-2">1. Upload Exercise Image</label>
+                <div id="upload-area" class="border-2 border-dashed border-slate-600 rounded-lg p-8 text-center transition-colors duration-300">
+                    <p class="text-slate-400 mb-4">Drag & drop your image here, or click to select a file.</p>
+                    <input type="file" id="file-upload" class="hidden" accept="image/*" />
+                    <label for="file-upload" class="file-input-label inline-block bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg shadow-md">
+                        Choose Image
+                    </label>
+                </div>
+            </div>
+
+            <!-- Image Preview -->
+            <div id="image-preview-container" class="hidden">
+                 <img id="image-preview" src="#" alt="Image preview" class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg" />
+            </div>
+
+            <!-- Solve Button -->
+            <div class="text-center">
+                <button id="solve-btn" disabled class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-bold py-3 px-8 rounded-full text-xl shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100">
+                    Solve with AI
+                </button>
+            </div>
+
+            <!-- Results -->
+            <div>
+                <h2 class="text-lg font-semibold text-cyan-400 mb-2">2. AI Solution</h2>
+                <div id="results-area" class="bg-slate-900/50 min-h-[200px] p-6 rounded-lg shadow-inner">
+                    <div id="initial-message" class="text-slate-500 text-center flex items-center justify-center h-full">
+                        Your solution will appear here...
+                    </div>
+                    <div id="loading-spinner" class="hidden items-center justify-center h-full">
+                        <div class="spinner"></div>
+                    </div>
+                    <div id="error-message" class="hidden text-red-400"></div>
+                    <div id="solution-container" class="prose prose-invert max-w-none"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="text-center mt-8 text-slate-500 text-sm">
+          <p>Powered by Google Gemini API.</p>
+        </footer>
+      </div>
+    </div>
+    
+    <script type="module">
+        import { GoogleGenAI } from "https://esm.run/@google/genai";
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            isLoading: false,
+            uploadedImage: { base64: null, mimeType: null },
+            solution: null,
+            error: null,
+        };
+
+        // --- DOM REFERENCES ---
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-upload');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const solveBtn = document.getElementById('solve-btn');
+        const resultsArea = document.getElementById('results-area');
+        const initialMessage = document.getElementById('initial-message');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorMessage = document.getElementById('error-message');
+        const solutionContainer = document.getElementById('solution-container');
+        
+        // --- GEMINI API SETUP ---
+        // IMPORTANT: Add your Google Gemini API keys below (comma-separated)
+        // Get keys from: https://makersuite.google.com/app/apikey
+        const apiKeys = [
+            'AIzaSyDb6K57qjEXJ9mxmBk5Lghjd123IdEeJh4',
+            // Add more API keys here if needed
+        ];
+        let currentKeyIndex = 0;
+
+        function getNextApiKey() {
+            const key = apiKeys[currentKeyIndex];
+            currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+            return key;
+        }
+
+        // Reset key index on successful requests to cycle through all keys
+        function resetKeyRotation() {
+            currentKeyIndex = 0;
+        }
+
+        const ai = new GoogleGenAI({ apiKey: getNextApiKey() });
+
+        // --- EVENT HANDLERS & LOGIC ---
+
+        function handleFileSelect(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                state.error = "Please select a valid image file.";
+                render();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64String = e.target.result;
+                state.uploadedImage = {
+                    base64: base64String.split(',')[1], // Remove the data URL prefix
+                    mimeType: file.type,
+                };
+                imagePreview.src = base64String;
+                render();
+            };
+            reader.onerror = () => {
+                state.error = "Failed to read the image file.";
+                render();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function solveWithAI() {
+            if (!state.uploadedImage.base64) {
+                state.error = "Please upload an image first.";
+                render();
+                return;
+            }
+
+            state.isLoading = true;
+            state.error = null;
+            state.solution = null;
+            render();
+
+            try {
+                const imagePart = {
+                    inlineData: {
+                        data: state.uploadedImage.base64,
+                        mimeType: state.uploadedImage.mimeType,
+                    },
+                };
+
+                const textPart = {
+                    text: "You are an expert tutor. First, identify the language of the questions in the image. Then, provide a clear, step-by-step solution for every single question, answering in the *same language* as the original questions. Structure your response in a clear, numbered or bulleted list using Markdown formatting.",
+                };
+
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: { parts: [imagePart, textPart] },
+                });
+
+                state.solution = response.text;
+                resetKeyRotation(); // Reset to first key on success
+
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                // If API quota exceeded or key invalid, try next key
+                if (err.message.includes('quota') || err.message.includes('INVALID_ARGUMENT') || err.message.includes('API_KEY_INVALID')) {
+                    if (apiKeys.length > 1 && currentKeyIndex < apiKeys.length) {
+                        console.log("Trying next API key...");
+                        try {
+                            const newAi = new GoogleGenAI({ apiKey: getNextApiKey() });
+                            const response = await newAi.models.generateContent({
+                                model: 'gemini-2.5-flash',
+                                contents: { parts: [imagePart, textPart] },
+                            });
+                            state.solution = response.text;
+                        } catch (retryErr) {
+                            state.error = `All API keys failed. Please check your API keys or try again later. Details: ${retryErr.message}`;
+                        }
+                    } else {
+                        state.error = `All API keys exhausted. Please check your API keys or try again later. Details: ${err.message}`;
+                    }
+                } else {
+                    state.error = `An error occurred while contacting the AI. Please check your API Key and network connection. Details: ${err.message}`;
+                }
+            } finally {
+                state.isLoading = false;
+                render();
+            }
+        }
+
+        // --- RENDER & UTILITY FUNCTIONS ---
+        
+        function simpleMarkdownToHtml(text) {
+            if (!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')             // Italic
+                .replace(/`([^`]+)`/g, '<code>$1</code>')       // Inline code
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')       // H3
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')        // H2
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')         // H1
+                .replace(/^\s*[\-\*] (.*$)/gim, '<ul><li>$1</li></ul>') // Unordered list
+                .replace(/^\s*\d+\. (.*$)/gim, '<ol><li>$1</li></ol>') // Ordered list
+                // Consolidate adjacent lists
+                .replace(/<\/ul>\s*<ul>/g, '')
+                .replace(/<\/ol>\s*<ol>/g, '')
+                .replace(/\n/g, '<br />'); // Newlines
+        }
+
+        function render() {
+            // Button state
+            solveBtn.disabled = !state.uploadedImage.base64 || state.isLoading;
+
+            // Image preview
+            imagePreviewContainer.classList.toggle('hidden', !state.uploadedImage.base64);
+
+            // Hide initial message if anything else is happening
+            const shouldShowInitial = !state.isLoading && !state.error && !state.solution;
+            initialMessage.style.display = shouldShowInitial ? 'flex' : 'none';
+            
+            // Loading state
+            loadingSpinner.style.display = state.isLoading ? 'flex' : 'none';
+
+            // Error message
+            if (state.error) {
+                errorMessage.textContent = state.error;
+                errorMessage.style.display = 'block';
+            } else {
+                errorMessage.style.display = 'none';
+            }
+            
+            // Solution
+            if (state.solution) {
+                solutionContainer.innerHTML = simpleMarkdownToHtml(state.solution);
+            } else {
+                solutionContainer.innerHTML = '';
+            }
+        }
+        
+        // --- INITIALIZATION ---
+        
+        function initialize() {
+            // File drag and drop listeners
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('drag-over'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('drag-over'), false);
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            }, false);
+
+            // File input change listener
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            // Solve button click listener
+            solveBtn.addEventListener('click', solveWithAI);
+            
+            // Initial render
+            render();
+        }
+
+        initialize();
+
+    </script>
+</body>
+</html>

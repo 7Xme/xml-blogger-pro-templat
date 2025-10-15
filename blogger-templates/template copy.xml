@@ -5,7 +5,7 @@
   <!-- Default Meta -->
   <b:include name='DefaultMeta'/>
   <!-- Custom Favicon -->
-  <link href='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjaiRNlgwNOnvxYMDm-o6PEbpsfe8DMZpUnlPkS0GRatYTNDstvFX3rqRlikWESieKi716UtUDpz26GwbzbK8w7PADm-cc_8KSG11PLOcze-1sPHx_xv0F_A7c0I4yRWngpSqtqqHGQe4BsXg13BmIMlVdF671n6jA-Ba142t3gRqe8pKZGFC1G1MZrGQrm/s288/unnamed.png' rel='icon' type='image/png' sizes='32x32'/>
+  <link href='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjaiRNlgwNOnvxYMDm-o6PEbpsfe8DMZpUnlPkS0GRatYTNDstvFX3rqRlikWESieKi716UtUDpz26GwbzbK8w7PADm-cc_8KSG11PLOcze-1sPHx_xv0F_A7c0I4yRWngpSqtqqHGQe4BsXg13BmIMlVdF671n6jA-Ba142t3gRqe8pKZGFC1G1MZrGQrm/s288/unnamed.png' rel='icon' sizes='32x32' type='image/png'/>
   <!-- DNS Prefetech -->
   <b:include name='DNSPrefetech'/>
   <!-- Title -->
@@ -80,13 +80,6 @@
   --accent: #dc143c;
 }
 
-[data-theme="light"] {
-  --bg-color: #f4f4f4;
-  --text-color: #333;
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --card-text: #000;
-  --accent: #dc143c;
-}
 
 /* Reset and Base Styles */
 * { box-sizing: border-box; }
@@ -112,26 +105,6 @@ nav a:hover::after { width: 100%; left: 0; }
   margin-left: auto;
 }
 
-.theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: var(--card-bg);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  transition: all 0.3s ease;
-}
-.theme-toggle:hover {
-  background: var(--accent);
-  color: white;
-}
 
 #nav-toggle {
   display: none;
@@ -841,7 +814,7 @@ a.innerHTML='';
   </div>
   <header class='container'>
     <div class='header-controls'>
-      <button aria-label='Toggle Dark/Light Mode' class='theme-toggle' id='themeToggle' title='Toggle Dark/Light Mode'>🌙</button>
+      <button aria-label='Switch Language' class='language-toggle' id='languageToggle' title='Switch Language'>EN</button>
       <button aria-label='User Account' class='user-account-btn' id='userAccountBtn' title='User Account'>👤</button>
     </div>
     <h1><data:blog.title/></h1>
@@ -928,10 +901,10 @@ a.innerHTML='';
               <p>Full-Stack Web and Mobile App Developer specializing in modern web technologies, mobile apps, and creative solutions.</p>
               <a class='cta-button' href='#my-portfolio'>View My Work</a>
               <div class='social-links'>
-                <a href='https://github.com/7Xme' class='social-link' target='_blank' rel='noopener noreferrer' title='GitHub'><i class='fab fa-github'></i></a>
-                <a href='https://www.linkedin.com/in/ayoub7x' class='social-link' target='_blank' rel='noopener noreferrer' title='LinkedIn'><i class='fab fa-linkedin'></i></a>
-                <a href='https://www.instagram.com/AYOUB7X' class='social-link' target='_blank' rel='noopener noreferrer' title='Instagram'><i class='fab fa-instagram'></i></a>
-                <a href='https://app.hackthebox.com/profile/ayoub7x' class='social-link' target='_blank' rel='noopener noreferrer' title='Hack The Box'><i class='fas fa-terminal'></i></a>
+                <a class='social-link' href='https://github.com/7Xme' rel='noopener noreferrer' target='_blank' title='GitHub'><i class='fab fa-github'/></a>
+                <a class='social-link' href='https://www.linkedin.com/in/ayoub7x' rel='noopener noreferrer' target='_blank' title='LinkedIn'><i class='fab fa-linkedin'/></a>
+                <a class='social-link' href='https://www.instagram.com/AYOUB7X' rel='noopener noreferrer' target='_blank' title='Instagram'><i class='fab fa-instagram'/></a>
+                <a class='social-link' href='https://app.hackthebox.com/profile/ayoub7x' rel='noopener noreferrer' target='_blank' title='Hack The Box'><i class='fas fa-terminal'/></a>
               </div>
             </div>
           </div>
@@ -1016,20 +989,15 @@ a.innerHTML='';
               <img alt='E-commerce App' loading='lazy' src='https://blogger.googleusercontent.com/img/a/AVvXsEhIhIZEjgkt6d0LfMtQXV89LLyraHl-3Tdrq5VzNgbDO_hv7yUN33m3XisER_fj1qwjVSMBEXvl7wf-PvxcCYyDjqOLI7NNL37FFrWYcUHfTYHzkl0yGjEIHUj_yK0__0MKr-A4-QpdLGMi8HDhXZvfsZFkB19y3xWkU3imAt74nCLQbSvPUsqREn-k_Vza'/>
               <h3>E-commerce App</h3>
               <p>A full-stack e-commerce platform with payment integration.</p>
-              <a href='projects/ecommerce/index.html'>View Project</a>
+              <a href='https://ayoubdevx.blogspot.com/2025/10/e-commerce-simulator-margin-0-padding-0.html'>View Project</a>
             </div>
             <div class='project-card'>
-              <img alt='Project 2' loading='lazy' src='project2.jpg'/> <!-- Replace with actual image -->
+              <img alt='Project 2' loading='lazy' src='https://blogger.googleusercontent.com/img/a/AVvXsEiFGXFmZgn_Ze65PkcjUGGToCatbrijSYGWRkSWv8a3z_iBKumS32yhjY8b-Mruio1KCnZDoWAcD-EAFK5NxZmD8Kbg1yKKgOJWLpjMwyGYiC8TZteP1Exqax1NpgmpeizRA14WC2KtWvqbTSkRXrqlW9d8RTZoC52JgspST7WL7N9zQX5Xrc3JtuFm2-k4'/> <!-- Replace with actual image -->
               <h3>Mobile Chat App</h3>
               <p>Real-time messaging app built with React Native.</p>
-              <a href='projects/chat-apps/mobile-chat-simulator.html'>View Project</a>
+              <a href='https://ayoubdevx.blogspot.com/2025/10/mobile-chat-app-simulator-root-primary.html'>View Project</a>
             </div>
-            <div class='project-card'>
-              <img alt='Project 3' loading='lazy' src='project3.jpg'/> <!-- Replace with actual image -->
-              <h3>Quiz Game Maker</h3>
-              <p>The Quiz Game Maker is an appropriate game project that allows users to create interactive quizzes with scoring functionality.</p>
-              <a href='projects/games/quiz-game-maker.html'>View Project</a>
-            </div>
+            
             <!-- Add more projects -->
           </div>
         </div>
@@ -1504,55 +1472,55 @@ a.innerHTML='';
                <div class='tool-icon'>📄</div>
                <h4>PDF Compressor</h4>
                <p>Reduce PDF file size while maintaining quality</p>
-               <a class='tool-link' href='pdf-tools/pdf-compressor.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-compressor-body-font-family-poppins.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Merger</h4>
                <p>Combine multiple PDF files into one document</p>
-               <a class='tool-link' href='pdf-tools/pdf-merger.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-merger-body-font-family-poppins.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Splitter</h4>
                <p>Split PDF files into separate pages or sections</p>
-               <a class='tool-link' href='pdf-tools/pdf-splitter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-splitter-body-font-family-poppins.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Rotator</h4>
                <p>Rotate PDF pages to correct orientation</p>
-               <a class='tool-link' href='pdf-tools/pdf-rotate.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-rotate-body-font-family-poppins.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Cropper</h4>
                <p>Crop PDF pages to remove unwanted margins</p>
-               <a class='tool-link' href='pdf-tools/pdf-crop.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-crop-pdfjslib.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Page Remover</h4>
                <p>Remove specific pages from PDF documents</p>
-               <a class='tool-link' href='pdf-tools/pdf-page-remover.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-page-remover-body-font-family.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF Page Numbering</h4>
                <p>Add page numbers to PDF documents</p>
-               <a class='tool-link' href='pdf-tools/pdf-page-numbering.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-page-numbering-body-font-family.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF to Images</h4>
                <p>Convert PDF pages to image formats</p>
-               <a class='tool-link' href='pdf-tools/pdf-to-images-converter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/g.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📄</div>
                <h4>PDF to Word</h4>
                <p>Convert PDF files to editable Word documents</p>
-               <a class='tool-link' href='pdf-tools/pdf-to-word-converter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/pdf-to-word-converter-body-font-family.html'>Try Now</a>
              </div>
        </div>
 
@@ -1568,25 +1536,25 @@ a.innerHTML='';
                <div class='tool-icon'>🤖</div>
                <h4>AI PDF Summarizer</h4>
                <p>Summarize PDF documents using AI</p>
-               <a class='tool-link' href='ai-tools/ai-pdf-summarizer.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/ai-pdf-summarizer-pdfjslib.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>📝</div>
                <h4>AI Text Extractor</h4>
                <p>Extract and clean text from PDFs/images</p>
-               <a class='tool-link' href='ai-tools/ai-text-extractor.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/ai-text-extractor-pdfjslib.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>👁&#65039;</div>
                <h4>AI Image Analyzer</h4>
                <p>Describe images and extract text using AI</p>
-               <a class='tool-link' href='ai-tools/ai-image-analyzer.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/ai-image-analyzer.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>💻</div>
                <h4>AI Code Formatter</h4>
                <p>Format and optimize code with AI assistance</p>
-               <a class='tool-link' href='ai-tools/ai-code-formatter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/ai-code-formatter-body-font-family.html'>Try Now</a>
              </div>
            </div>
          </div>
@@ -1604,31 +1572,31 @@ a.innerHTML='';
                <div class='tool-icon'>🖼&#65039;</div>
                <h4>Batch Image Resizer</h4>
                <p>Resize multiple images at once</p>
-               <a class='tool-link' href='image-tools/batch-image-resizer.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/batch-image-resizer-body-font-family.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>🖼&#65039;</div>
                <h4>Image Compressor</h4>
                <p>Reduce image file size without quality loss</p>
-               <a class='tool-link' href='image-tools/image-compressor.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/image-compressor-resizer-body-font.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>🖼&#65039;</div>
                <h4>Image Format Converter</h4>
                <p>Convert between different image formats</p>
-               <a class='tool-link' href='image-tools/image-format-converter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/image-format-converter-body-font-family.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>🖼&#65039;</div>
                <h4>Image Merger</h4>
                <p>Combine multiple images into one</p>
-               <a class='tool-link' href='image-tools/image-merger.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/image-merger-body-font-family-poppins.html'>Try Now</a>
              </div>
              <div class='tool-card'>
                <div class='tool-icon'>🖼&#65039;</div>
                <h4>Image Splitter</h4>
                <p>Split images into multiple parts</p>
-               <a class='tool-link' href='image-tools/image-splitter.html'>Try Now</a>
+               <a class='tool-link' href='https://ayoubdevx.blogspot.com/2025/10/image-splitter-body-font-family-poppins.html'>Try Now</a>
              </div>
            </div>
          </div>
@@ -1762,18 +1730,7 @@ a.innerHTML='';
                <p>Create beautiful CSS gradients</p>
                <a class='tool-link' href='developer-tools/css-gradient-generator.html'>Try Now</a>
              </div>
-             <div class='tool-card'>
-               <div class='tool-icon'>💻</div>
-               <h4>E-commerce Simulator</h4>
-               <p>Simulate e-commerce functionality</p>
-               <a class='tool-link' href='developer-tools/ecommerce-simulator.html'>Try Now</a>
-             </div>
-             <div class='tool-card'>
-               <div class='tool-icon'>💬</div>
-               <h4>Mobile Chat Simulator</h4>
-               <p>Experience mobile chat app interface</p>
-               <a class='tool-link' href='developer-tools/mobile-chat-simulator.html'>Try Now</a>
-             </div>
+             
              <div class='tool-card'>
                <div class='tool-icon'>💻</div>
                <h4>File Type Converter</h4>
@@ -1931,22 +1888,20 @@ a.innerHTML='';
 
   <script>
     /*<![CDATA[*/
-    // Dark/Light Mode Toggle
-    const themeToggle = document.getElementById('themeToggle');
+    // Site defaults to dark mode
     const body = document.body;
+    body.setAttribute('data-theme', '');
 
-    // Check for saved theme preference or default to dark
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    bodyElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
-    themeToggle.textContent = currentTheme === 'light' ? '☀️' : '🌙';
+    // Language Toggle
+    const languageToggle = document.getElementById('languageToggle');
+    const currentLang = localStorage.getItem('language') || 'en';
+    languageToggle.textContent = currentLang.toUpperCase();
 
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = bodyElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? '' : 'light';
-
-      bodyElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme === 'light' ? 'light' : 'dark');
-      themeToggle.textContent = newTheme === 'light' ? '☀️' : '🌙';
+    languageToggle.addEventListener('click', () => {
+      const newLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('language', newLang);
+      setLanguage(newLang);
+      languageToggle.textContent = newLang.toUpperCase();
     });
 
     // Copy post URL function
@@ -2167,13 +2122,6 @@ a.innerHTML='';
           // Could add secondary color variable
         }
 
-        // Apply default theme
-        if (data.defaultTheme === 'light') {
-          bodyElement.setAttribute('data-theme', 'light');
-          themeToggle.textContent = '☀️';
-          localStorage.setItem('theme', 'light');
-        }
-
         // Apply custom text (would need to modify HTML elements)
         // This is limited in Blogger templates, but could work for some elements
       }
@@ -2238,7 +2186,7 @@ a.innerHTML='';
     // Language Management
     const languageSplash = document.getElementById('languageSplash');
     const langBtns = document.querySelectorAll('.lang-btn');
-    const bodyElement = document.body;
+    const body = document.body;
 
     // Language translations
     const translations = {
@@ -2335,7 +2283,7 @@ a.innerHTML='';
 
     // Set language function
     function setLanguage(lang) {
-      bodyElement.setAttribute('data-lang', lang);
+      body.setAttribute('data-lang', lang);
 
       // Update text content based on language
       updateTextContent(lang);
@@ -2343,10 +2291,10 @@ a.innerHTML='';
       // Apply RTL if Arabic
       if (lang === 'ar') {
         document.documentElement.setAttribute('dir', 'rtl');
-        bodyElement.style.direction = 'rtl';
+        body.style.direction = 'rtl';
       } else {
         document.documentElement.setAttribute('dir', 'ltr');
-        bodyElement.style.direction = 'ltr';
+        body.style.direction = 'ltr';
       }
     }
 
